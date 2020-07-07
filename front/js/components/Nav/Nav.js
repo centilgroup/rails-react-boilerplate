@@ -1,6 +1,9 @@
+
+
 import React from 'react';
-conts Nav = {props} =>{
-    rerurn (
+
+const Nav = () => { 
+    return (
     <Nav>
     <img>IDB Logo</img>
     <span>
@@ -11,3 +14,5 @@ conts Nav = {props} =>{
     </Nav>
     );
 };
+
+export default Nav
