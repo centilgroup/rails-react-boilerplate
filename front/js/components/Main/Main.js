@@ -19,8 +19,10 @@ export default class Main extends Component {
 
     return (
       <div>
+        Nav
         <h1>IDB</h1>
         <p>Welcome, {props.username}</p>
+        ProjectSelector
       </div>
     )
   }
