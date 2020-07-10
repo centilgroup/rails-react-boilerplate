@@ -1,15 +1,15 @@
 import React from 'react';
 
-const Dashboard = () => {
-    return (
-        <Dashboard>
-            <Preview />
-            <Preview />
-            <Preview />
-            <Preview />
-            <Preview />
-        </Dashboard>
-    );
+const Dashboard = (props) => {
+  return (
+    <Dashboard>
+      <Preview />
+      <Preview />
+      <Preview />
+      <Preview />
+      <Preview />
+    </Dashboard>
+  );
 };
 
-export default Dashboard; 
+export default Dashboard;

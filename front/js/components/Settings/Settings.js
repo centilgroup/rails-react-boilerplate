@@ -4,20 +4,18 @@
 
 import React from 'react';
 
-
-const Settings = () => {
+const Settings = (props) => {
   return (
     <div>
-        <img>x</img>
-        <h2>Settings</h2>
-        <h3>Projects:</h3>
-        <p>${projectNames}</p>
-        <h3>Team Members:</h3>
-        <p>${teamMemberNames}</p>
-        <h3>Username:</h3>
-        <p>${username}</p>
-        <h3>Email Address:</h3>
-        <p>${emailAddress}</p>
+      <img alt="x-out button" />
+      <h2>Settings</h2>}<h3>Projects:</h3>
+      <p>NEED</p>
+      <h3>Team Members:</h3>
+      <p>NEED</p>
+      <h3>Username:</h3>
+      <p>NEED</p>
+      <h3>Email Address:</h3>
+      <p>NEED</p>
     </div>
   );
 };
