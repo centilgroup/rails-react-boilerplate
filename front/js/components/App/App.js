@@ -3,21 +3,10 @@
  */
 
 import React, { Component } from 'react';
-<<<<<<< HEAD
-import Route, { BrowserRouter, Switch } from 'react-router-dom';
-import Login from '../Login/Login';
-import Main from '../Main/Main';
-import Settings from '../Settings/Settings';
-import Dashboard from '../Dashboard/Dashboard';
-import FlowDetails from '../FlowDetails/FlowDetails';
-import ProjectDropDown from '../ProjectDropDown/ProjectDropDown';
-import Logout from '../Logout/Logout';
-=======
 import { Route } from 'react-router-dom';
 import Login from '../Login/Login';
 import Main from '../Main/Main';
 import projects from '../Data';
->>>>>>> master
 
 export default class App extends Component {
   constructor() {
@@ -68,23 +57,6 @@ export default class App extends Component {
 
   render() {
     return (
-<<<<<<< HEAD
-      <section>
-      <Route exact path='/' render={() => <Login loginUser={this.loginUser}/>}/>
-      <Route path='/home' component={() => <Main username={this.state.username}/>}/>
-      <Route path='/project/:id' component={() => <Dashboard projectInfo={this.state.projects}/>}/>
-      <Route path='/project/:id/detail/:id' component={() => <FlowDetails/>}/>
-      </section>
-
-        <nav>
-          <Switch>
-            <Route exact path="/" component={Main}/>
-            <Route path="/projects" component={ProjectDropDown}/>
-            <Route path="/settings" component={Settings}/>
-            <Route path="/logout" component={Logout}/>
-          </Switch>
-      </nav>
-=======
       <main>
         <Route
           exact
@@ -104,7 +76,6 @@ export default class App extends Component {
           }
         />
       </main>
->>>>>>> master
     );
   }
 }
