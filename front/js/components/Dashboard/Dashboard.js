@@ -2,13 +2,11 @@ import React from 'react';
 
 const Dashboard = (props) => {
   return (
-    <Dashboard>
-      <Preview />
-      <Preview />
-      <Preview />
-      <Preview />
-      <Preview />
-    </Dashboard>
+    <main>
+      <section>
+        <p>{props.projectName}</p>
+      </section>
+    </main>
   );
 };
 

@@ -4,11 +4,15 @@
 
 import React from 'react';
 
-const ProjectDropDown = () => {
+const ProjectDropDown = (props) => {
   return (
     <div>
-      <button type="submit">project 1</button>
-      <button type="submit">project 2</button>
+      <button onClick={() => props.selectProject(1)}>
+        {props.project1name}
+      </button>
+      <button onClick={() => props.selectProject(2)}>
+        {props.project2name}
+      </button>
     </div>
   );
 };

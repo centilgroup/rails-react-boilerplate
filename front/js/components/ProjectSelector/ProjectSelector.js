@@ -1,17 +1,20 @@
 /**
- * @file App component.
+ * @file ProjectSelector component.
  */
 
 import React from 'react';
-// import App.js from 'App';
 
-const ProjectSelector = () => {
+const ProjectSelector = (props) => {
   return (
     <div>
-      <h4>Welcome! </h4>
+      <h4>Welcome, {props.username}! </h4>
       <p>please select a project to visualize its data</p>
-      <button type="button"> Project One</button>
-      <button type="button"> Project Two</button>
+      <button onClick={() => props.selectProject(1)}>
+        {props.project1name}
+      </button>
+      <button onClick={() => props.selectProject(2)}>
+        {props.project2name}
+      </button>
     </div>
   );
 };

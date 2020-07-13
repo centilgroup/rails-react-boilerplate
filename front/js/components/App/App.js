@@ -18,7 +18,7 @@ export default class App extends Component {
       teammates: [],
       userLoggedIn: false,
       settingsSelected: false,
-      projectSelection: '',
+      projectSelection: false,
       clickedProjectDropDown: false,
     };
   }
@@ -49,6 +49,10 @@ export default class App extends Component {
     this.setState({ settingsSelected: !this.state.settingsSelected });
   };
 
+  selectProject = (projectNum) => {
+    this.setState({ projectSelection: projectNum });
+  };
+
   openProjectDropDown = () => {
     this.setState({
       clickedProjectDropDown: !this.state.clickedProjectDropDown,
@@ -66,11 +70,15 @@ export default class App extends Component {
               <Login loginUser={this.loginUser} />
             ) : (
               <Main
+                projectSelection={this.state.projectSelection}
+                username={this.state.username}
+                projectInfo={this.state.projectInfo}
                 settingsSelected={this.state.settingsSelected}
                 toggleSettings={this.toggleSettings}
                 logoutUser={this.logoutUser}
                 clickedProjectDropDown={this.state.clickedProjectDropDown}
                 openProjectDropDown={this.openProjectDropDown}
+                selectProject={this.selectProject}
               />
             )
           }
