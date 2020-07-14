@@ -1,0 +1,17 @@
+<%= form_with(model: jira, local: true) do |form| %>
+  <% if jira.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(jira.errors.count, "error") %> prohibited this jira from being saved:</h2>
+
+      <ul>
+        <% jira.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

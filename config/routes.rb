@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :jiras
   get 'home/index'
   get 'home/timestamp'
 

@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Jiras</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @jiras.each do |jira| %>
+      <tr>
+        <td><%= link_to 'Show', jira %></td>
+        <td><%= link_to 'Edit', edit_jira_path(jira) %></td>
+        <td><%= link_to 'Destroy', jira, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Jira', new_jira_path %>
