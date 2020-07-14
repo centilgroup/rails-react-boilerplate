@@ -3,16 +3,24 @@
  */
 
 import React from 'react';
+import { Bar } from 'react-chartjs-2';
 
 const Preview = (props) => {
   return (
     <div>
       <h1>{props.title}</h1>
-      <p>Feature: {props.chartData.datasets.data[0]}</p>
+      <h2>{props.data}</h2>
+      {/* <Bar 
+        data={props.data}   
+        width={100}
+        height={10}
+        options={{ maintainAspectRatio: false }}
+      /> */}
+      {/* <p>Feature: {props.chartData.datasets.data[0]}</p>
       <p>Risk: {props.chartData.datasets.data[1]}</p>
       <p>Debt: {props.chartData.datasets.data[2]}</p>
       
-      <p>Defect: {props.chartData.datasets.data[3]}</p>
+      <p>Defect: {props.chartData.datasets.data[3]}</p> */}
     </div>
   );
 };

@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
 import Preview from '../Preview/Preview';
+import { Bar } from 'react-chartjs-2';
+
 
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
       labels: ['features', 'risks', 'debt', 'defect'],
-      backgroundColor: [],
+      backgroundColor: 'black',
       hoverBackgroundColor: [],
       borderColor: [],
+      loadData: [],
       // distributionChart: {
       //   labels: this.state.labels,
       //   datasets: {
@@ -27,16 +30,7 @@ export default class Dashboard extends Component {
       //     data: this.state.closeTimeData,
       //   }
       // },
-      // loadChart: {},
-      loadChart: {
-        labels: ['features', 'risks', 'debt', 'defect'],
-        datasets: {
-          label: 'Load',
-          backgroundColor: [],
-          borderColor: [],
-          data: this.calculateLoad(),
-        }
-      }
+    
       // velocityChart: {
       //   labels: this.state.labels,
       //   datasets: {
@@ -75,15 +69,60 @@ export default class Dashboard extends Component {
     const answer = info.filter(item => item.type == typeOfWork)
     return answer.length
   }
+  componentDidMount = () => {
+    this.calculateLoad()
+  }
 
   render () {
+    const loadChart = {
+      labels: ['features', 'risks', 'debt', 'defect'],
+      datasets: [
+        {
+        label: 'Load',
+        backgroundColor: [
+          '#2FB5B6',
+          '#FC5D79', 
+          '#B6E7EC', 
+          '#fda8b7'
+        ],
+        borderColor: [
+          '#2FB5B6', 
+          '#FC5D79',
+          '#B6E7EC',
+          '#fda8b7',
+          '#1F768A',
+        ],
+        borderWidth: 2,
+        data: this.calculateLoad(),
+      }
+    ]
+    }
+    console.log(loadChart)
     return (
         <section>
           <p>{this.props.projectName}</p>
           {/* <Preview title='Distribution' data={this.state.workCounts}/> */}
           {/* <Preview title='Close Time' data={this.state.workCounts}/> */}
           {/* <Preview title='Velocity' data={this.state.workCounts}/> */}
-          <Preview chartData={this.state.loadChart} title='Flow Load'/>
+          <Bar data={loadChart} options={{
+              maintainAspectRatio: true, 
+              title:{
+              display:true,
+              text:'Flow',
+              fontSize:20
+            },
+            legend:{
+              display:true,
+              position:'right'
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                  suggestedMin: 0
+                }
+              }]
+            }
+            }}/>
           {/* <Preview title='Efficiency' data={this.state.workCounts}/> */}
         </section>
     );
