@@ -4,6 +4,7 @@
 
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import 
 
 export default class Login extends Component {
   constructor() {
@@ -43,7 +44,7 @@ export default class Login extends Component {
     return (
       <article className="article-login">
       <fieldset>
-        <h1>IDB</h1>
+        <img src="../"/>
         <div className="div-login">
         <input
          className="input-login"
