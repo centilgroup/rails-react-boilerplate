@@ -12,7 +12,17 @@ export default class Dashboard extends Component {
       borderColor: [],
       loadData: [],
     };
-  }
+  };
+
+  filterTicketsDone = () => {
+    const info = this.props.projectData[0];
+    const ticketsDone = info.filter((item) => item.status == 'done');
+    //this.calculateLoad();
+  };
+
+  calculateWorkTime = () => {  
+  };
+
 
   calculateLoad = () => {
     const featureCount = this.filterByType('feature');
@@ -30,6 +40,7 @@ export default class Dashboard extends Component {
   };
   componentDidMount = () => {
     this.calculateLoad();
+    this.filterTicketsDone();
   };
 
   render() {
