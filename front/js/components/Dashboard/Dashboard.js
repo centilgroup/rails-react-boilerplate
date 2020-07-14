@@ -70,13 +70,11 @@ export default class Dashboard extends Component {
     return answer
 }
 
-
   filterByType = (typeOfWork) => {
     const info = this.props.projectData[0]
     const answer = info.filter(item => item.type == typeOfWork)
     return answer.length
   }
-
 
   render () {
     return (
