@@ -21,6 +21,15 @@ const Preview = () => {
       var $diff = $("#totalTime");
     }
 
+    $(data).ready(inProgress() {
+      var dtTime1 = getHours(), getMinutes(), getSeconds()
+      var dtTime2 = new Time("#inProgress");
+      var dtTime3 = $("#end");
+      var $diff = $("#inProgressTime");
+    }
+
+
+
     
 
   return (
@@ -30,21 +39,11 @@ const Preview = () => {
         <h5>${eficancy}</h5> 
       </chart1>
 
+    
       <chart2>
-        <h5>${velocity}</h5> 
-      </chart2>
-
-      <chart3>
         <h5>${closetime}</h5>
         debt= 
-      </chart3>
-
-      <chart4>
-        <h5>${load}</h5>
-      </chart4>
-      <chart5>
-        <h5>${distribution}</h5>
-      </chart5>
+      </chart2>
       
     </div>
   );
