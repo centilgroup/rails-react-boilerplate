@@ -4,7 +4,6 @@
 
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import 
 
 export default class Login extends Component {
   constructor() {
@@ -43,38 +42,41 @@ export default class Login extends Component {
     const { email } = this.state;
     return (
       <article className="article-login">
-      <fieldset>
-        <img src="../"/>
-        <div className="div-login">
-        <input
-         className="input-login"
-          onChange={this.handleChange}
-          value={username}
-          name="username"
-          type="text"
-          placeholder="name"
-        />
-        <input
-         className="input-login"
-          onChange={this.handleChange}
-          value={email}
-          name="email"
-          type="text"
-          placeholder="email"
-        />
-        
-        <Link to="/">
-          <button
-            className="button-login"
-            type="submit"
-            disabled={this.determineEnabled()}
-            onClick={this.handleSubmit}
-          >
-            submit
-          </button>
-        </Link>
-        </div>
-      </fieldset>
+        <fieldset>
+          <div className="div-login">
+          <img
+              className="logo"
+              src="https://user-images.githubusercontent.com/38546045/87486176-f1a5f280-c5f7-11ea-90de-1e80393d15a0.png"
+            />
+            <input
+              className="input-login"
+              onChange={this.handleChange}
+              value={username}
+              name="username"
+              type="text"
+              placeholder="name"
+            />
+            <input
+              className="input-login"
+              onChange={this.handleChange}
+              value={email}
+              name="email"
+              type="text"
+              placeholder="email"
+            />
+            <Link to="/">
+              <button
+                className="button-login"
+                type="submit"
+                disabled={this.determineEnabled()}
+                onClick={this.handleSubmit}
+              >
+                submit
+              </button>
+            </Link>
+          
+          </div>
+        </fieldset>
       </article>
     );
   }
