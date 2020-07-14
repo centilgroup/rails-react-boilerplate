@@ -72,6 +72,7 @@ export default class App extends Component {
               <Main
                 projectSelection={this.state.projectSelection}
                 username={this.state.username}
+                email={this.state.email}
                 projectInfo={this.state.projectInfo}
                 settingsSelected={this.state.settingsSelected}
                 toggleSettings={this.toggleSettings}
