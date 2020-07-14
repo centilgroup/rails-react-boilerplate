@@ -25,17 +25,17 @@ export default class Dashboard extends Component {
 
 
   calculateLoad = () => {
-    const featureCount = this.filterByType('feature');
-    const riskCount = this.filterByType('risk');
-    const debtCount = this.filterByType('debt');
-    const defectCount = this.filterByType('defect');
+    const info = this.props.projectData[0];
+    const featureCount = this.filterByType('feature', info);
+    const riskCount = this.filterByType('risk', info);
+    const debtCount = this.filterByType('debt', info);
+    const defectCount = this.filterByType('defect', info);
     let answer = [featureCount, riskCount, debtCount, defectCount];
     return answer;
   };
 
-  filterByType = (typeOfWork) => {
-    const info = this.props.projectData[0];
-    const answer = info.filter((item) => item.type == typeOfWork);
+  filterByType = (typeOfWork, tickets) => {
+    const answer = tickets.filter((item) => item.type == typeOfWork);
     return answer.length;
   };
   componentDidMount = () => {
