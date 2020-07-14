@@ -4,7 +4,6 @@
 
 import React, { Component } from 'react';
 import { Link, Redirect } from "react-router-dom";
-import React from 'react';
 import Nav from '../Nav/Nav';
 import Settings from '../Settings/Settings';
 import ProjectSelector from '../ProjectSelector/ProjectSelector';
