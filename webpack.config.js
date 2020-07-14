@@ -14,11 +14,11 @@ config.output.filename = 'js/app.js';
 config.plugins = [
   new MiniCssExtractPlugin({
     filename: 'css/app.css',
-  }),
-  new StyleLintPlugin({
-    syntax: 'scss',
-    failOnError: true,
-  }),
+  })
+  // new StyleLintPlugin({
+  //   syntax: 'scss',
+  //   failOnError: false,
+  // })
 ];
 
 config.optimization = {
