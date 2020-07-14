@@ -1,0 +1,36 @@
+$font-main: Montserrat, sans-serif;
+
+* {
+  box-sizing: border-box;
+  font-family: $font-main;
+  font-weight: 300;
+}
+
+.article-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+fieldset {
+  text-align: center;
+margin: 0;
+  margin-top: 200px;
+  width: 40%;
+}
+
+.input-login {
+  display: block;
+  margin: 10px;
+}
+
+.button-login {
+  margin: 10px;
+  width: 154px;
+  margin-top: 0px;
+}
+
+.div-login {
+  display: inline-block;
+}
+

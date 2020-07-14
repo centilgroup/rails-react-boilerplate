@@ -41,9 +41,12 @@ export default class Login extends Component {
     const { username } = this.state;
     const { email } = this.state;
     return (
+      <article className="article-login">
       <fieldset>
         <h1>IDB</h1>
+        <div className="div-login">
         <input
+         className="input-login"
           onChange={this.handleChange}
           value={username}
           name="username"
@@ -51,14 +54,17 @@ export default class Login extends Component {
           placeholder="name"
         />
         <input
+         className="input-login"
           onChange={this.handleChange}
           value={email}
           name="email"
           type="text"
           placeholder="email"
         />
+        
         <Link to="/">
           <button
+            className="button-login"
             type="submit"
             disabled={this.determineEnabled()}
             onClick={this.handleSubmit}
@@ -66,7 +72,9 @@ export default class Login extends Component {
             submit
           </button>
         </Link>
+        </div>
       </fieldset>
+      </article>
     );
   }
 }
