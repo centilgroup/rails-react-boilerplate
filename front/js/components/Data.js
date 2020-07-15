@@ -55,7 +55,7 @@ const projects = {
       ],
     },
     {
-      "Lab Ops": [
+      "Lab Operation Team": [
         {
           type: 'feature',
           title: 'feature #81',
