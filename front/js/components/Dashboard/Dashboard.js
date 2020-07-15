@@ -29,10 +29,14 @@ export default class Dashboard extends Component {
   calculateWorkTime = () => {  
     const info = this.props.projectData[0];
     this.filterTicketsDone();
+    this.filterByType();
     const totalTime = this.type('endTime' - 'startTime');
-    const averageTotalTime = this.type('totalTime' / 100);
+    const averageFetureTotalTime = this.type('totalTime' / 'featureCount');
+    const averageRiskTotalTime = this.type('totalTime' / 'riskCount');
+    const averageDebtTotalTime = this.type('totalTime' / 'debtCount');
+    const averageDefectTotalTime = this.type('totalTime' / 'defectCount');
     this.calculateLoad();
-    let answer = [AverageTotalTime];
+    let answer = [averageFeatureTotalTime, averageRiskTotalTime, averageDebtTotalTime, averageDefectTotalTime];
     return answer;
     
   };
