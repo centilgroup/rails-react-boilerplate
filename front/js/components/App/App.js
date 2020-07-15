@@ -54,6 +54,7 @@ export default class App extends Component {
   };
 
   openProjectDropDown = () => {
+    console.log('herddd')
     this.setState({
       clickedProjectDropDown: !this.state.clickedProjectDropDown,
     });

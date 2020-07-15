@@ -80,6 +80,7 @@ class Main extends Component {
               selectProject={selectProject}
               project1name={project1name}
               project2name={project2name}
+              openProjectDropDown={openProjectDropDown}
             />
           ) : null}
           {projectSelection === 1 ? (
