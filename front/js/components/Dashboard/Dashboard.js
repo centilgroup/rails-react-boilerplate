@@ -36,14 +36,18 @@ export default class Dashboard extends Component {
     return answer;
   };
 
-
   calculateVelocity = () => {
     const info = this.props.projectData[0];
     const featureVelocityCount = this.filterByTypeAndStatus('feature', info);
     const riskVelocityCount = this.filterByTypeAndStatus('risk', info);
     const debtVelocityCount = this.filterByTypeAndStatus('debt', info);
     const defectVelocityCount = this.filterByTypeAndStatus('defect', info);
-    let answer = [featureVelocityCount.length, riskVelocityCount.length, debtVelocityCount.length, defectVelocityCount.length];
+    let answer = [
+      featureVelocityCount.length,
+      riskVelocityCount.length,
+      debtVelocityCount.length,
+      defectVelocityCount.length,
+    ];
     this.setState({ velocityData: answer });
   };
 
@@ -51,8 +55,8 @@ export default class Dashboard extends Component {
     const typeFiltered = tickets.filter((item) => item.type == typeOfWork);
     const statusFiltered = typeFiltered.filter((item) => item.status == 'done');
     return statusFiltered;
-  }
- 
+  };
+
   filterByType = (typeOfWork, tickets) => {
     const answer = tickets.filter((item) => item.type == typeOfWork);
     return answer;
@@ -64,8 +68,8 @@ export default class Dashboard extends Component {
   };
 
   componentDidMount = () => {
-    this.calculateVelocity()
-  }
+    this.calculateVelocity();
+  };
 
   render() {
     const loadChart = {
@@ -83,35 +87,53 @@ export default class Dashboard extends Component {
     return (
       <section>
         <h2>{this.props.projectName}</h2>
-        <Bar
-          data={loadChart}
-          options={{
-            maintainAspectRatio: true,
-            title: {
-              display: true,
-              text: 'Load',
-              fontSize: 20,
-            },
-            legend: {
-              display: true,
-              position: 'right',
-            },
-            scales: {
-              yAxes: [
-                {
-                  ticks: {
-                    suggestedMin: 0,
+        <div className="dashboard-preview-div-bar">
+          <Bar
+            data={loadChart}
+            options={{
+              maintainAspectRatio: true,
+              title: {
+                display: true,
+                text: 'Load',
+                fontSize: 20,
+              },
+              legend: {
+                display: true,
+                position: 'right',
+              },
+              scales: {
+                yAxes: [
+                  {
+                    ticks: {
+                      suggestedMin: 0,
+                    },
                   },
-                },
-              ],
-            },
-          }}
-        />
-        <h2>Velocity</h2>
-        <h5>Features: {this.state.velocityData[0]}</h5>
-        <h5>Risks: {this.state.velocityData[1]}</h5>
-        <h5>Debts: {this.state.velocityData[2]}</h5>
-        <h5>Defects: {this.state.velocityData[3]}</h5>
+                ],
+              },
+            }}
+          />
+        </div>
+        <section className="dashboard-preview-velocity">
+                  <h2 className="dashboard-preview-header">Velocity</h2>
+        <div className="dashboard-preview-div-nums">
+          <div className="dashbboard-preview-div-num">
+            <h3 className="features">{this.state.velocityData[0]}</h3>
+            <h5>Features</h5>
+          </div>
+          <div className="dashbboard-preview-div-num">
+            <h3 className="risks">{this.state.velocityData[1]}</h3>
+            <h5>Risks</h5>
+          </div>
+          <div className="dashbboard-preview-div-num">
+            <h3 className="debts">{this.state.velocityData[2]}</h3>
+            <h5>Debts</h5>
+          </div>
+          <div className="dashbboard-preview-div-num">
+            <h3 className="defects">{this.state.velocityData[3]}</h3>
+            <h5>Defects</h5>
+          </div>
+        </div>
+        </section>
       </section>
     );
   }

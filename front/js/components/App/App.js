@@ -43,6 +43,7 @@ export default class App extends Component {
 
   clearProject = () => {
     this.setState({ projectInfo: {} });
+    this.setState({projectSelection: false})
   };
 
   toggleSettings = () => {
@@ -54,7 +55,6 @@ export default class App extends Component {
   };
 
   openProjectDropDown = () => {
-    console.log('herddd')
     this.setState({
       clickedProjectDropDown: !this.state.clickedProjectDropDown,
     });

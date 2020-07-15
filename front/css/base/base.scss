@@ -252,5 +252,42 @@ font-weight: 700;
 
 .project-drop-close:hover{
   filter: invert(40%)
-
  }
+
+.dashboard-preview-div-bar {
+  height:40vh;
+  width:40vw;
+}
+
+.features, .risks, .debts, .defects{
+  font-size: 44px;
+}
+
+.features {
+  color: $color-mid-dark-blue
+}
+
+.risks {
+ color: $color-light-blue
+}
+
+.debts{
+color: $color-mid-blue
+}
+
+.defects{
+color: $color-mid-light-blue
+}
+
+.dashboard-preview-velocity {
+  text-align: center;
+}
+
+.dashboard-preview-div-nums {
+  width: 40vw;
+  height: 40vh;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: 50% 50%;
+  text-align: center;
+}
