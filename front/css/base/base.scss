@@ -154,3 +154,48 @@ nav {
   display: flex;
   flex-direction: row;
 }
+
+
+.settings-div-outer {
+  position: fixed;  
+  width: 60%;  
+  height: 60%;  
+  top: 0;  
+  left: 0;  
+  right: 0;  
+  bottom: 0;  
+  margin: auto;
+  border-radius: 4px; 
+  background-color: $color-dark-blue;  
+  color: $color-dark-blue
+}
+
+.settings-div-inner {  
+  position: absolute;  
+  left: 2%;  
+  right: 2%;  
+  top: 2%;  
+  bottom: 2%;  
+  margin: auto;  
+  border-radius: 4px;  
+  background: white;  
+  color: $color-dark-blue;
+  padding: 20px;
+}
+
+.settings-header {
+  font-size: 24px;
+  text-align: center;
+  color: $color-dark-blue
+
+}
+
+.settings-inline-span {
+font-weight: 700;
+}
+
+.setting-close {
+  height: 30px;
+  float: right;
+
+}

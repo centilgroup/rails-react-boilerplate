@@ -71,6 +71,8 @@ class Main extends Component {
               project2name={project2name}
               project1data={project1data}
               project2data={project2data}
+              toggleSettings={toggleSettings}
+
             /> 
           ): null}
           {clickedProjectDropDown ? (
