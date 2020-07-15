@@ -20,40 +20,21 @@ export default class Dashboard extends Component {
     const riskCount = this.filterByType('risk', info);
     const debtCount = this.filterByType('debt', info);
     const defectCount = this.filterByType('defect', info);
-
-    const featuresInProgress = this.filterbyStatus(featureCount, 'inProgress')
-    const risksInProgress = this.filterbyStatus(riskCount, 'inProgress')
-    const debtsInProgress = this.filterbyStatus(debtCount, 'inProgress')
-    const defectsInProgress = this.filterbyStatus(defectCount, 'inProgress')
-
-    const featuresInReview = this.filterbyStatus(featureCount, 'inReview')
-    const risksInReview = this.filterbyStatus(riskCount, 'inReview')
-    const debtsInReview = this.filterbyStatus(debtCount, 'inReview')
-    const defectsInReview = this.filterbyStatus(defectCount, 'inReview')
-
-    const features = featuresInProgress.length + featuresInReview.length
-    const risks = risksInProgress.length + risksInReview.length
-    const debts = debtsInProgress.length + debtsInReview.length
-    const defects = defectsInProgress.length + defectsInReview.length
+    const featuresInProgress = this.filterbyStatus(featureCount, 'inProgress');
+    const risksInProgress = this.filterbyStatus(riskCount, 'inProgress');
+    const debtsInProgress = this.filterbyStatus(debtCount, 'inProgress');
+    const defectsInProgress = this.filterbyStatus(defectCount, 'inProgress');
+    const featuresInReview = this.filterbyStatus(featureCount, 'inReview');
+    const risksInReview = this.filterbyStatus(riskCount, 'inReview');
+    const debtsInReview = this.filterbyStatus(debtCount, 'inReview');
+    const defectsInReview = this.filterbyStatus(defectCount, 'inReview');
+    const features = featuresInProgress.length + featuresInReview.length;
+    const risks = risksInProgress.length + risksInReview.length;
+    const debts = debtsInProgress.length + debtsInReview.length;
+    const defects = defectsInProgress.length + defectsInReview.length;
     let answer = [features, risks, debts, defects];
     return answer;
   };
-
-  // calculateVelocity = () => {
-  //   const featureVelocityCount = this.filterByTypeAndStatus('feature');
-  //   const riskVelocityCount = this.filterByTypeAndStatus('risk');
-  //   const debtVelocityCount = this.filterByTypeAndStatus('debt');
-  //   const defectVelocityCount = this.filterByTypeAndStatus('defect');
-  //   let answer = [featureVelocityCount, riskVelocityCount, debtVelocityCount, defectVelocityCount];
-  //   return answer;
-  // };
-
-  // filterByTypeAndStatus = (typeOfWork) => {
-  //   const info = this.props.projectData[0];
-  //   const typeFiltered = info.filter((item) => item.type == typeOfWork);
-  //   const statusFiltered = typeFiltered.filter((item) => item.status == 'backlog' || item.status == 'done');
-  //   return statusFiltered.length;
-  // }
 
   filterByType = (typeOfWork, tickets) => {
     const answer = tickets.filter((item) => item.type == typeOfWork);
@@ -63,10 +44,6 @@ export default class Dashboard extends Component {
   filterbyStatus = (tickets, statusLevel) => {
     const statusFiltered = tickets.filter((item) => item.status == statusLevel);
     return statusFiltered;
-  }
-
-  componentDidMount = () => {
-    this.calculateLoad();
   };
 
   render() {
@@ -109,8 +86,6 @@ export default class Dashboard extends Component {
             },
           }}
         />
-         {/* {/* <h2>Velocity</h2> */}
-        {/* <h5>Feature: {this.calculateVelocity()[0]} Risk: {this.calculateVelocity()[1]} Debt: {this.calculateVelocity()[2]} Defect: {this.calculateVelocity()[3]}</h5> */} */}
       </section>
     );
   }
