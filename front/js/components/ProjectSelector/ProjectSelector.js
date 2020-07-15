@@ -11,15 +11,16 @@ const ProjectSelector = (props) => {
       <h4 className="project-selector-h4">Welcome, {props.username}!</h4>
       <section className="project-selector-project-section">
       <article className="project-selector-project-article">
-        <img className="project-selector-preview" src='https://user-images.githubusercontent.com/38546045/87496103-27ef6c00-c610-11ea-92b7-e1c466b64dd2.png'/>
+        <img onClick={() => props.selectProject(1)} className="project-selector-preview" src='https://user-images.githubusercontent.com/38546045/87496103-27ef6c00-c610-11ea-92b7-e1c466b64dd2.png'/>
       <button 
         className="project-selector-button"
         onClick={() => props.selectProject(1)}>
         {props.project1name}
       </button>
       </article>
-      <article className="project-selector-project-article">
-      <img className="project-selector-preview" src='https://user-images.githubusercontent.com/38546045/87496103-27ef6c00-c610-11ea-92b7-e1c466b64dd2.png'/>
+      <article className="project-selector-project-article"
+      >
+      <img onClick={() => props.selectProject(2)} className="project-selector-preview" src='https://user-images.githubusercontent.com/38546045/87496103-27ef6c00-c610-11ea-92b7-e1c466b64dd2.png'/>
       <button 
         className="project-selector-button"
         onClick={() => props.selectProject(2)}>
