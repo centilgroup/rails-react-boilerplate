@@ -36,6 +36,23 @@ export default class Dashboard extends Component {
     return answer;
   };
 
+
+  calculateVelocity = () => {
+    const info = this.props.projectData[0];
+    const featureVelocityCount = this.filterByTypeAndStatus('feature', info);
+    const riskVelocityCount = this.filterByTypeAndStatus('risk', info);
+    const debtVelocityCount = this.filterByTypeAndStatus('debt', info);
+    const defectVelocityCount = this.filterByTypeAndStatus('defect', info);
+    let answer = [featureVelocityCount.length, riskVelocityCount.length, debtVelocityCount.length, defectVelocityCount.length];
+    this.setState({ velocityData: answer });
+  };
+
+  filterByTypeAndStatus = (typeOfWork, tickets) => {
+    const typeFiltered = tickets.filter((item) => item.type == typeOfWork);
+    const statusFiltered = typeFiltered.filter((item) => item.status == 'done');
+    return statusFiltered;
+  }
+ 
   filterByType = (typeOfWork, tickets) => {
     const answer = tickets.filter((item) => item.type == typeOfWork);
     return answer;
@@ -45,6 +62,10 @@ export default class Dashboard extends Component {
     const statusFiltered = tickets.filter((item) => item.status == statusLevel);
     return statusFiltered;
   };
+
+  componentDidMount = () => {
+    this.calculateVelocity()
+  }
 
   render() {
     const loadChart = {
@@ -86,6 +107,11 @@ export default class Dashboard extends Component {
             },
           }}
         />
+        <h2>Velocity</h2>
+        <h5>Features: {this.state.velocityData[0]}</h5>
+        <h5>Risks: {this.state.velocityData[1]}</h5>
+        <h5>Debts: {this.state.velocityData[2]}</h5>
+        <h5>Defects: {this.state.velocityData[3]}</h5>
       </section>
     );
   }
