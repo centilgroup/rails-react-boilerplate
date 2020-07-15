@@ -8,7 +8,7 @@ import { Bar } from 'react-chartjs-2';
 const Preview = (props) => {
   return (
     <div>
-      <h1>{props.title}</h1>
+      <h1>{props.closeTimeChart}</h1>
       <h2>{props.data}</h2>
       {/* <Bar 
         data={props.data}   

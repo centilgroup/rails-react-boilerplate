@@ -20,9 +20,22 @@ export default class Dashboard extends Component {
     //this.calculateLoad();
   };
 
-  calculateWorkTime = () => {  
+  filterTicketsDone = () => {
+    const info = this.props.projectData[0];
+    const ticketsDone = info.filter((item) => item.status == 'done');
+    //this.calculateLoad();
   };
 
+  calculateWorkTime = () => {  
+    const info = this.props.projectData[0];
+    this.filterTicketsDone();
+    const totalTime = this.type('endTime' - 'startTime');
+    const averageTotalTime = this.type('totalTime' / 100);
+    this.calculateLoad();
+    let answer = [AverageTotalTime];
+    return answer;
+    
+  };
 
   calculateLoad = () => {
     const info = this.props.projectData[0];
@@ -34,38 +47,35 @@ export default class Dashboard extends Component {
     return answer;
   };
 
-<<<<<<< HEAD
+
   filterByType = (typeOfWork, tickets) => {
     const answer = tickets.filter((item) => item.type == typeOfWork);
-=======
-  calculateVelocity = () => {
-    const featureVelocityCount = this.filterByTypeAndStatus('feature');
-    const riskVelocityCount = this.filterByTypeAndStatus('risk');
-    const debtVelocityCount = this.filterByTypeAndStatus('debt');
-    const defectVelocityCount = this.filterByTypeAndStatus('defect');
-    let answer = [featureVelocityCount, riskVelocityCount, debtVelocityCount, defectVelocityCount];
-    return answer;
-  };
-
-  filterByTypeAndStatus = (typeOfWork) => {
-    const info = this.props.projectData[0];
-    const typeFiltered = info.filter((item) => item.type == typeOfWork);
-    const statusFiltered = typeFiltered.filter((item) => item.status == 'backlog' || item.status == 'done');
-    return statusFiltered.length;
-  }
- 
-  filterByType = (typeOfWork) => {
-    const info = this.props.projectData[0];
-    const answer = info.filter((item) => item.type == typeOfWork);
->>>>>>> master
     return answer.length;
   };
+
   componentDidMount = () => {
     this.calculateLoad();
+
     this.filterTicketsDone();
+    
+    this.calculateWorkTime();
   };
 
   render() {
+
+    const closeTimeChart = {
+      labels: ['features', 'risks', 'debt', 'defect'],
+      datasets: [
+        {
+          label: 'close Time',
+          backgroundColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+          borderColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+          borderWidth: 2,
+          data: this.calculateWorkTime(),
+        },
+      ],
+    };
+
     const loadChart = {
       labels: ['features', 'risks', 'debt', 'defect'],
       datasets: [
@@ -106,8 +116,8 @@ export default class Dashboard extends Component {
             },
           }}
         />
-        <h2>Velocity</h2>
-        <h5>Feature: {this.calculateVelocity()[0]} Risk: {this.calculateVelocity()[1]} Debt: {this.calculateVelocity()[2]} Defect: {this.calculateVelocity()[3]}</h5>
+        Feature: {this.calculateWorkTime()[0]} Risk: {this.calculateWorkTime()[1]} Debt: {this.calculateWorkTime()[2]} Defect: {this.calculateWorkTime()[3]
+
       </section>
     );
   }
