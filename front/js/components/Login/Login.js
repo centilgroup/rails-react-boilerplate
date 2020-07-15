@@ -45,7 +45,7 @@ export default class Login extends Component {
         <fieldset>
           <div className="div-login">
           <img
-              className="logo"
+              className="logo-login"
               src="https://user-images.githubusercontent.com/38546045/87486176-f1a5f280-c5f7-11ea-90de-1e80393d15a0.png"
             />
             <input
@@ -71,7 +71,7 @@ export default class Login extends Component {
                 disabled={this.determineEnabled()}
                 onClick={this.handleSubmit}
               >
-                submit
+                login
               </button>
             </Link>
           
