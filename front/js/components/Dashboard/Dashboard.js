@@ -38,20 +38,20 @@ export default class Dashboard extends Component {
 
   calculateVelocity = () => {
     const info = this.props.projectData[0];
-    const featureVelocityCount = this.filterByTypeAndStatus('feature', info);
-    const riskVelocityCount = this.filterByTypeAndStatus('risk', info);
-    const debtVelocityCount = this.filterByTypeAndStatus('debt', info);
-    const defectVelocityCount = this.filterByTypeAndStatus('defect', info);
+    const featuresDone = this.filterByTypeAndDoneStatus('feature', info);
+    const risksDone = this.filterByTypeAndDoneStatus('risk', info);
+    const debtsDone = this.filterByTypeAndDoneStatus('debt', info);
+    const defectsDone = this.filterByTypeAndDoneStatus('defect', info);
     let answer = [
-      featureVelocityCount.length,
-      riskVelocityCount.length,
-      debtVelocityCount.length,
-      defectVelocityCount.length,
+      featuresDone.length,
+      risksDone.length,
+      debtsDone.length,
+      defectsDone.length,
     ];
     this.setState({ velocityData: answer });
   };
 
-  filterByTypeAndStatus = (typeOfWork, tickets) => {
+  filterByTypeAndDoneStatus = (typeOfWork, tickets) => {
     const typeFiltered = tickets.filter((item) => item.type == typeOfWork);
     const statusFiltered = typeFiltered.filter((item) => item.status == 'done');
     return statusFiltered;
@@ -67,11 +67,64 @@ export default class Dashboard extends Component {
     return statusFiltered;
   };
 
-  componentDidMount = () => {
-    this.calculateVelocity();
+
+ 
+
+
+
+  calculateWorkTime = () => {  
+    const info = this.props.projectData[0];
+    const defectsDone = this.filterByTypeAndDoneStatus('defect', info);
+    const defectTimes = this.parseDates(defectsDone)
+    const defectsCloseTime = this.calculateAverageCloseTime(defectTimes);
   };
 
+  parseDates = (tickets) => {
+    const answer = tickets.map(ticket => {
+      return {
+        timeMovedToStart: new Date(ticket.timeMovedToStart),
+        timeMovedToDone: new Date(ticket.timeMovedToDone)
+      }
+    })
+    return answer
+  }
+
+  calculateAverageCloseTime = (tickets) => {
+  const times = tickets.map(ticket => this.calculateTimeDifference(ticket))
+  console.log(times)
+    // const totalTime = times.reduce((total, ticketTime) =>{
+    //   return total += ticketTime
+    // }, 0)
+    // const average = totalTime/tickets.length
+    // return average
+  }
+    
+
+
+  calculateTimeDifference = (ticket) => {
+    let diffInMilliSeconds = Math.abs(ticket.timeMovedToDone - ticket.timeMovedToStart) / 1000;
+    console.log(diffInMilliSeconds)
+    const days = Math.floor(diffInMilliSeconds / 864000);
+    diffInMilliSeconds -= days * 86400;
+    const hours = Math.floor(diffInMilliSeconds / 3600) % 24;
+    diffInMilliSeconds -= hours * 3600;
+    const minutes = Math.floor(diffInMilliSeconds / 60) % 60;
+    diffInMilliSeconds -= minutes * 60;
+    return {
+      days: `${days}`,
+      hours: `${hours}`,
+      minutes: `${minutes}`
+    } 
+  }
+
+  
+
+
+
+
+
   render() {
+
     const loadChart = {
       labels: ['features', 'risks', 'debt', 'defect'],
       datasets: [
@@ -84,6 +137,22 @@ export default class Dashboard extends Component {
         },
       ],
     };
+
+
+    const closeTimeChart = 
+    {
+      labels: ['features', 'risks', 'debt', 'defect'],
+      datasets: [
+        {
+          label: 'Load',
+          backgroundColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+          borderColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+          borderWidth: 2,
+          data: this.calculateWorkTime(),
+        },
+      ],
+    };
+
     return (
       <section>
         <h2>{this.props.projectName}</h2>
@@ -113,6 +182,36 @@ export default class Dashboard extends Component {
             }}
           />
         </div>
+
+
+        <div className="dashboard-preview-div-bar">
+          <Bar
+            data={closeTimeChart}
+            options={{
+              maintainAspectRatio: true,
+              title: {
+                display: true,
+                text: 'Close Time',
+                fontSize: 20,
+              },
+              legend: {
+                display: true,
+                position: 'right',
+              },
+              scales: {
+                yAxes: [
+                  {
+                    ticks: {
+                      suggestedMin: 0,
+                    },
+                  },
+                ],
+              },
+            }}
+          />
+        </div>
+
+
         <section className="dashboard-preview-velocity">
                   <h2 className="dashboard-preview-header">Velocity</h2>
         <div className="dashboard-preview-div-nums">

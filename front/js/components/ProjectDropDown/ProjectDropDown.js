@@ -6,7 +6,6 @@ import React from 'react';
 
 const ProjectDropDown = (props) => {
   const { openProjectDropDown } = props;
-  console.log(openProjectDropDown)
   return (
     <div className="project-drop-div-outer">
     <div className="project-drop-div-inner">
