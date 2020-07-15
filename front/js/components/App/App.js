@@ -15,7 +15,6 @@ export default class App extends Component {
       username: '',
       email: '',
       projectInfo: {},
-      teammates: [],
       userLoggedIn: false,
       settingsSelected: false,
       projectSelection: false,
@@ -59,6 +58,7 @@ export default class App extends Component {
       clickedProjectDropDown: !this.state.clickedProjectDropDown,
     });
   };
+
 
   render() {
     return (

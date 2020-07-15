@@ -11,6 +11,7 @@ const Nav = (props) => {
         <img
           className="logo-nav"
           src="https://user-images.githubusercontent.com/38546045/87486176-f1a5f280-c5f7-11ea-90de-1e80393d15a0.png"
+        
         />
       </Link>
       <span>

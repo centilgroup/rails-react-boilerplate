@@ -12,25 +12,13 @@ class Settings extends Component {
     };
   }
 
-  getTeam = () => {
-    const team1 = this.props.project1data[0].map((project) => project.assignee);
-    const team2 = this.props.project2data[0].map((project) => project.assignee);
-    const teams = [...team1, ...team2];
-    const teamsNoDupes = teams.reduce((a, b) => {
-      if (a.indexOf(b) < 0) a.push(b);
-      return a;
-    }, []);
-    const noUnassigned = teamsNoDupes.filter(
-      (member) => member !== 'unassigned',
-    );
-    this.setState({ teamMembers: noUnassigned });
-  };
+
 
   displayTeamMembers = () => {
-    return this.state.teamMembers.map((member, index) => {
+    return this.props.teamMembers.map((member, index) => {
       return (
         <div key={index}>
-          <p key={index}>{member}</p>
+          <li key={index}>{member}</li>
         </div>
       );
     });
@@ -51,7 +39,9 @@ class Settings extends Component {
             <li>{this.props.project2name}</li>
           </ul>
           <h3 className="settings-inline-span">Team Members:</h3>
-          
+          <ul>
+          {this.displayTeamMembers()}
+          </ul>
         </div>
       </div>
     );
