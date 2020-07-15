@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Preview from '../Preview/Preview';
 import { Bar } from 'react-chartjs-2';
 
 export default class Dashboard extends Component {
@@ -11,23 +10,61 @@ export default class Dashboard extends Component {
       hoverBackgroundColor: [],
       borderColor: [],
       loadData: [],
+      velocityData: [],
     };
   }
 
   calculateLoad = () => {
-    const featureCount = this.filterByType('feature');
-    const riskCount = this.filterByType('risk');
-    const debtCount = this.filterByType('debt');
-    const defectCount = this.filterByType('defect');
-    let answer = [featureCount, riskCount, debtCount, defectCount];
+    const info = this.props.projectData[0];
+    const featureCount = this.filterByType('feature', info);
+    const riskCount = this.filterByType('risk', info);
+    const debtCount = this.filterByType('debt', info);
+    const defectCount = this.filterByType('defect', info);
+
+    const featuresInProgress = this.filterbyStatus(featureCount, 'inProgress')
+    const risksInProgress = this.filterbyStatus(riskCount, 'inProgress')
+    const debtsInProgress = this.filterbyStatus(debtCount, 'inProgress')
+    const defectsInProgress = this.filterbyStatus(defectCount, 'inProgress')
+
+    const featuresInReview = this.filterbyStatus(featureCount, 'inReview')
+    const risksInReview = this.filterbyStatus(riskCount, 'inReview')
+    const debtsInReview = this.filterbyStatus(debtCount, 'inReview')
+    const defectsInReview = this.filterbyStatus(defectCount, 'inReview')
+
+    const features = featuresInProgress.length + featuresInReview.length
+    const risks = risksInProgress.length + risksInReview.length
+    const debts = debtsInProgress.length + debtsInReview.length
+    const defects = defectsInProgress.length + defectsInReview.length
+    let answer = [features, risks, debts, defects];
     return answer;
   };
 
-  filterByType = (typeOfWork) => {
-    const info = this.props.projectData[0];
-    const answer = info.filter((item) => item.type == typeOfWork);
-    return answer.length;
+  // calculateVelocity = () => {
+  //   const featureVelocityCount = this.filterByTypeAndStatus('feature');
+  //   const riskVelocityCount = this.filterByTypeAndStatus('risk');
+  //   const debtVelocityCount = this.filterByTypeAndStatus('debt');
+  //   const defectVelocityCount = this.filterByTypeAndStatus('defect');
+  //   let answer = [featureVelocityCount, riskVelocityCount, debtVelocityCount, defectVelocityCount];
+  //   return answer;
+  // };
+
+  // filterByTypeAndStatus = (typeOfWork) => {
+  //   const info = this.props.projectData[0];
+  //   const typeFiltered = info.filter((item) => item.type == typeOfWork);
+  //   const statusFiltered = typeFiltered.filter((item) => item.status == 'backlog' || item.status == 'done');
+  //   return statusFiltered.length;
+  // }
+
+  filterByType = (typeOfWork, tickets) => {
+    const answer = tickets.filter((item) => item.type == typeOfWork);
+    return answer;
   };
+
+  filterbyStatus = (tickets, statusLevel) => {
+    const statusFiltered = tickets.filter((item) => item.status == statusLevel);
+    return statusFiltered;
+  }
+
   componentDidMount = () => {
     this.calculateLoad();
   };
@@ -47,14 +84,14 @@ export default class Dashboard extends Component {
     };
     return (
       <section>
-        <p>{this.props.projectName}</p>
+        <h2>{this.props.projectName}</h2>
         <Bar
           data={loadChart}
           options={{
             maintainAspectRatio: true,
             title: {
               display: true,
-              text: 'Flow',
+              text: 'Load',
               fontSize: 20,
             },
             legend: {
@@ -72,6 +109,8 @@ export default class Dashboard extends Component {
             },
           }}
         />
+         {/* {/* <h2>Velocity</h2> */}
+        {/* <h5>Feature: {this.calculateVelocity()[0]} Risk: {this.calculateVelocity()[1]} Debt: {this.calculateVelocity()[2]} Defect: {this.calculateVelocity()[3]}</h5> */} */}
       </section>
     );
   }
