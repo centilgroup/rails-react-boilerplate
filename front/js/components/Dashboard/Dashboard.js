@@ -34,8 +34,30 @@ export default class Dashboard extends Component {
     return answer;
   };
 
+<<<<<<< HEAD
   filterByType = (typeOfWork, tickets) => {
     const answer = tickets.filter((item) => item.type == typeOfWork);
+=======
+  calculateVelocity = () => {
+    const featureVelocityCount = this.filterByTypeAndStatus('feature');
+    const riskVelocityCount = this.filterByTypeAndStatus('risk');
+    const debtVelocityCount = this.filterByTypeAndStatus('debt');
+    const defectVelocityCount = this.filterByTypeAndStatus('defect');
+    let answer = [featureVelocityCount, riskVelocityCount, debtVelocityCount, defectVelocityCount];
+    return answer;
+  };
+
+  filterByTypeAndStatus = (typeOfWork) => {
+    const info = this.props.projectData[0];
+    const typeFiltered = info.filter((item) => item.type == typeOfWork);
+    const statusFiltered = typeFiltered.filter((item) => item.status == 'backlog' || item.status == 'done');
+    return statusFiltered.length;
+  }
+ 
+  filterByType = (typeOfWork) => {
+    const info = this.props.projectData[0];
+    const answer = info.filter((item) => item.type == typeOfWork);
+>>>>>>> master
     return answer.length;
   };
   componentDidMount = () => {
@@ -84,6 +106,8 @@ export default class Dashboard extends Component {
             },
           }}
         />
+        <h2>Velocity</h2>
+        <h5>Feature: {this.calculateVelocity()[0]} Risk: {this.calculateVelocity()[1]} Debt: {this.calculateVelocity()[2]} Defect: {this.calculateVelocity()[3]}</h5>
       </section>
     );
   }

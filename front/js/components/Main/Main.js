@@ -33,6 +33,7 @@ class Main extends Component {
       settingsSelected,
       clickedProjectDropDown,
       username,
+      email,
       logoutUser,
       toggleSettings,
       openProjectDropDown,
@@ -62,7 +63,16 @@ class Main extends Component {
               project2name={project2name}
             />
           ) : null}
-          {settingsSelected ? <Settings /> : null}
+          {settingsSelected ? (
+            <Settings 
+              username={username} 
+              email={email} 
+              project1name={project1name}
+              project2name={project2name}
+              project1data={project1data}
+              project2data={project2data}
+            /> 
+          ): null}
           {clickedProjectDropDown ? (
             <ProjectDropDown
               selectProject={selectProject}
