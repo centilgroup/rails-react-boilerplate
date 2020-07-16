@@ -7,6 +7,7 @@ import { Route } from 'react-router-dom';
 import Login from '../Login/Login';
 import Main from '../Main/Main';
 import projects from '../Data';
+import fetchProjectData from '../apiCall';
 
 export default class App extends Component {
   constructor() {
@@ -42,7 +43,7 @@ export default class App extends Component {
 
   clearProject = () => {
     this.setState({ projectInfo: {} });
-    this.setState({projectSelection: false})
+    this.setState({ projectSelection: false });
   };
 
   toggleSettings = () => {
@@ -58,7 +59,6 @@ export default class App extends Component {
       clickedProjectDropDown: !this.state.clickedProjectDropDown,
     });
   };
-
 
   render() {
     return (

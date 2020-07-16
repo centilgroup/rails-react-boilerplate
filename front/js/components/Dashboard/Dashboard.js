@@ -185,24 +185,19 @@ export default class Dashboard extends Component {
                   display: true,
                   text: 'Distribution',
                   fontSize: 20,
+                  fontFamily: 'Montserrat',
                 },
                 legend: {
                   display: true,
                   position: 'right',
                   labels: {
                     fontColor: '#07165e',
-                    defaultFontFamily: 'verdana'
-                  }
+                    defaultFontFamily: 'Montserrat',
+                  },
                 },
               }}
             />
           </div>
-
-
-
-
-
-
 
           <section className="dashboard-preview-close">
             <h2 className="dashboard-preview-header">Close Times</h2>

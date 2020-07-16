@@ -26,43 +26,43 @@ a {
 }
 
 .article-login {
-  display: flex;
   align-items: center;
+  display: flex;
   justify-content: center;
 }
 
 fieldset {
-  text-align: center;
-  margin: 0;
-  margin-top: 200px;
-  width: 40%;
-  height: 450px;
   background: $color-dark-blue;
-  border: none;
   border-radius: 4px;
+  border: none;
+  height: 450px;
+  margin-top: 200px;
+  margin: 0;
+  text-align: center;
+  width: 40%;
 }
 
 .input-login {
-  display: block;
-  margin: 10px;
-  width: 93%;
-  height: 40px;
   border-radius: 4px;
   border: none;
+  display: block;
+  height: 40px;
+  margin: 10px;
+  width: 93%;
 }
 
 .input-login::placeholder {
-  padding: 10px;
   font-size: 16px;
+  padding: 10px;
 }
 
 .button-login {
+  border-radius: 4px;
+  border: none;
+  font-size: 16px;
+  height: 40px;
   margin: 0px 0px 10px -1px;
   width: 93%;
-  height: 40px;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
 }
 
 .button-login:hover:enabled {
@@ -80,23 +80,23 @@ fieldset {
 }
 
 nav {
-  min-height: 10vh;
-  height: 13vh;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin: 0px 0px 0px 0px;
-  padding: 10px 10px 10px 10px;
-  color: white;
   background-color: $color-dark-blue;
+  color: white;
+  display: flex;
+  height: 13vh;
+  justify-content: space-between;
+  margin: 0px 0px 0px 0px;
+  min-height: 10vh;
+  padding: 10px 10px 10px 10px;
+  width: 100%;
 }
 
 .button-nav {
   background-color: $color-dark-blue;
   border: none;
-  font-size: 16px;
   color: white;
+  font-size: 16px;
   margin: 10px;
 }
 
@@ -105,28 +105,28 @@ nav {
 }
 
 .project-selector-section {
-  width: 50%;
-  max-height: 70vh;
-  margin: 100px 10px 10px 10px;
-  display: inline-block;
   background-color: $color-light-blue;
   border-radius: 4px;
+  display: inline-block;
+  margin: 100px 10px 10px 10px;
+  max-height: 70vh;
+  width: 50%;
 }
 
 .project-selector-h4 {
-  font-size: 24px;
   color: $color-dark-blue;
+  font-size: 24px;
 }
 
 .project-selector-h3 {
-  font-size: 14px;
   color: $color-dark-blue;
+  font-size: 14px;
 }
 
 .project-selector-project-article {
+  border-radius: 4px;
   display: flex;
   flex-direction: column;
-  border-radius: 4px;
   margin: 20px 20px 20px 20px;
 }
 
@@ -136,17 +136,17 @@ nav {
 
 .project-selector-button {
   background-color: $color-light-blue;
-  font-size: 22px;
-  color: $color-dark-blue;
-  margin: 30px;
   border: none;
+  color: $color-dark-blue;
+  font-size: 22px;
+  margin: 30px;
   padding: 10px;
 }
 
 .project-selector-preview {
-  width: 70%;
-  margin: auto;
   filter: grayscale(1) invert(1);
+  margin: auto;
+  width: 70%;
 }
 
 .project-selector-project-section {
@@ -155,36 +155,36 @@ nav {
 }
 
 .settings-div-outer {
-  position: fixed;
-  width: 60%;
-  height: 60%;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: auto;
-  border-radius: 4px;
   background-color: $color-dark-blue;
+  border-radius: 4px;
+  bottom: 0;
   color: $color-dark-blue;
+  height: 60%;
+  left: 0;
+  margin: auto;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 60%;
 }
 
 .settings-div-inner {
-  position: absolute;
+  background: white;
+  border-radius: 4px;
+  bottom: 2%;
+  color: $color-dark-blue;
   left: 2%;
+  margin: auto;
+  padding: 20px;
+  position: absolute;
   right: 2%;
   top: 2%;
-  bottom: 2%;
-  margin: auto;
-  border-radius: 4px;
-  background: white;
-  color: $color-dark-blue;
-  padding: 20px;
 }
 
 .settings-header {
+  color: $color-dark-blue;
   font-size: 24px;
   text-align: center;
-  color: $color-dark-blue;
 }
 
 .settings-inline-span {
@@ -192,8 +192,8 @@ nav {
 }
 
 .setting-close {
-  height: 30px;
   float: right;
+  height: 30px;
 }
 
 .settings-close:hover {
@@ -201,39 +201,39 @@ nav {
 }
 
 .project-drop-div-outer {
-  position: fixed;
-  width: 20%;
-  height: 20%;
-  top: 0;
-  right: 0;
-  margin: 13vh 13vh 13vh 13vh;
-  border-radius: 4px;
   background-color: $color-dark-blue;
+  border-radius: 4px;
   color: $color-dark-blue;
+  height: 20%;
+  margin: 13vh 13vh 13vh 13vh;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 20%;
 }
 
 .project-drop-div-inner {
-  position: absolute;
+  background: white;
+  border-radius: 4px;
+  bottom: 2%;
+  color: $color-dark-blue;
   left: 2%;
+  margin: auto;
+  padding: 20px;
+  position: absolute;
   right: 2%;
   top: 2%;
-  bottom: 2%;
-  margin: auto;
-  border-radius: 4px;
-  background: white;
-  color: $color-dark-blue;
-  padding: 20px;
 }
 
 .project-drop-button {
-  border: 2px solid $color-dark-blue;
-  border-radius: 4px;
   background: white;
+  border-radius: 4px;
+  border: 2px solid $color-dark-blue;
   color: $color-dark-blue;
   font-size: 16px;
+  margin: 10px;
   padding: 10px;
   width: 90%;
-  margin: 10px;
 }
 
 .project-drop-button:hover {
@@ -242,8 +242,8 @@ nav {
 }
 
 .project-drop-close {
-  height: 20px;
   float: right;
+  height: 20px;
   margin-top: -10px;
 }
 
@@ -299,43 +299,45 @@ nav {
 }
 
 .dash-header {
-  font-size: 40px;
   color: $color-dark-blue;
+  font-size: 40px;
   font-weight: 700;
   text-align: center;
 }
 
 .dashboard-preview-header {
-  color: slategrey;
+  color: #696969;
+  font-family: 'Helvetica Neue';
+  font-size: 20px;
   font-weight: 700;
 }
 
 .dashboard-preview-distribution {
   grid-area: graph1;
   height: 80%;
-  width: 100%;
+  margin: 10px;
   padding: 10px;
-  margin:10px;
+  width: 100%;
 }
 
 .dashboard-preview-close {
   grid-area: graph2;
-  text-align: center;
   height: 100%;
+  text-align: center;
   width: 100%;
 }
 
 .dashboard-preview-load {
   grid-area: graph3;
   height: 80%;
+  margin: 10px;
   padding: 10px;
-  margin:10px;
   width: 100%;
 }
 
 .dashboard-preview-velocity {
   grid-area: graph4;
-  text-align: center;
   height: 100%;
+  text-align: center;
   width: 100%;
 }
