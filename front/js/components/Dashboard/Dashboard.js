@@ -14,7 +14,7 @@ export default class Dashboard extends Component {
       velocityData: [],
       closeData: [],
     };
-  }
+  };
 
   calculateLoad = () => {
     const info = this.props.projectData[0];
