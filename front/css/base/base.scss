@@ -259,7 +259,7 @@ nav {
 .dashboard-grid {
   display: grid;
   grid-template-columns: 50% 50%;
-  grid-template-rows: 35% 35%;
+  grid-template-rows: 40% 40%;
   grid-template-areas:
     'graph1 graph2'
     'graph3 graph4';
@@ -271,6 +271,8 @@ nav {
 .debts,
 .defects {
   font-size: 44px;
+  font-weight: 700;
+  margin: 25px 0px 25px 0px;
 }
 
 .features {
@@ -290,11 +292,9 @@ nav {
 }
 
 .dashboard-preview-div-nums {
-  width: 40vw;
-  height: 40vh;
   display: grid;
   grid-template-columns: 50fr 50fr;
-  grid-template-rows: 50fr 50fr;
+  grid-template-rows: 100px 1fr;
   text-align: center;
 }
 
@@ -305,16 +305,21 @@ nav {
   text-align: center;
 }
 
+.dashboard-preview-header {
+  color: slategrey;
+  font-weight: 700;
+}
+
 .dashboard-preview-distribution {
   grid-area: graph1;
-  height: 100%;
+  height: 80%;
   width: 100%;
-  border: 2px solid green;
+  padding: 10px;
+  margin:10px;
 }
 
 .dashboard-preview-close {
   grid-area: graph2;
-  border: 2px solid green;
   text-align: center;
   height: 100%;
   width: 100%;
@@ -322,14 +327,14 @@ nav {
 
 .dashboard-preview-load {
   grid-area: graph3;
-  border: 2px solid green;
-  height: 100%;
+  height: 80%;
+  padding: 10px;
+  margin:10px;
   width: 100%;
 }
 
 .dashboard-preview-velocity {
   grid-area: graph4;
-  border: 2px solid green;
   text-align: center;
   height: 100%;
   width: 100%;

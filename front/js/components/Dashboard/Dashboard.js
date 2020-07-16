@@ -146,7 +146,6 @@ export default class Dashboard extends Component {
       labels: this.state.labels,
       datasets: [
         {
-          label: 'Load',
           backgroundColor: this.state.backgroundColor,
           hoverColor: this.state.hoverColor,
           borderColor: this.state.borderColor,
@@ -178,7 +177,10 @@ export default class Dashboard extends Component {
           <div className="dashboard-preview-distribution">
             <Doughnut
               data={distributionChart}
+              width={'30%'}
               options={{
+                maintainAspectRatio: false,
+                responsive: true,
                 title: {
                   display: true,
                   text: 'Distribution',
@@ -187,29 +189,39 @@ export default class Dashboard extends Component {
                 legend: {
                   display: true,
                   position: 'right',
+                  labels: {
+                    fontColor: '#07165e',
+                    defaultFontFamily: 'verdana'
+                  }
                 },
               }}
             />
           </div>
+
+
+
+
+
+
 
           <section className="dashboard-preview-close">
             <h2 className="dashboard-preview-header">Close Times</h2>
             <div className="dashboard-preview-div-nums">
               <div className="dashbboard-preview-div-num">
                 <h3 className="features">{this.state.closeData[0]}</h3>
-                <h5>Features</h5>
+                <h5>features</h5>
               </div>
               <div className="dashbboard-preview-div-num">
                 <h3 className="risks">{this.state.closeData[1]}</h3>
-                <h5>Risks</h5>
+                <h5>risks</h5>
               </div>
               <div className="dashbboard-preview-div-num">
                 <h3 className="debts">{this.state.closeData[2]}</h3>
-                <h5>Debts</h5>
+                <h5>debts</h5>
               </div>
               <div className="dashbboard-preview-div-num">
                 <h3 className="defects">{this.state.closeData[3]}</h3>
-                <h5>Defects</h5>
+                <h5>defects</h5>
               </div>
             </div>
           </section>
@@ -217,16 +229,17 @@ export default class Dashboard extends Component {
           <div className="dashboard-preview-load">
             <Bar
               data={loadChart}
+              width={'15%'}
               options={{
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
+                responsive: true,
                 title: {
                   display: true,
                   text: 'Load',
                   fontSize: 20,
                 },
                 legend: {
-                  display: true,
-                  position: 'right',
+                  display: false,
                 },
                 scales: {
                   yAxes: [
@@ -246,19 +259,19 @@ export default class Dashboard extends Component {
             <div className="dashboard-preview-div-nums">
               <div className="dashbboard-preview-div-num">
                 <h3 className="features">{this.state.velocityData[0]}</h3>
-                <h5>Features</h5>
+                <h5>features</h5>
               </div>
               <div className="dashbboard-preview-div-num">
                 <h3 className="risks">{this.state.velocityData[1]}</h3>
-                <h5>Risks</h5>
+                <h5>risks</h5>
               </div>
               <div className="dashbboard-preview-div-num">
                 <h3 className="debts">{this.state.velocityData[2]}</h3>
-                <h5>Debts</h5>
+                <h5>debts</h5>
               </div>
               <div className="dashbboard-preview-div-num">
                 <h3 className="defects">{this.state.velocityData[3]}</h3>
-                <h5>Defects</h5>
+                <h5>defects</h5>
               </div>
             </div>
           </section>
