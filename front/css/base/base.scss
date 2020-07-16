@@ -154,30 +154,29 @@ nav {
   flex-direction: row;
 }
 
-
 .settings-div-outer {
-  position: fixed;  
-  width: 60%;  
-  height: 60%;  
-  top: 0;  
-  left: 0;  
-  right: 0;  
-  bottom: 0;  
+  position: fixed;
+  width: 60%;
+  height: 60%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   margin: auto;
-  border-radius: 4px; 
-  background-color: $color-dark-blue;  
-  color: $color-dark-blue
+  border-radius: 4px;
+  background-color: $color-dark-blue;
+  color: $color-dark-blue;
 }
 
-.settings-div-inner {  
-  position: absolute;  
-  left: 2%;  
-  right: 2%;  
-  top: 2%;  
-  bottom: 2%;  
-  margin: auto;  
-  border-radius: 4px;  
-  background: white;  
+.settings-div-inner {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  top: 2%;
+  bottom: 2%;
+  margin: auto;
+  border-radius: 4px;
+  background: white;
   color: $color-dark-blue;
   padding: 20px;
 }
@@ -185,12 +184,11 @@ nav {
 .settings-header {
   font-size: 24px;
   text-align: center;
-  color: $color-dark-blue
-
+  color: $color-dark-blue;
 }
 
 .settings-inline-span {
-font-weight: 700;
+  font-weight: 700;
 }
 
 .setting-close {
@@ -200,29 +198,29 @@ font-weight: 700;
 
 .settings-close:hover {
   filter: invert(40%);
- }
-
-.project-drop-div-outer {
-  position: fixed;  
-  width: 20%;  
-  height: 20%;  
-  top: 0;  
-  right: 0;  
-  margin: 13vh 13vh 13vh 13vh;
-  border-radius: 4px; 
-  background-color: $color-dark-blue;  
-  color: $color-dark-blue
 }
 
-.project-drop-div-inner {  
-  position: absolute;  
-  left: 2%;  
-  right: 2%;  
-  top: 2%;  
-  bottom: 2%;  
-  margin: auto;  
-  border-radius: 4px;  
-  background: white;  
+.project-drop-div-outer {
+  position: fixed;
+  width: 20%;
+  height: 20%;
+  top: 0;
+  right: 0;
+  margin: 13vh 13vh 13vh 13vh;
+  border-radius: 4px;
+  background-color: $color-dark-blue;
+  color: $color-dark-blue;
+}
+
+.project-drop-div-inner {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  top: 2%;
+  bottom: 2%;
+  margin: auto;
+  border-radius: 4px;
+  background: white;
   color: $color-dark-blue;
   padding: 20px;
 }
@@ -239,54 +237,100 @@ font-weight: 700;
 }
 
 .project-drop-button:hover {
- border: 2px solid $color-mid-dark-blue;
- color: $color-mid-dark-blue;
+  border: 2px solid $color-mid-dark-blue;
+  color: $color-mid-dark-blue;
 }
 
-.project-drop-close{
+.project-drop-close {
   height: 20px;
   float: right;
   margin-top: -10px;
 }
 
-.project-drop-close:hover{
-  filter: invert(40%)
- }
-
-.dashboard-preview-div-bar {
-  height:40vh;
-  width:40vw;
+.project-drop-close:hover {
+  filter: invert(40%);
 }
 
-.features, .risks, .debts, .defects{
+.dashboard-preview-div-bar {
+  height: 40vh;
+  width: 40vw;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: 35% 35%;
+  grid-template-areas:
+    'graph1 graph2'
+    'graph3 graph4';
+  height: 100vh;
+}
+
+.features,
+.risks,
+.debts,
+.defects {
   font-size: 44px;
 }
 
 .features {
-  color: $color-mid-dark-blue
+  color: $color-mid-dark-blue;
 }
 
 .risks {
- color: $color-light-blue
+  color: $color-light-blue;
 }
 
-.debts{
-color: $color-mid-blue
+.debts {
+  color: $color-mid-blue;
 }
 
-.defects{
-color: $color-mid-light-blue
-}
-
-.dashboard-preview-velocity {
-  text-align: center;
+.defects {
+  color: $color-mid-light-blue;
 }
 
 .dashboard-preview-div-nums {
   width: 40vw;
   height: 40vh;
   display: grid;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: 50% 50%;
+  grid-template-columns: 50fr 50fr;
+  grid-template-rows: 50fr 50fr;
   text-align: center;
+}
+
+.dash-header {
+  font-size: 40px;
+  color: $color-dark-blue;
+  font-weight: 700;
+  text-align: center;
+}
+
+.dashboard-preview-distribution {
+  grid-area: graph1;
+  height: 100%;
+  width: 100%;
+  border: 2px solid green;
+}
+
+.dashboard-preview-close {
+  grid-area: graph2;
+  border: 2px solid green;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+}
+
+.dashboard-preview-load {
+  grid-area: graph3;
+  border: 2px solid green;
+  height: 100%;
+  width: 100%;
+}
+
+.dashboard-preview-velocity {
+  grid-area: graph4;
+  border: 2px solid green;
+  text-align: center;
+  height: 100%;
+  width: 100%;
 }

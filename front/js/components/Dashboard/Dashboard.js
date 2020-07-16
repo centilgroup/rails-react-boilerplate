@@ -85,7 +85,12 @@ export default class Dashboard extends Component {
     const risksCloseTime = this.calculateAverageCloseTime(riskTimes);
     const debtsCloseTime = this.calculateAverageCloseTime(debtTimes);
     const defectsCloseTime = this.calculateAverageCloseTime(defectTimes);
-    let answer = [featuresCloseTime, risksCloseTime, debtsCloseTime, defectsCloseTime]
+    let answer = [
+      featuresCloseTime,
+      risksCloseTime,
+      debtsCloseTime,
+      defectsCloseTime,
+    ];
     this.setState({ closeData: answer });
   };
 
@@ -106,22 +111,19 @@ export default class Dashboard extends Component {
     }, 0);
     const average = ticketTotal / tickets.length;
     const answer = this.convertToDays(average);
-    return answer
+    return answer;
   };
 
   calculateTimeDifference = (ticket) => {
-    let diffInSeconds = Math.abs(ticket.timeMovedToDone - ticket.timeMovedToStart) / 1000;
+    let diffInSeconds =
+      Math.abs(ticket.timeMovedToDone - ticket.timeMovedToStart) / 1000;
     return diffInSeconds;
   };
 
   convertToDays = (seconds) => {
-    const days = Math.floor(seconds / (24*60*60))
-    return days
+    const days = Math.floor(seconds / (24 * 60 * 60));
+    return days;
   };
-
-
-
-
 
   calculateDistribution = () => {
     const info = this.props.projectData[0];
@@ -130,16 +132,14 @@ export default class Dashboard extends Component {
     const debts = this.filterByType('debt', info);
     const defects = this.filterByType('defect', info);
     let answer = [features.length, risks.length, debts.length, defects.length];
-    console.log(answer)
+    console.log(answer);
     return answer;
   };
 
-
-
   componentDidMount = () => {
-    this.calculateVelocity()
-    this.calculateWorkTime()
-  }
+    this.calculateVelocity();
+    this.calculateWorkTime();
+  };
 
   render() {
     const loadChart = {
@@ -168,124 +168,102 @@ export default class Dashboard extends Component {
           data: this.calculateDistribution(),
         },
       ],
-    }
-
-
-
+    };
 
     return (
       <section>
-        <h2>{this.props.projectName}</h2>
-        <div className="dashboard-preview-div-bar">
-          <Bar
-            data={loadChart}
-            options={{
-              maintainAspectRatio: true,
-              title: {
-                display: true,
-                text: 'Load',
-                fontSize: 20,
-              },
-              legend: {
-                display: true,
-                position: 'right',
-              },
-              scales: {
-                yAxes: [
-                  {
-                    ticks: {
-                      suggestedMin: 0,
+        <h2 className="dash-header">{this.props.projectName}</h2>
+
+        <article className="dashboard-grid">
+          <div className="dashboard-preview-distribution">
+            <Doughnut
+              data={distributionChart}
+              options={{
+                title: {
+                  display: true,
+                  text: 'Distribution',
+                  fontSize: 20,
+                },
+                legend: {
+                  display: true,
+                  position: 'right',
+                },
+              }}
+            />
+          </div>
+
+          <section className="dashboard-preview-close">
+            <h2 className="dashboard-preview-header">Close Times</h2>
+            <div className="dashboard-preview-div-nums">
+              <div className="dashbboard-preview-div-num">
+                <h3 className="features">{this.state.closeData[0]}</h3>
+                <h5>Features</h5>
+              </div>
+              <div className="dashbboard-preview-div-num">
+                <h3 className="risks">{this.state.closeData[1]}</h3>
+                <h5>Risks</h5>
+              </div>
+              <div className="dashbboard-preview-div-num">
+                <h3 className="debts">{this.state.closeData[2]}</h3>
+                <h5>Debts</h5>
+              </div>
+              <div className="dashbboard-preview-div-num">
+                <h3 className="defects">{this.state.closeData[3]}</h3>
+                <h5>Defects</h5>
+              </div>
+            </div>
+          </section>
+
+          <div className="dashboard-preview-load">
+            <Bar
+              data={loadChart}
+              options={{
+                maintainAspectRatio: true,
+                title: {
+                  display: true,
+                  text: 'Load',
+                  fontSize: 20,
+                },
+                legend: {
+                  display: true,
+                  position: 'right',
+                },
+                scales: {
+                  yAxes: [
+                    {
+                      ticks: {
+                        suggestedMin: 0,
+                      },
                     },
-                  },
-                ],
-              },
-            }}
-          />
-        </div>
-
-        <section className="dashboard-preview-velocity">
-          <h2 className="dashboard-preview-header">Close Times</h2>
-          <div className="dashboard-preview-div-nums">
-            <div className="dashbboard-preview-div-num">
-              <h3 className="features">{this.state.closeData[0]}</h3>
-              <h5>Features</h5>
-            </div>
-            <div className="dashbboard-preview-div-num">
-              <h3 className="risks">{this.state.closeData[1]}</h3>
-              <h5>Risks</h5>
-            </div>
-            <div className="dashbboard-preview-div-num">
-            <h3 className="debts">{this.state.closeData[2]}</h3>
-              <h5>Debts</h5>
-            </div>
-            <div className="dashbboard-preview-div-num">
-            <h3 className="defects">{this.state.closeData[3]}</h3>
-              <h5>Defects</h5>
-            </div>
+                  ],
+                },
+              }}
+            />
           </div>
-        </section>
 
-        <div className="dashboard-preview-div-donut">
-          <Doughnut
-            data={distributionChart}
-            options={{
-              title: {
-              display:true,
-              text:'Distribution',
-              fontSize:20
-            },
-              legend: {
-              display:true,
-              position:'right'
-              }
-            }
-          }
-        />
-      </div>
-
-        <section className="dashboard-preview-velocity">
-          <h2 className="dashboard-preview-header">Velocity</h2>
-          <div className="dashboard-preview-div-nums">
-            <div className="dashbboard-preview-div-num">
-              <h3 className="features">{this.state.velocityData[0]}</h3>
-              <h5>Features</h5>
+          <section className="dashboard-preview-velocity">
+            <h2 className="dashboard-preview-header">Velocity</h2>
+            <div className="dashboard-preview-div-nums">
+              <div className="dashbboard-preview-div-num">
+                <h3 className="features">{this.state.velocityData[0]}</h3>
+                <h5>Features</h5>
+              </div>
+              <div className="dashbboard-preview-div-num">
+                <h3 className="risks">{this.state.velocityData[1]}</h3>
+                <h5>Risks</h5>
+              </div>
+              <div className="dashbboard-preview-div-num">
+                <h3 className="debts">{this.state.velocityData[2]}</h3>
+                <h5>Debts</h5>
+              </div>
+              <div className="dashbboard-preview-div-num">
+                <h3 className="defects">{this.state.velocityData[3]}</h3>
+                <h5>Defects</h5>
+              </div>
             </div>
-            <div className="dashbboard-preview-div-num">
-              <h3 className="risks">{this.state.velocityData[1]}</h3>
-              <h5>Risks</h5>
-            </div>
-            <div className="dashbboard-preview-div-num">
-              <h3 className="debts">{this.state.velocityData[2]}</h3>
-              <h5>Debts</h5>
-            </div>
-            <div className="dashbboard-preview-div-num">
-              <h3 className="defects">{this.state.velocityData[3]}</h3>
-              <h5>Defects</h5>
-            </div>
-          </div>
-        </section>
+          </section>
+        </article>
       </section>
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
