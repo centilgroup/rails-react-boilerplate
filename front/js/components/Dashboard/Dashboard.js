@@ -6,9 +6,11 @@ export default class Dashboard extends Component {
     super(props);
     this.state = {
       labels: ['features', 'risks', 'debt', 'defect'],
-      backgroundColor: 'black',
-      hoverBackgroundColor: [],
-      borderColor: [],
+
+      backgroundColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+      hoverColor: ['#07165E'],
+      borderColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+
       velocityData: [],
       closeData: [],
     };
@@ -141,18 +143,13 @@ export default class Dashboard extends Component {
 
   render() {
     const loadChart = {
-      labels: ['features', 'risks', 'debt', 'defect'],
+      labels: this.state.labels,
       datasets: [
         {
           label: 'Load',
-          backgroundColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
-          hoverColor: [
-            '#07165E',
-            '#07165E',
-            '#07165E',
-            '#07165E'
-            ],
-          borderColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+          backgroundColor: this.state.backgroundColor,
+          hoverColor: this.state.hoverColor,
+          borderColor: this.state.borderColor,
           borderWidth: 2,
           data: this.calculateLoad(),
         },
@@ -160,18 +157,13 @@ export default class Dashboard extends Component {
     };
 
     const distributionChart = {
-      labels: ['features', 'risks', 'debt', 'defect'],
+      labels: this.state.labels,
       datasets: [
         {
           label: 'Distribution',
-          backgroundColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
-          hoverColor: [
-            '#07165E',
-            '#07165E',
-            '#07165E',
-            '#07165E'
-            ],
-          borderColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+          backgroundColor: this.state.backgroundColor,
+          hoverColor: this.state.hoverColor,
+          borderColor: this.state.borderColor,
           borderWidth: 2,
           data: this.calculateDistribution(),
         },
@@ -184,8 +176,6 @@ export default class Dashboard extends Component {
     return (
       <section>
         <h2>{this.props.projectName}</h2>
-        
-        
         <div className="dashboard-preview-div-bar">
           <Bar
             data={loadChart}
@@ -235,8 +225,6 @@ export default class Dashboard extends Component {
           </div>
         </section>
 
-
-
         <div className="dashboard-preview-div-donut">
           <Doughnut
             data={distributionChart}
@@ -254,14 +242,6 @@ export default class Dashboard extends Component {
           }
         />
       </div>
-
-
-
-
-
-
-
-
 
         <section className="dashboard-preview-velocity">
           <h2 className="dashboard-preview-header">Velocity</h2>
