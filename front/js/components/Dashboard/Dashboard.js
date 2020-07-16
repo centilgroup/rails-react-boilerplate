@@ -11,6 +11,7 @@ export default class Dashboard extends Component {
       borderColor: [],
       loadData: [],
       velocityData: [],
+      closeData: [],
     };
   }
 
@@ -67,64 +68,67 @@ export default class Dashboard extends Component {
     return statusFiltered;
   };
 
-
- 
-
-
-
-  calculateWorkTime = () => {  
+  calculateWorkTime = () => {
     const info = this.props.projectData[0];
+    const featuresDone = this.filterByTypeAndDoneStatus('feature', info);
+    const risksDone = this.filterByTypeAndDoneStatus('risk', info);
+    const debtsDone = this.filterByTypeAndDoneStatus('debt', info);
     const defectsDone = this.filterByTypeAndDoneStatus('defect', info);
-    const defectTimes = this.parseDates(defectsDone)
+
+    const featureTimes = this.parseDates(featuresDone);
+    const riskTimes = this.parseDates(risksDone);
+    const debtTimes = this.parseDates(debtsDone);
+    const defectTimes = this.parseDates(defectsDone);
+
+    const featuresCloseTime = this.calculateAverageCloseTime(featureTimes);
+    const risksCloseTime = this.calculateAverageCloseTime(riskTimes);
+    const debtsCloseTime = this.calculateAverageCloseTime(debtTimes);
     const defectsCloseTime = this.calculateAverageCloseTime(defectTimes);
+    console.log('featuresCloseTime', featuresCloseTime)
+    let answer = [featuresCloseTime, risksCloseTime, debtsCloseTime, defectsCloseTime]
+    this.setState({ closeData: answer });
   };
 
   parseDates = (tickets) => {
-    const answer = tickets.map(ticket => {
+    const answer = tickets.map((ticket) => {
       return {
         timeMovedToStart: new Date(ticket.timeMovedToStart),
-        timeMovedToDone: new Date(ticket.timeMovedToDone)
-      }
-    })
-    return answer
-  }
+        timeMovedToDone: new Date(ticket.timeMovedToDone),
+      };
+    });
+    return answer;
+  };
 
   calculateAverageCloseTime = (tickets) => {
-  const times = tickets.map(ticket => this.calculateTimeDifference(ticket))
-  console.log(times)
-    // const totalTime = times.reduce((total, ticketTime) =>{
-    //   return total += ticketTime
-    // }, 0)
-    // const average = totalTime/tickets.length
-    // return average
-  }
-    
-
+    const times = tickets.map((ticket) => this.calculateTimeDifference(ticket));
+    console.log(times)
+    const ticketTotal = times.reduce((total, ticketTime) => {
+      return (total += ticketTime);
+    }, 0);
+    const average = ticketTotal / tickets.length;
+    const answer = this.convertToDays(average);
+    console.log(answer)
+    return answer
+  };
 
   calculateTimeDifference = (ticket) => {
-    let diffInMilliSeconds = Math.abs(ticket.timeMovedToDone - ticket.timeMovedToStart) / 1000;
-    console.log(diffInMilliSeconds)
-    const days = Math.floor(diffInMilliSeconds / 864000);
-    diffInMilliSeconds -= days * 86400;
-    const hours = Math.floor(diffInMilliSeconds / 3600) % 24;
-    diffInMilliSeconds -= hours * 3600;
-    const minutes = Math.floor(diffInMilliSeconds / 60) % 60;
-    diffInMilliSeconds -= minutes * 60;
-    return {
-      days: `${days}`,
-      hours: `${hours}`,
-      minutes: `${minutes}`
-    } 
+    console.log('done', ticket.timeMovedToDone)
+    console.log('start', ticket.timeMovedToStart)
+    let diffInSeconds = Math.abs(ticket.timeMovedToDone - ticket.timeMovedToStart) / 1000;
+    return diffInSeconds;
+  };
+
+  convertToDays = (seconds) => {
+    const days = Math.floor(seconds / (24*60*60))
+    return days
+  };
+
+  componentDidMount = () => {
+    this.calculateVelocity()
+    this.calculateWorkTime()
   }
 
-  
-
-
-
-
-
   render() {
-
     const loadChart = {
       labels: ['features', 'risks', 'debt', 'defect'],
       datasets: [
@@ -134,21 +138,6 @@ export default class Dashboard extends Component {
           borderColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
           borderWidth: 2,
           data: this.calculateLoad(),
-        },
-      ],
-    };
-
-
-    const closeTimeChart = 
-    {
-      labels: ['features', 'risks', 'debt', 'defect'],
-      datasets: [
-        {
-          label: 'Load',
-          backgroundColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
-          borderColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
-          borderWidth: 2,
-          data: this.calculateWorkTime(),
         },
       ],
     };
@@ -183,55 +172,50 @@ export default class Dashboard extends Component {
           />
         </div>
 
+        <section className="dashboard-preview-velocity">
+          <h2 className="dashboard-preview-header">Close Times</h2>
+          <div className="dashboard-preview-div-nums">
+            <div className="dashbboard-preview-div-num">
+              <h3 className="features">{this.state.closeData[0]}</h3>
+              <h5>Features</h5>
+            </div>
+            <div className="dashbboard-preview-div-num">
+              <h3 className="risks">{this.state.closeData[1]}</h3>
+              <h5>Risks</h5>
+            </div>
+            <div className="dashbboard-preview-div-num">
+            <h3 className="debts">{this.state.closeData[2]}</h3>
+              <h5>Debts</h5>
+            </div>
+            <div className="dashbboard-preview-div-num">
+            <h3 className="defects">{this.state.closeData[3]}</h3>
+              <h5>Defects</h5>
+            </div>
+          </div>
+        </section>
 
-        <div className="dashboard-preview-div-bar">
-          <Bar
-            data={closeTimeChart}
-            options={{
-              maintainAspectRatio: true,
-              title: {
-                display: true,
-                text: 'Close Time',
-                fontSize: 20,
-              },
-              legend: {
-                display: true,
-                position: 'right',
-              },
-              scales: {
-                yAxes: [
-                  {
-                    ticks: {
-                      suggestedMin: 0,
-                    },
-                  },
-                ],
-              },
-            }}
-          />
-        </div>
 
 
         <section className="dashboard-preview-velocity">
-                  <h2 className="dashboard-preview-header">Velocity</h2>
-        <div className="dashboard-preview-div-nums">
-          <div className="dashbboard-preview-div-num">
-            <h3 className="features">{this.state.velocityData[0]}</h3>
-            <h5>Features</h5>
+          <h2 className="dashboard-preview-header">Velocity</h2>
+          <div className="dashboard-preview-div-nums">
+            <div className="dashbboard-preview-div-num">
+              <h3 className="features">{this.state.velocityData[0]}</h3>
+              <h5>Features</h5>
+            </div>
+            <div className="dashbboard-preview-div-num">
+              <h3 className="risks">{this.state.velocityData[1]}</h3>
+              <h5>Risks</h5>
+            </div>
+            <div className="dashbboard-preview-div-num">
+              <h3 className="debts">{this.state.velocityData[2]}</h3>
+              <h5>Debts</h5>
+            </div>
+            <div className="dashbboard-preview-div-num">
+              <h3 className="defects">{this.state.velocityData[3]}</h3>
+              <h5>Defects</h5>
+            </div>
           </div>
-          <div className="dashbboard-preview-div-num">
-            <h3 className="risks">{this.state.velocityData[1]}</h3>
-            <h5>Risks</h5>
-          </div>
-          <div className="dashbboard-preview-div-num">
-            <h3 className="debts">{this.state.velocityData[2]}</h3>
-            <h5>Debts</h5>
-          </div>
-          <div className="dashbboard-preview-div-num">
-            <h3 className="defects">{this.state.velocityData[3]}</h3>
-            <h5>Defects</h5>
-          </div>
-        </div>
         </section>
       </section>
     );
