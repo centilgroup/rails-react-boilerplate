@@ -132,7 +132,6 @@ export default class Dashboard extends Component {
     const debts = this.filterByType('debt', info);
     const defects = this.filterByType('defect', info);
     let answer = [features.length, risks.length, debts.length, defects.length];
-    console.log(answer);
     return answer;
   };
 
