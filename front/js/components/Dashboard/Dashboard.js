@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Doughnut } from 'react-chartjs-2';
 
 export default class Dashboard extends Component {
   constructor(props) {
@@ -9,7 +9,6 @@ export default class Dashboard extends Component {
       backgroundColor: 'black',
       hoverBackgroundColor: [],
       borderColor: [],
-      loadData: [],
       velocityData: [],
       closeData: [],
     };
@@ -84,7 +83,6 @@ export default class Dashboard extends Component {
     const risksCloseTime = this.calculateAverageCloseTime(riskTimes);
     const debtsCloseTime = this.calculateAverageCloseTime(debtTimes);
     const defectsCloseTime = this.calculateAverageCloseTime(defectTimes);
-    console.log('featuresCloseTime', featuresCloseTime)
     let answer = [featuresCloseTime, risksCloseTime, debtsCloseTime, defectsCloseTime]
     this.setState({ closeData: answer });
   };
@@ -101,19 +99,15 @@ export default class Dashboard extends Component {
 
   calculateAverageCloseTime = (tickets) => {
     const times = tickets.map((ticket) => this.calculateTimeDifference(ticket));
-    console.log(times)
     const ticketTotal = times.reduce((total, ticketTime) => {
       return (total += ticketTime);
     }, 0);
     const average = ticketTotal / tickets.length;
     const answer = this.convertToDays(average);
-    console.log(answer)
     return answer
   };
 
   calculateTimeDifference = (ticket) => {
-    console.log('done', ticket.timeMovedToDone)
-    console.log('start', ticket.timeMovedToStart)
     let diffInSeconds = Math.abs(ticket.timeMovedToDone - ticket.timeMovedToStart) / 1000;
     return diffInSeconds;
   };
@@ -122,6 +116,23 @@ export default class Dashboard extends Component {
     const days = Math.floor(seconds / (24*60*60))
     return days
   };
+
+
+
+
+
+  calculateDistribution = () => {
+    const info = this.props.projectData[0];
+    const features = this.filterByType('feature', info);
+    const risks = this.filterByType('risk', info);
+    const debts = this.filterByType('debt', info);
+    const defects = this.filterByType('defect', info);
+    let answer = [features.length, risks.length, debts.length, defects.length];
+    console.log(answer)
+    return answer;
+  };
+
+
 
   componentDidMount = () => {
     this.calculateVelocity()
@@ -135,6 +146,12 @@ export default class Dashboard extends Component {
         {
           label: 'Load',
           backgroundColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+          hoverColor: [
+            '#07165E',
+            '#07165E',
+            '#07165E',
+            '#07165E'
+            ],
           borderColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
           borderWidth: 2,
           data: this.calculateLoad(),
@@ -142,9 +159,33 @@ export default class Dashboard extends Component {
       ],
     };
 
+    const distributionChart = {
+      labels: ['features', 'risks', 'debt', 'defect'],
+      datasets: [
+        {
+          label: 'Distribution',
+          backgroundColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+          hoverColor: [
+            '#07165E',
+            '#07165E',
+            '#07165E',
+            '#07165E'
+            ],
+          borderColor: ['#2477B6', '#CAF0F8', '#48B4D9', '#90E1F0'],
+          borderWidth: 2,
+          data: this.calculateDistribution(),
+        },
+      ],
+    }
+
+
+
+
     return (
       <section>
         <h2>{this.props.projectName}</h2>
+        
+        
         <div className="dashboard-preview-div-bar">
           <Bar
             data={loadChart}
@@ -196,6 +237,32 @@ export default class Dashboard extends Component {
 
 
 
+        <div className="dashboard-preview-div-donut">
+          <Doughnut
+            data={distributionChart}
+            options={{
+              title: {
+              display:true,
+              text:'Distribution',
+              fontSize:20
+            },
+              legend: {
+              display:true,
+              position:'right'
+              }
+            }
+          }
+        />
+      </div>
+
+
+
+
+
+
+
+
+
         <section className="dashboard-preview-velocity">
           <h2 className="dashboard-preview-header">Velocity</h2>
           <div className="dashboard-preview-div-nums">
@@ -221,3 +288,24 @@ export default class Dashboard extends Component {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
