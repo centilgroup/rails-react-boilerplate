@@ -6,11 +6,12 @@ h5,
 p {
   color: $color-black;
 }
+
 body {
   background-color: #fff;
   color: #333;
-  margin: 33px; 
 }
+
 body, p, ol, ul, td {
   font-family: verdana, arial, helvetica, sans-serif;
   font-size: 13px;
@@ -19,4 +20,5 @@ body, p, ol, ul, td {
 
 h1 {
   font-size: 60px;
+  color: white;
 }
