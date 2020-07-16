@@ -226,7 +226,7 @@ const projects = {
           timeMovedToStart: '2020-06-15T01:51:28',
           timeMovedToInProgress: '2020-06-26T13:14:44',
           timeMovedToDone: '2020-07-10T05:26:11',
-          assignee: 'Daniele Wetteroth',
+          assignee: 'Daniel Wetteroth',
           status: 'done',
         },
         {
@@ -239,13 +239,11 @@ const projects = {
           assignee: 'JB',
           status: 'done',
         },
-
-
         {
           type: 'feature',
           title: 'feature #9',
           ticketNumber: 14,
-          timeMovedToStart: '2020-06-013T03:26:53',
+          timeMovedToStart: '2020-06-13T03:26:53',
           timeMovedToInProgress: '2020-06-17T08:13:20',
           timeMovedToDone: '2020-06-22T22:08:21',
           assignee: 'JB',

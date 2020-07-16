@@ -240,6 +240,7 @@ export default class Dashboard extends Component {
                     {
                       ticks: {
                         suggestedMin: 0,
+                        stepSize: 1
                       },
                     },
                   ],
