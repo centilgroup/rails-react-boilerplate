@@ -48,6 +48,13 @@ class Settings extends Component {
           </ul>
           <h3 className="settings-inline-span">Team Members:</h3>
           <ul>{this.displayTeamMembers()}</ul>
+          <h3 className="settings-inline-span">Metric Descriptions:</h3>
+          <ul>
+            <li>Distribution: percentage of each work type </li>
+            <li>Close Times: average number of days to complete work </li>
+            <li>Load: work in progress </li>
+            <li>Velocity: work items completed </li>
+          </ul>
         </div>
       </div>
     );
