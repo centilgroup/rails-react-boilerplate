@@ -31,7 +31,7 @@ export default class Login extends Component {
     const { username } = this.state;
     const { email } = this.state;
     if (username === '' || email === '') {
-      return true;
+      return false;
     } else {
       return false;
     }

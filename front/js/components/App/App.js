@@ -7,7 +7,7 @@ import { Route } from 'react-router-dom';
 import Login from '../Login/Login';
 import Main from '../Main/Main';
 import projects from '../Data';
-import fetchProjectData from '../apiCall';
+// import fetchProjectData from '../apiCall';
 
 export default class App extends Component {
   constructor() {

@@ -19,6 +19,141 @@ a {
   text-decoration: none;
 }
 
+.top-nav-1 {
+  text-align:left;
+  height: 100px;
+  margin-top: -20px;
+  margin-left: -20px;
+  .top-version {
+    margin-top:-40px;
+  }
+}
+
+.sidenav {
+
+  background-color: #f8f8f8;
+
+
+  h3 {
+    margin: 20px 0 0 10px;
+  }
+
+  .main-select {
+    width:170px;
+  }
+  .side-group {
+    margin-left:15px;
+  }
+}
+
+.tile-bottom {
+  margin-top:120px;
+  font-size: 14px;
+}
+
+
+.top-tile-row {
+  margin-top: 50px;
+  height:400px;
+  canvas {
+    max-width:460px;
+    min-width:380px;
+  }
+  
+  .top-tile {
+    border: 1px solid #f8f8f8;
+    background-color: #f8f8f8;
+    height: 350px;
+    width: 99.5%;
+    padding: 10px;
+    border-radius: 3px 3px 3px 3px;
+    h5 {
+      text-align: center;
+    
+    }
+    .question-icon {
+      display: block;
+      position:absolute;
+      top: 0px;
+      left: 540px;
+    }
+    .menu-icon {
+      display: block;
+      position:absolute;
+      top: 0px;
+      left: 20px;
+    }
+  }
+  
+
+}
+
+.vpi-tile {
+  border: 1px solid #e9e9e9;
+  background-color: #f8f8f8;
+  height: 80px;
+  width: 90.5%;
+  padding: 10px;
+  border-radius: 3px 3px 3px 3px;
+  margin-top: 10px;
+  text-align: center;
+  .vpi-h5 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 300;
+    margin-top: 10px;
+  }
+  .fa-question-circle-o {
+    margin-top: -20px;
+  }
+}
+
+.dash-header {
+  margin-top: 10px;
+  text-align: left;
+}
+
+
+.chartjs-wrapper {
+  margin: 0 auto;
+  width: 90%;
+  height: 160px;
+  padding: 20px;
+}
+
+
+
+li {
+  list-style: none;
+}
+
+
+
+.shim-top {
+  margin-top: 130px;
+}
+
+
+.border-top {
+  border-top: 1px solid #eee;
+  width: 100%;
+  text-align: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .logo-login {
   height: 250px;
   display: block;
@@ -74,8 +209,8 @@ fieldset {
 }
 
 .logo-nav {
-  height: 200px;
-  margin: 30px 10px 10px 10px;
+  height: 100px;
+  margin: 0px 10px 10px 10px;
 }
 
 nav {
@@ -83,12 +218,15 @@ nav {
   background-color: $color-dark-blue;
   color: white;
   display: flex;
-  height: 13vh;
+  height: 100px;
   justify-content: space-between;
   margin: 0px 0px 0px 0px;
-  min-height: 10vh;
+  min-height: 100px;
   padding: 10px 10px 10px 10px;
   width: 100%;
+
+
+
 }
 
 .button-nav {

@@ -169,108 +169,241 @@ export default class Dashboard extends Component {
     };
 
     return (
+      
+
+
       <section>
-        <h2 className="dash-header">{this.props.projectName}</h2>
+        <div className="row">
+          <div className="col-md-1 sidenav" >
+            <h3 className="">
+              Euphoria v.1
+            </h3>
+            <hr />
+            <div className="side-group">
+              <label>Project</label>
+              <br />
+              <select className="main-select">
+                <option>-</option>
+                <option></option>
+              </select>
+              <br />
+              <label>Team</label>
+              <br />
+              <select className="main-select">
+                <option>-</option>
+                <option></option>
+              </select>
+              <br />
+              <label>Lead Times</label>
+              <br />
+              <select className="main-select">
+                <option>-</option>
+                <option></option>
+              </select>
+              <br />
+              <hr />
+              <h5>Quick Links</h5>
+              <ul>
+                <li>Jira</li>
+                <li>Confluence</li>
+                <li>CI/CD</li>
+                <li>Bamboo</li>
+                
+              </ul>
 
-        <article className="dashboard-grid">
-          <div className="dashboard-preview-distribution">
-            <Doughnut
-              data={distributionChart}
-              width={'30%'}
-              options={{
-                maintainAspectRatio: false,
-                responsive: true,
-                title: {
-                  display: true,
-                  text: 'Distribution',
-                  fontSize: 20,
-                  fontFamily: 'Montserrat',
-                },
-                legend: {
-                  display: true,
-                  position: 'right',
-                  labels: {
-                    fontColor: '#07165e',
-                    defaultFontFamily: 'Montserrat',
-                  },
-                },
-              }}
-            />
+
+              
+            </div>
+            
           </div>
-
-          <section className="dashboard-preview-close">
-            <h2 className="dashboard-preview-header">Close Times</h2>
-            <div className="dashboard-preview-div-nums">
-              <div className="dashbboard-preview-div-num">
-                <h3 className="features">{this.state.closeData[0]}</h3>
-                <h5>features</h5>
+          <div className="col-md-11">
+            <div className="row">
+              <div className="col-md-2">  
+                <h2 className="dash-header">MGMT Main Board </h2> (Last updated: 12/11/2020 12:00 MST - With VSM)
               </div>
-              <div className="dashbboard-preview-div-num">
-                <h3 className="risks">{this.state.closeData[1]}</h3>
-                <h5>risks</h5>
+              <div className="col-md-8">  
+                
               </div>
-              <div className="dashbboard-preview-div-num">
-                <h3 className="debts">{this.state.closeData[2]}</h3>
-                <h5>debts</h5>
-              </div>
-              <div className="dashbboard-preview-div-num">
-                <h3 className="defects">{this.state.closeData[3]}</h3>
-                <h5>defects</h5>
+              <div className="col-md-2">  
+                <div className="vpi-tile">
+                  <span className="vpi-h5">VPI: 1.5 </span>
+                  <i className="fa fa-question-circle-o" aria-hidden="true"></i>
+                </div>
               </div>
             </div>
-          </section>
+            <div className="row top-tile-row">
+              <div className="col-md-3">
+                <div className="top-tile">
+                  <h5>Development</h5>
+                  <span className="question-icon">
+                    <i className="fa fa-question-circle-o" aria-hidden="true"></i>
+                  </span>
+                  <span className="menu-icon">
+                    <i className="fa fa-bars" aria-hidden="true"></i>
+                  </span>
+                  <div className="chartjs-wrapper">
+                    <canvas className="chartjs-gauge"></canvas>
+                  </div>
+                  <div className="tile-bottom row">
+                    <div className="col-md-4">
+                      WIP: 12
+                    </div>
+                    <div className="col-md-5">
+                      Avg. Lead Time: 2.4 days
+                    </div>
+                    <div className="col-md-3">
+                      %C/A: 68%
+                    </div>
+                  </div>
+                </div>    
+              </div>
+              <div className="col-md-3">
+                <div className="top-tile">
+                  <h5>QA/Test</h5>
+                  <span className="question-icon">
+                    <i className="fa fa-question-circle-o" aria-hidden="true"></i>
+                  </span>
+                  <span className="menu-icon">
+                    <i className="fa fa-bars" aria-hidden="true"></i>
+                  </span>
+                  <div className="chartjs-wrapper">
+                    <canvas className="chartjs-gauge2"></canvas>
+                  </div>
+                  <div className="tile-bottom row">
+                    <div className="col-md-4">
+                      WIP: 6
+                    </div>
+                    <div className="col-md-5">
+                      Avg. Lead Time: 1.4 days
+                    </div>
+                    <div className="col-md-3">
+                      %C/A: 88%
+                    </div>
+                  </div>
+                </div>    
+              </div>
+              <div className="col-md-3">
+                <div className="top-tile">
+                  <h5>Deploy</h5>
+                  <span className="question-icon">
+                    <i className="fa fa-question-circle-o" aria-hidden="true"></i>
+                  </span>
+                  <span className="menu-icon">
+                    <i className="fa fa-bars" aria-hidden="true"></i>
+                  </span>
+                  <div className="chartjs-wrapper">
+                    <canvas className="chartjs-gauge3"></canvas>
+                  </div>
+                  <div className="tile-bottom row">
+                    <div className="col-md-4">
+                      WIP: 0
+                    </div>
+                    <div className="col-md-5">
+                      Avg. Lead Time: 0.4 days
+                    </div>
+                    <div className="col-md-3">
+                      %C/A: 95%
+                    </div>
+                  </div>
+                </div>    
+              </div>
+              <div className="col-md-3">
+                <div className="top-tile">
+                  <h5>Execution</h5>
+                  <span className="question-icon">
+                    <i className="fa fa-question-circle-o" aria-hidden="true"></i>
+                  </span>
+                  <span className="menu-icon">
+                    <i className="fa fa-bars" aria-hidden="true"></i>
+                  </span>
+                  <div className="chartjs-wrapper">
+                    <canvas className="chartjs-gauge4"></canvas>
+                  </div>
+                  <div className="tile-bottom row">
+                    <div className="col-md-4">
+                      WIP: 0
+                    </div>
+                    <div className="col-md-5">
+                      Avg. Lead Time: 0 days
+                    </div>
+                    <div className="col-md-3">
+                      %C/A: N/A%
+                    </div>
+                  </div>
+                </div>    
+              </div>
 
-          <div className="dashboard-preview-load">
-            <Bar
-              data={loadChart}
-              width={'15%'}
-              options={{
-                maintainAspectRatio: false,
-                responsive: true,
-                title: {
-                  display: true,
-                  text: 'Load',
-                  fontSize: 20,
-                },
-                legend: {
-                  display: false,
-                },
-                scales: {
-                  yAxes: [
-                    {
-                      ticks: {
-                        suggestedMin: 0,
-                        stepSize: 1
-                      },
-                    },
-                  ],
-                },
-              }}
-            />
-          </div>
-
-          <section className="dashboard-preview-velocity">
-            <h2 className="dashboard-preview-header">Velocity</h2>
-            <div className="dashboard-preview-div-nums">
-              <div className="dashbboard-preview-div-num">
-                <h3 className="features">{this.state.velocityData[0]}</h3>
-                <h5>features</h5>
-              </div>
-              <div className="dashbboard-preview-div-num">
-                <h3 className="risks">{this.state.velocityData[1]}</h3>
-                <h5>risks</h5>
-              </div>
-              <div className="dashbboard-preview-div-num">
-                <h3 className="debts">{this.state.velocityData[2]}</h3>
-                <h5>debts</h5>
-              </div>
-              <div className="dashbboard-preview-div-num">
-                <h3 className="defects">{this.state.velocityData[3]}</h3>
-                <h5>defects</h5>
-              </div>
             </div>
-          </section>
-        </article>
+            
+            <div className="row top-tile-row border-top">
+              {/* <div className="col-md-12">
+                <div className="chartjs-wrapper">
+                  <canvas className="bottom4"></canvas>
+                </div>
+              </div> */}
+              {/* <div className="col-md-6">
+                <div className="chartjs-wrapper">
+                  <canvas className="bottom2"></canvas>
+                </div>
+              </div> */}
+            </div>
+            {/* <div className="row top-tile-row shim-top">
+              <div className="col-md-6">
+                <div className="chartjs-wrapper">
+                  <canvas className="bottom3"></canvas>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="chartjs-wrapper">
+                  <canvas className="bottom4"></canvas>
+                </div>
+              </div>
+            </div> */}
+
+
+            <article className="dashboard-grid">
+              <div className="dashboard-preview-distribution">
+                
+
+
+                
+                
+               
+              </div>
+
+              
+
+              <div className="dashboard-preview-load">
+               
+              </div>
+
+              {/* <section className="dashboard-preview-velocity">
+                <h2 className="dashboard-preview-header">Velocity</h2>
+                <div className="dashboard-preview-div-nums">
+                  <div className="dashbboard-preview-div-num">
+                    <h3 className="features">{this.state.velocityData[0]}</h3>
+                    <h5>features</h5>
+                  </div>
+                  <div className="dashbboard-preview-div-num">
+                    <h3 className="risks">{this.state.velocityData[1]}</h3>
+                    <h5>risks</h5>
+                  </div>
+                  <div className="dashbboard-preview-div-num">
+                    <h3 className="debts">{this.state.velocityData[2]}</h3>
+                    <h5>debts</h5>
+                  </div>
+                  <div className="dashbboard-preview-div-num">
+                    <h3 className="defects">{this.state.velocityData[3]}</h3>
+                    <h5>defects</h5>
+                  </div>
+                </div>
+              </section> */}
+            </article>
+
+
+          </div>
+        </div>
+
       </section>
     );
   }

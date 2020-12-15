@@ -3,7 +3,7 @@
  */
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const StyleLintPlugin = require('stylelint-bare-webpack-plugin');
+// const StyleLintPlugin = require('stylelint-bare-webpack-plugin');
 
 const config = require('./webpack.config.base');
 

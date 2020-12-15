@@ -1,0 +1,33 @@
+<%# <a href="/vpi-demo" style="font-size: 24px;margin-top:70px;margin-left:20px;">
+    <- Go Back
+</a> %>
+<div class="row" style="margin:15px;visibility:visible;" id="csv-row">    
+
+    
+    <div class="col-md-11" style="">
+        <table style="border: 1px solid;width:100%;">
+        <%
+                require 'csv'    
+
+                csv_text = File.read('./vpi.csv')
+                csv = CSV.parse(csv_text, :headers => true)
+                sum= 0;
+                CSV.foreach('./vpi.csv') do |row|
+                    %><tr>
+                        <%
+                        row.each do |r|
+                            
+                            %><td colspan=3 style="max-height:30px">
+                                <%=r.to_s[0..30]%>
+                            </td><%
+                        end
+                        %>
+                    </tr><%
+                end
+                
+                
+            %>
+        </table>
+    </div>
+    
+</div>
