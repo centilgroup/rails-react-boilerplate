@@ -1,18 +1,17 @@
 /**
- * @file Login component.
+ * @file Register component.
  */
 
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-export default class Login extends Component {
+export default class Register extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
       email: '',
       password: '',
+      confirm_password: '',
     };
   }
 
@@ -22,13 +21,12 @@ export default class Login extends Component {
   };
 
   handleSubmit = () => {
-    const { email, password } = this.state;
-    const data = { email, password };
-    const self = this;
+    const { email, password, confirm_password } = this.state;
+    const data = { user: { email, password, confirm_password } };
 
-    axios.post('/users/sign_in.json', data).then(
+    axios.post('/users.json', data).then(
       (response) => {
-        self.props.loginUser(email);
+        console.log(response);
       },
       (error) => {
         console.log(error);
@@ -37,13 +35,13 @@ export default class Login extends Component {
   };
 
   clearInputs = () => {
-    this.setState({ username: '', email: '' });
+    this.setState({ email: '', password: '', confirm_password: '' });
   };
 
   determineEnabled = () => {
-    const { username } = this.state;
-    const { email } = this.state;
-    if (username === '' || email === '') {
+    const { email, password, confirm_password } = this.state;
+
+    if (email === '' || password === '' || confirm_password === '') {
       return false;
     }
 
@@ -51,7 +49,7 @@ export default class Login extends Component {
   };
 
   render() {
-    const { email, password } = this.state;
+    const { email, password, confirm_password } = this.state;
 
     return (
       <article className="article-login">
@@ -78,16 +76,22 @@ export default class Login extends Component {
               type="password"
               placeholder="password"
             />
-            <Link to="/">
-              <button
-                className="button-login"
-                type="submit"
-                disabled={this.determineEnabled()}
-                onClick={this.handleSubmit}
-              >
-                login
-              </button>
-            </Link>
+            <input
+              className="input-login"
+              onChange={this.handleChange}
+              value={confirm_password}
+              name="confirm_password"
+              type="password"
+              placeholder="confirm password"
+            />
+            <button
+              className="button-login"
+              type="submit"
+              disabled={this.determineEnabled()}
+              onClick={this.handleSubmit}
+            >
+              register
+            </button>
           </div>
         </fieldset>
       </article>

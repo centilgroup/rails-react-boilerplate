@@ -5,17 +5,19 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import Login from '../Login/Login';
+import Register from '../Register/Register';
 import Main from '../Main/Main';
 import projects from '../Data';
+import Password from "../Password/Password";
 // import fetchProjectData from '../apiCall';
 
 export default class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       username: '',
       email: '',
-      projectInfo: {},
+      projectInfo: projects,
       userLoggedIn: false,
       settingsSelected: false,
       projectSelection: false,
@@ -23,8 +25,8 @@ export default class App extends Component {
     };
   }
 
-  loginUser = (username, email) => {
-    this.setState({ username });
+  loginUser = (email) => {
+    this.setState({ username: 'test' });
     this.setState({ email });
     this.setState({ userLoggedIn: true });
     this.fetchProjects();
@@ -85,6 +87,12 @@ export default class App extends Component {
             )
           }
         />
+        <Route exact path="/register">
+          <Register />
+        </Route>
+        <Route exact path="/password">
+          <Password />
+        </Route>
       </main>
     );
   }

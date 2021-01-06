@@ -1,18 +1,15 @@
 /**
- * @file Login component.
+ * @file Password component.
  */
 
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-export default class Login extends Component {
+export default class Password extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
       email: '',
-      password: '',
     };
   }
 
@@ -22,13 +19,12 @@ export default class Login extends Component {
   };
 
   handleSubmit = () => {
-    const { email, password } = this.state;
-    const data = { email, password };
-    const self = this;
+    const { email } = this.state;
+    const data = { user: { email } };
 
-    axios.post('/users/sign_in.json', data).then(
+    axios.post('/users/password.json', data).then(
       (response) => {
-        self.props.loginUser(email);
+        console.log(response);
       },
       (error) => {
         console.log(error);
@@ -37,13 +33,13 @@ export default class Login extends Component {
   };
 
   clearInputs = () => {
-    this.setState({ username: '', email: '' });
+    this.setState({ email: '' });
   };
 
   determineEnabled = () => {
-    const { username } = this.state;
     const { email } = this.state;
-    if (username === '' || email === '') {
+
+    if (email === '') {
       return false;
     }
 
@@ -51,7 +47,7 @@ export default class Login extends Component {
   };
 
   render() {
-    const { email, password } = this.state;
+    const { email } = this.state;
 
     return (
       <article className="article-login">
@@ -70,24 +66,14 @@ export default class Login extends Component {
               type="text"
               placeholder="email"
             />
-            <input
-              className="input-login"
-              onChange={this.handleChange}
-              value={password}
-              name="password"
-              type="password"
-              placeholder="password"
-            />
-            <Link to="/">
-              <button
-                className="button-login"
-                type="submit"
-                disabled={this.determineEnabled()}
-                onClick={this.handleSubmit}
-              >
-                login
-              </button>
-            </Link>
+            <button
+              className="button-login"
+              type="submit"
+              disabled={this.determineEnabled()}
+              onClick={this.handleSubmit}
+            >
+              reset your password
+            </button>
           </div>
         </fieldset>
       </article>
