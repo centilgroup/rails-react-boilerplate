@@ -4,11 +4,14 @@
 
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
+import axios from 'axios';
+
 import Login from '../Login/Login';
 import Register from '../Register/Register';
 import Main from '../Main/Main';
 import projects from '../Data';
-import Password from "../Password/Password";
+import Password from '../Password/Password';
+import PasswordEdit from '../Password/PasswordEdit';
 // import fetchProjectData from '../apiCall';
 
 export default class App extends Component {
@@ -41,6 +44,15 @@ export default class App extends Component {
     this.setState({ email: '' });
     this.setState({ userLoggedIn: false });
     this.clearProject();
+
+    axios.delete('/users/sign_out.json').then(
+      (response) => {
+        console.log(response);
+      },
+      (error) => {
+        console.log(error);
+      },
+    );
   };
 
   clearProject = () => {
@@ -92,6 +104,9 @@ export default class App extends Component {
         </Route>
         <Route exact path="/password">
           <Password />
+        </Route>
+        <Route exact path="/password/edit">
+          <PasswordEdit />
         </Route>
       </main>
     );
