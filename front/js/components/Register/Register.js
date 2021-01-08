@@ -5,6 +5,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router';
 
 export default class Register extends Component {
   constructor(props) {
@@ -12,7 +13,8 @@ export default class Register extends Component {
     this.state = {
       email: '',
       password: '',
-      confirm_password: '',
+      password_confirmation: '',
+      redirect: false,
     };
   }
 
@@ -22,12 +24,12 @@ export default class Register extends Component {
   };
 
   handleSubmit = () => {
-    const { email, password, confirm_password } = this.state;
-    const data = { user: { email, password, confirm_password } };
+    const { email, password, password_confirmation } = this.state;
+    const data = { user: { email, password, password_confirmation } };
 
     axios.post('/users.json', data).then(
       (response) => {
-        console.log(response);
+        this.setState({ redirect: true });
       },
       (error) => {
         console.log(error);
@@ -36,13 +38,13 @@ export default class Register extends Component {
   };
 
   clearInputs = () => {
-    this.setState({ email: '', password: '', confirm_password: '' });
+    this.setState({ email: '', password: '', password_confirmation: '' });
   };
 
   determineEnabled = () => {
-    const { email, password, confirm_password } = this.state;
+    const { email, password, password_confirmation } = this.state;
 
-    if (email === '' || password === '' || confirm_password === '') {
+    if (email === '' || password === '' || password_confirmation === '') {
       return false;
     }
 
@@ -50,7 +52,11 @@ export default class Register extends Component {
   };
 
   render() {
-    const { email, password, confirm_password } = this.state;
+    const { email, password, password_confirmation, redirect } = this.state;
+
+    if (redirect) {
+      return <Redirect to="/" />;
+    }
 
     return (
       <article className="article-login">
@@ -80,8 +86,8 @@ export default class Register extends Component {
             <input
               className="input-login"
               onChange={this.handleChange}
-              value={confirm_password}
-              name="confirm_password"
+              value={password_confirmation}
+              name="password_confirmation"
               type="password"
               placeholder="confirm password"
             />
