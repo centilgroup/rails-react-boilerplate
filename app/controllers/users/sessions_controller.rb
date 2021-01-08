@@ -13,10 +13,12 @@ class Users::SessionsController < Devise::SessionsController
 
   # POST /resource/pre_otp
   def pre_otp
-    user = User.find_for_authentication(email: params[:email])
-    return invalid_login_attempt unless user.valid_password?(params[:password])
+    @user = User.find_for_authentication(email: params[:email])
+    return invalid_login_attempt unless @user.valid_password?(params[:password])
 
-    otp_code = user.otp_code
+    return sign_in_user unless @user.two_factor_auth.present?
+
+    otp_code = @user.otp_code
     UserMailer.send_otp_email(params, otp_code).deliver
   end
 
@@ -25,16 +27,18 @@ class Users::SessionsController < Devise::SessionsController
     @user = User.where(email: params[:email]).first
     return invalid_login_attempt if @user&.authenticate_otp(params[:otp], drift: TFA_OTP_VALIDITY).nil?
 
-    auth_token = encode(user_id: @user.id)
-    sign_in :user, @user
-
-    render json: { user: @user, auth_token: auth_token }
+    sign_in_user
   end
 
   # DELETE /resource/sign_out
   # def destroy
   #   super
   # end
+
+  # PATCH /resource/tfa
+  def tfa
+    current_user.update_attribute(:two_factor_auth, params[:two_factor_auth])
+  end
 
   # protected
 
@@ -44,6 +48,13 @@ class Users::SessionsController < Devise::SessionsController
   # end
 
   private
+
+  def sign_in_user
+    auth_token = encode(user_id: @user.id)
+    sign_in :user, @user
+
+    render json: { user: @user, auth_token: auth_token }
+  end
 
   def invalid_login_attempt
     warden.custom_failure!

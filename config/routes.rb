@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   }
   devise_scope :user do
     post 'users/pre_otp', to: 'users/sessions#pre_otp'
+    put 'users/tfa', to: 'users/sessions#tfa'
   end
 
   resources :jiras
