@@ -4,6 +4,7 @@
 
 import React, { Component } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 export default class Register extends Component {
   constructor(props) {
@@ -92,6 +93,9 @@ export default class Register extends Component {
             >
               register
             </button>
+            <Link to="/">
+              <p className="nav-link">Go to login</p>
+            </Link>
           </div>
         </fieldset>
       </article>

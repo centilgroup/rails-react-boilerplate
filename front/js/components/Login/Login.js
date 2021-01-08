@@ -5,6 +5,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
+import { Link } from 'react-router-dom';
 
 export default class Login extends Component {
   constructor(props) {
@@ -91,6 +92,13 @@ export default class Login extends Component {
             >
               login
             </button>
+            <Link to="/register">
+              <span className="nav-link">New user registration</span>
+            </Link>
+            <span className="nav-link"> | </span>
+            <Link to="/password">
+              <span className="nav-link">Forgot password?</span>
+            </Link>
           </div>
         </fieldset>
       </article>

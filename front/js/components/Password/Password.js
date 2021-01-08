@@ -4,6 +4,7 @@
 
 import React, { Component } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 export default class Password extends Component {
   constructor(props) {
@@ -74,6 +75,9 @@ export default class Password extends Component {
             >
               reset your password
             </button>
+            <Link to="/">
+              <p className="nav-link">Go to login</p>
+            </Link>
           </div>
         </fieldset>
       </article>
