@@ -16,13 +16,14 @@ class Users::SessionsController < Devise::SessionsController
     user = User.find_for_authentication(email: params[:email])
     return invalid_login_attempt unless user.valid_password?(params[:password])
 
-    UserMailer.send_otp_email(params, user.otp_code).deliver
+    otp_code = user.otp_code
+    UserMailer.send_otp_email(params, otp_code).deliver
   end
 
   # POST /resource/sign_in
   def create
     @user = User.where(email: params[:email]).first
-    return invalid_login_attempt if @user&.authenticate_otp(params[:otp]).nil?
+    return invalid_login_attempt if @user&.authenticate_otp(params[:otp], drift: TFA_OTP_VALIDITY).nil?
 
     sign_in :user, @user
 

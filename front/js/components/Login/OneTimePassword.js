@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 import axios from 'axios';
-import {Redirect} from "react-router";
+import { Redirect } from 'react-router';
 
 export default class Login extends Component {
   constructor(props) {
