@@ -36,6 +36,8 @@ gem 'jira-ruby'
 gem 'devise'
 # ActiveModel::Otp makes adding Two Factor Authentication (TFA) to a model simple
 gem 'active_model_otp'
+# JSON Web Token
+gem 'jwt'
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password

@@ -25,9 +25,10 @@ class Users::SessionsController < Devise::SessionsController
     @user = User.where(email: params[:email]).first
     return invalid_login_attempt if @user&.authenticate_otp(params[:otp], drift: TFA_OTP_VALIDITY).nil?
 
+    auth_token = encode(user_id: @user.id)
     sign_in :user, @user
 
-    render json: { user: @user }
+    render json: { user: @user, auth_token: auth_token }
   end
 
   # DELETE /resource/sign_out
@@ -47,5 +48,10 @@ class Users::SessionsController < Devise::SessionsController
   def invalid_login_attempt
     warden.custom_failure!
     render json: { error: 'invalid login attempt' }, status: :unprocessable_entity
+  end
+
+  def encode(payload, exp = 1.month.from_now)
+    payload[:exp] = exp.to_i
+    JWT.encode(payload, Rails.application.secrets.secret_key_base)
   end
 end

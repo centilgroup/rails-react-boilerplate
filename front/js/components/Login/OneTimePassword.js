@@ -36,6 +36,7 @@ export default class Login extends Component {
       (response) => {
         this.props.loginUser(email);
         this.setState({ redirect: true });
+        localStorage.setItem('auth_token', response.data.auth_token);
       },
       (error) => {
         this.setState({ redirect: true });

@@ -29,6 +29,12 @@ export default class App extends Component {
     };
   }
 
+  componentDidMount() {
+    if (localStorage.getItem('auth_token')) {
+      this.setState({ userLoggedIn: true });
+    }
+  }
+
   loginUser = (email) => {
     this.setState({ username: 'test' });
     this.setState({ email });
@@ -48,7 +54,7 @@ export default class App extends Component {
 
     axios.delete('/users/sign_out.json').then(
       (response) => {
-        console.log(response);
+        localStorage.removeItem('auth_token');
       },
       (error) => {
         console.log(error);
