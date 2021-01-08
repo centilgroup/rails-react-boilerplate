@@ -4,6 +4,9 @@ Rails.application.routes.draw do
       registrations: 'users/registrations',
       passwords: 'users/passwords'
   }
+  devise_scope :user do
+    post 'users/pre_otp', to: 'users/sessions#pre_otp'
+  end
 
   resources :jiras
   get 'home/index'

@@ -4,17 +4,23 @@
 
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Redirect } from 'react-router';
+import {Redirect} from "react-router";
 
 export default class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
       email: '',
-      password: '',
+      otp: '',
       redirect: false,
     };
+  }
+
+  componentDidMount() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+
+    this.setState({ email });
   }
 
   handleChange = (e) => {
@@ -23,27 +29,27 @@ export default class Login extends Component {
   };
 
   handleSubmit = () => {
-    const { email, password } = this.state;
-    const data = { email, password };
+    const { email, otp } = this.state;
+    const data = { email, otp };
 
-    axios.post('/users/pre_otp.json', data).then(
+    axios.post('/users/sign_in.json', data).then(
       (response) => {
+        this.props.loginUser(email);
         this.setState({ redirect: true });
       },
       (error) => {
-        console.log(error);
+        this.setState({ redirect: true });
       },
     );
   };
 
   clearInputs = () => {
-    this.setState({ username: '', email: '' });
+    this.setState({ otp: '' });
   };
 
   determineEnabled = () => {
-    const { username } = this.state;
-    const { email } = this.state;
-    if (username === '' || email === '') {
+    const { email, otp } = this.state;
+    if (email === '' || otp === '') {
       return false;
     }
 
@@ -51,11 +57,10 @@ export default class Login extends Component {
   };
 
   render() {
-    const { email, password, redirect } = this.state;
+    const { otp, redirect } = this.state;
 
     if (redirect) {
-      const url = `/otp?email=${email}`;
-      return <Redirect to={url} />;
+      return <Redirect to="/" />;
     }
 
     return (
@@ -70,18 +75,10 @@ export default class Login extends Component {
             <input
               className="input-login"
               onChange={this.handleChange}
-              value={email}
-              name="email"
-              type="text"
-              placeholder="email"
-            />
-            <input
-              className="input-login"
-              onChange={this.handleChange}
-              value={password}
-              name="password"
+              value={otp}
+              name="otp"
               type="password"
-              placeholder="password"
+              placeholder="otp"
             />
             <button
               className="button-login"
@@ -89,7 +86,7 @@ export default class Login extends Component {
               disabled={this.determineEnabled()}
               onClick={this.handleSubmit}
             >
-              login
+              submit otp
             </button>
           </div>
         </fieldset>

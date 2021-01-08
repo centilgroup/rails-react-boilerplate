@@ -32,7 +32,10 @@ gem 'jbuilder', '~> 2.5'
 gem 'grape'
 gem 'pry'
 gem 'jira-ruby'
+# Devise is a flexible authentication solution for Rails based on Warden
 gem 'devise'
+# ActiveModel::Otp makes adding Two Factor Authentication (TFA) to a model simple
+gem 'active_model_otp'
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password

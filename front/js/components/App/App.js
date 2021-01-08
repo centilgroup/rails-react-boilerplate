@@ -12,6 +12,7 @@ import Main from '../Main/Main';
 import projects from '../Data';
 import Password from '../Password/Password';
 import PasswordEdit from '../Password/PasswordEdit';
+import OneTimePassword from '../Login/OneTimePassword';
 // import fetchProjectData from '../apiCall';
 
 export default class App extends Component {
@@ -107,6 +108,9 @@ export default class App extends Component {
         </Route>
         <Route exact path="/password/edit">
           <PasswordEdit />
+        </Route>
+        <Route exact path="/otp">
+          <OneTimePassword loginUser={this.loginUser} />
         </Route>
       </main>
     );
