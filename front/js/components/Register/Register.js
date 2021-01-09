@@ -1,20 +1,20 @@
 /**
- * @file Login component.
+ * @file Register component.
  */
 
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router';
 
-export default class Login extends Component {
+export default class Register extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
       email: '',
       password: '',
-      redirect: '',
+      password_confirmation: '',
+      redirect: false,
     };
   }
 
@@ -24,20 +24,12 @@ export default class Login extends Component {
   };
 
   handleSubmit = () => {
-    const { email, password } = this.state;
-    const data = { email, password };
+    const { email, password, password_confirmation } = this.state;
+    const data = { user: { email, password, password_confirmation } };
 
-    axios.post('/users/pre_otp.json', data).then(
+    axios.post('/users.json', data).then(
       (response) => {
-        console.log(response);
-        const { auth_token } = response.data;
-        if (auth_token) {
-          this.props.loginUser(email);
-          localStorage.setItem('auth_token', auth_token);
-          this.setState({ redirect: 'no_otp' });
-        } else {
-          this.setState({ redirect: 'otp' });
-        }
+        this.setState({ redirect: true });
       },
       (error) => {
         console.log(error);
@@ -46,13 +38,13 @@ export default class Login extends Component {
   };
 
   clearInputs = () => {
-    this.setState({ username: '', email: '' });
+    this.setState({ email: '', password: '', password_confirmation: '' });
   };
 
   determineEnabled = () => {
-    const { username } = this.state;
-    const { email } = this.state;
-    if (username === '' || email === '') {
+    const { email, password, password_confirmation } = this.state;
+
+    if (email === '' || password === '' || password_confirmation === '') {
       return false;
     }
 
@@ -60,14 +52,9 @@ export default class Login extends Component {
   };
 
   render() {
-    const { email, password, redirect } = this.state;
+    const { email, password, password_confirmation, redirect } = this.state;
 
-    if (redirect === 'otp') {
-      const url = `/otp?email=${email}`;
-      return <Redirect to={url} />;
-    }
-
-    if (redirect === 'no_otp') {
+    if (redirect) {
       return <Redirect to="/" />;
     }
 
@@ -96,20 +83,24 @@ export default class Login extends Component {
               type="password"
               placeholder="password"
             />
+            <input
+              className="input-login"
+              onChange={this.handleChange}
+              value={password_confirmation}
+              name="password_confirmation"
+              type="password"
+              placeholder="confirm password"
+            />
             <button
               className="button-login"
               type="submit"
               disabled={this.determineEnabled()}
               onClick={this.handleSubmit}
             >
-              login
+              register
             </button>
-            <Link to="/register">
-              <span className="nav-link">New user registration</span>
-            </Link>
-            <span className="nav-link"> | </span>
-            <Link to="/password">
-              <span className="nav-link">Forgot password?</span>
+            <Link to="/">
+              <p className="nav-link">Go to login</p>
             </Link>
           </div>
         </fieldset>

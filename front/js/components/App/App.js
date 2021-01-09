@@ -4,18 +4,24 @@
 
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
+import axios from 'axios';
+
 import Login from '../Login/Login';
+import Register from '../Register/Register';
 import Main from '../Main/Main';
 import projects from '../Data';
+import Password from '../Password/Password';
+import PasswordEdit from '../Password/PasswordEdit';
+import OneTimePassword from '../Login/OneTimePassword';
 // import fetchProjectData from '../apiCall';
 
 export default class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       username: '',
       email: '',
-      projectInfo: {},
+      projectInfo: projects,
       userLoggedIn: false,
       settingsSelected: false,
       projectSelection: false,
@@ -23,8 +29,14 @@ export default class App extends Component {
     };
   }
 
-  loginUser = (username, email) => {
-    this.setState({ username });
+  componentDidMount() {
+    if (localStorage.getItem('auth_token')) {
+      this.setState({ userLoggedIn: true });
+    }
+  }
+
+  loginUser = (email) => {
+    this.setState({ username: 'test' });
     this.setState({ email });
     this.setState({ userLoggedIn: true });
     this.fetchProjects();
@@ -39,6 +51,15 @@ export default class App extends Component {
     this.setState({ email: '' });
     this.setState({ userLoggedIn: false });
     this.clearProject();
+
+    axios.delete('/users/sign_out.json').then(
+      (response) => {
+        localStorage.removeItem('auth_token');
+      },
+      (error) => {
+        console.log(error);
+      },
+    );
   };
 
   clearProject = () => {
@@ -85,6 +106,18 @@ export default class App extends Component {
             )
           }
         />
+        <Route exact path="/register">
+          <Register />
+        </Route>
+        <Route exact path="/password">
+          <Password />
+        </Route>
+        <Route exact path="/password/edit">
+          <PasswordEdit />
+        </Route>
+        <Route exact path="/otp">
+          <OneTimePassword loginUser={this.loginUser} />
+        </Route>
       </main>
     );
   }

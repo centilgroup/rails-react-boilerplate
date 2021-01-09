@@ -32,6 +32,12 @@ gem 'jbuilder', '~> 2.5'
 gem 'grape'
 gem 'pry'
 gem 'jira-ruby'
+# Devise is a flexible authentication solution for Rails based on Warden
+gem 'devise'
+# ActiveModel::Otp makes adding Two Factor Authentication (TFA) to a model simple
+gem 'active_model_otp'
+# JSON Web Token
+gem 'jwt'
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password
@@ -52,6 +58,10 @@ group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
+  # Code inspector
+  gem 'rubocop'
+  # Mail opener
+  gem 'letter_opener'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
