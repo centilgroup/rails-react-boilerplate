@@ -24,10 +24,8 @@ export default class Profile extends Component {
       api_version: '',
       jira_username: '',
       jira_password: '',
-      avatar_link:
-        'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png',
-      avatar:
-        'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png',
+      avatar: '',
+      avatar_link: '',
     };
   }
 
@@ -159,7 +157,7 @@ export default class Profile extends Component {
                 />
                 <Figure onClick={this.handlePhotoClick}>
                   <Figure.Image
-                    src={avatar_link}
+                    src={avatar_link || '/avatar.jpg'}
                     roundedCircle
                     width={160}
                     height={160}
