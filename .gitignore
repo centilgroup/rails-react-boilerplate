@@ -7,25 +7,29 @@
 # Ignore bundler config.
 /.bundle
 
-# Ignore all logfiles and tempfiles.
+# Ignore all logfiles, tempfiles and storagefiles.
 /log/*
 /tmp/*
 !/log/.keep
 !/tmp/.keep
+storage/
 
 # Ignore Byebug command history file.
 .byebug_history
 
 .ruby-gemset
+
+# Ignore node modules which has packages
 node_modules
 
+# Ignore dist folders
 public/dist/*.json
-
 public/dist/js/*.js
 public/dist/js/*.txt
 public/dist/js/*.map
-
 public/dist/css/*.css
 public/dist/css/*.map
 
+# Ignore IDE related folders
 .vscode
+.idea

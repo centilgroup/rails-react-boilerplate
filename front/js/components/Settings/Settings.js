@@ -26,9 +26,9 @@ class Settings extends Component {
 
   handleChange = (e) => {
     const two_factor_auth = e.target.checked;
-    const data = { two_factor_auth };
+    const data = { user: { two_factor_auth } };
 
-    axios.put('/users/tfa.json', data).then(
+    axios.put('/users/profile.json', data).then(
       (response) => {
         console.log(response);
       },

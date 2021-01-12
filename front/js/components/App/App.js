@@ -13,6 +13,7 @@ import projects from '../Data';
 import Password from '../Password/Password';
 import PasswordEdit from '../Password/PasswordEdit';
 import OneTimePassword from '../Login/OneTimePassword';
+import Profile from '../Profile/Profile';
 // import fetchProjectData from '../apiCall';
 
 export default class App extends Component {
@@ -55,6 +56,7 @@ export default class App extends Component {
     axios.delete('/users/sign_out.json').then(
       (response) => {
         localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
       },
       (error) => {
         console.log(error);
@@ -117,6 +119,9 @@ export default class App extends Component {
         </Route>
         <Route exact path="/otp">
           <OneTimePassword loginUser={this.loginUser} />
+        </Route>
+        <Route exact path="/profile">
+          <Profile />
         </Route>
       </main>
     );

@@ -35,9 +35,10 @@ class Users::SessionsController < Devise::SessionsController
   #   super
   # end
 
-  # PATCH /resource/tfa
-  def tfa
-    current_user.update_attribute(:two_factor_auth, params[:two_factor_auth])
+  # PUT /resource/profile
+  def profile
+    current_user.update(user_params)
+    current_user.avatar.attach(params[:user][:avatar]) if params[:user][:avatar].present?
   end
 
   # protected
@@ -49,16 +50,22 @@ class Users::SessionsController < Devise::SessionsController
 
   private
 
-  def sign_in_user
-    auth_token = encode(user_id: @user.id)
-    sign_in :user, @user
+  def user_params
+    params.require(:user).permit(
+      :email, :password, :first_name, :last_name, :username,
+      :company_name, :jira_url, :api_version, :jira_username,
+      :jira_password, :two_factor_auth, :avatar
+    )
+  end
 
-    render json: { user: @user, auth_token: auth_token }
+  def sign_in_user
+    @auth_token = encode(user_id: @user.id)
+    sign_in :user, @user
   end
 
   def invalid_login_attempt
     warden.custom_failure!
-    render json: { error: 'invalid login attempt' }, status: :unprocessable_entity
+    render json: {error: "invalid login attempt"}, status: :unprocessable_entity
   end
 
   def encode(payload, exp = 1.month.from_now)
