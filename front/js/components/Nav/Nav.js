@@ -16,7 +16,7 @@ const Nav = (props) => {
             <span className="top-version">Alpha</span>
           </Link>
         </div>
-        <div className="col-md-2">
+        <div className="col-md-10">
           <span>
             {/* <button className="button-nav" onClick={openProjectDropDown}>projects</button>
             <button className="button-nav" onClick={toggleSettings}> settings </button> */}
@@ -34,6 +34,11 @@ const Nav = (props) => {
             {/* > */}
             {/*  VPI Test Harness */}
             {/* </a> */}
+            <NavLink to="/profile">
+              <button className="button-nav" type="button">
+                Profile
+              </button>
+            </NavLink>
             <NavLink to="/" onClick={logoutUser}>
               <button className="button-nav" type="button">
                 Logout

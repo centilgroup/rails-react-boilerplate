@@ -34,9 +34,10 @@ export default class Login extends Component {
 
     axios.post('/users/sign_in.json', data).then(
       (response) => {
-        this.props.loginUser(email);
+        const { auth_token, user } = response.data;
+        localStorage.setItem('auth_token', auth_token);
+        localStorage.setItem('user', JSON.stringify(user));
         this.setState({ redirect: true });
-        localStorage.setItem('auth_token', response.data.auth_token);
       },
       (error) => {
         this.setState({ redirect: true });

@@ -29,11 +29,10 @@ export default class Login extends Component {
 
     axios.post('/users/pre_otp.json', data).then(
       (response) => {
-        console.log(response);
-        const { auth_token } = response.data;
+        const { auth_token, user } = response.data;
         if (auth_token) {
-          this.props.loginUser(email);
           localStorage.setItem('auth_token', auth_token);
+          localStorage.setItem('user', JSON.stringify(user));
           this.setState({ redirect: 'no_otp' });
         } else {
           this.setState({ redirect: 'otp' });
