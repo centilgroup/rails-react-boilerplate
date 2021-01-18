@@ -33,7 +33,6 @@ export default class Login extends Component {
         if (auth_token) {
           localStorage.setItem('auth_token', auth_token);
           localStorage.setItem('user', JSON.stringify(user));
-          this.props.loginUser(email);
           this.setState({ redirect: 'no_otp' });
         } else {
           this.setState({ redirect: 'otp' });

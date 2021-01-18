@@ -28,6 +28,7 @@
     "cjs": "0.0.11",
     "eslint": "^7.15.0",
     "eslint-loader": "^4.0.2",
+    "history": "^5.0.0",
     "loglevel": "^1.6.8",
     "loglevel-plugin-prefix": "^0.8.4",
     "prop-types": "^15.7.2",
@@ -35,8 +36,10 @@
     "react-bootstrap": "^1.4.3",
     "react-chartjs-2": "^2.9.0",
     "react-dom": "^16.13.1",
+    "react-gauge-chart": "^0.3.0",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
+    "react-router-guards": "^1.0.2",
     "sass": "^1.26.8"
   },
   "devDependencies": {

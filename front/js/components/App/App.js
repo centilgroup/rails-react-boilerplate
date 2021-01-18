@@ -3,56 +3,30 @@
  */
 
 import React, { Component } from 'react';
-import { Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
+import { Switch } from 'react-router';
+import { GuardProvider, GuardedRoute } from 'react-router-guards';
+import { createBrowserHistory } from 'history';
 import axios from 'axios';
 
 import Login from '../Login/Login';
 import Register from '../Register/Register';
-import Main from '../Main/Main';
-import projects from '../Data';
 import Password from '../Password/Password';
 import PasswordEdit from '../Password/PasswordEdit';
 import OneTimePassword from '../Login/OneTimePassword';
 import Profile from '../Profile/Profile';
-// import fetchProjectData from '../apiCall';
+import Dashboard from '../Dashboard/Dashboard';
 
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      username: '',
-      email: '',
-      projectInfo: projects,
-      userLoggedIn: false,
-      settingsSelected: false,
-      projectSelection: false,
-      clickedProjectDropDown: false,
-    };
+
+    this.state = {};
   }
 
-  componentDidMount() {
-    if (localStorage.getItem('auth_token')) {
-      this.setState({ userLoggedIn: true });
-    }
-  }
-
-  loginUser = (email) => {
-    this.setState({ username: 'test' });
-    this.setState({ email });
-    this.setState({ userLoggedIn: true });
-    this.fetchProjects();
-  };
-
-  fetchProjects = () => {
-    this.setState({ projectInfo: projects });
-  };
+  componentDidMount() {}
 
   logoutUser = () => {
-    this.setState({ username: '' });
-    this.setState({ email: '' });
-    this.setState({ userLoggedIn: false });
-    this.clearProject();
-
     axios.delete('/users/sign_out.json').then(
       (response) => {
         localStorage.removeItem('auth_token');
@@ -64,65 +38,79 @@ export default class App extends Component {
     );
   };
 
-  clearProject = () => {
-    this.setState({ projectInfo: {} });
-    this.setState({ projectSelection: false });
-  };
-
-  toggleSettings = () => {
-    this.setState({ settingsSelected: !this.state.settingsSelected });
-  };
-
-  selectProject = (projectNum) => {
-    this.setState({ projectSelection: projectNum });
-  };
-
-  openProjectDropDown = () => {
-    this.setState({
-      clickedProjectDropDown: !this.state.clickedProjectDropDown,
-    });
-  };
-
   render() {
+    const history = createBrowserHistory();
+    const requireLogin = (to, from, next) => {
+      let userLoggedIn = false;
+      if (localStorage.getItem('auth_token')) {
+        userLoggedIn = true;
+      }
+
+      if (to.meta.auth) {
+        if (userLoggedIn) {
+          next();
+        }
+        next.redirect('/login');
+      } else if (to.meta.auth === false) {
+        if (userLoggedIn) {
+          next.redirect('/');
+        }
+        next();
+      } else {
+        next();
+      }
+    };
+
     return (
       <main>
-        <Route
-          exact
-          path="/"
-          render={() =>
-            this.state.userLoggedIn === false ? (
-              <Login loginUser={this.loginUser} />
-            ) : (
-              <Main
-                projectSelection={this.state.projectSelection}
-                username={this.state.username}
-                email={this.state.email}
-                projectInfo={this.state.projectInfo}
-                settingsSelected={this.state.settingsSelected}
-                toggleSettings={this.toggleSettings}
-                logoutUser={this.logoutUser}
-                clickedProjectDropDown={this.state.clickedProjectDropDown}
-                openProjectDropDown={this.openProjectDropDown}
-                selectProject={this.selectProject}
+        <BrowserRouter history={history}>
+          <GuardProvider guards={[requireLogin]}>
+            <Switch>
+              <GuardedRoute
+                path="/"
+                exact
+                component={Dashboard}
+                meta={{ auth: true }}
               />
-            )
-          }
-        />
-        <Route exact path="/register">
-          <Register />
-        </Route>
-        <Route exact path="/password">
-          <Password />
-        </Route>
-        <Route exact path="/password/edit">
-          <PasswordEdit />
-        </Route>
-        <Route exact path="/otp">
-          <OneTimePassword loginUser={this.loginUser} />
-        </Route>
-        <Route exact path="/profile">
-          <Profile />
-        </Route>
+              <GuardedRoute
+                path="/profile"
+                exact
+                component={Profile}
+                meta={{ auth: true }}
+              />
+              <GuardedRoute
+                path="/login"
+                exact
+                component={Login}
+                meta={{ auth: false }}
+              />
+              <GuardedRoute
+                path="/register"
+                exact
+                component={Register}
+                meta={{ auth: false }}
+              />
+              <GuardedRoute
+                path="/password"
+                exact
+                component={Password}
+                meta={{ auth: false }}
+              />
+              <GuardedRoute
+                path="/password/edit"
+                exact
+                component={PasswordEdit}
+                meta={{ auth: false }}
+              />
+              <GuardedRoute
+                path="/otp"
+                exact
+                component={OneTimePassword}
+                meta={{ auth: false }}
+              />
+            </Switch>
+          </GuardProvider>
+        </BrowserRouter>
       </main>
     );
   }
