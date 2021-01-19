@@ -1,16 +1,27 @@
 import React, { Component } from 'react';
+import { NavLink } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import GaugeChart from 'react-gauge-chart';
-import { Container, Row, Col, Card, ListGroup, Badge } from 'react-bootstrap';
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  ListGroup,
+  Badge,
+  Button,
+} from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import axios from 'axios';
+import { Redirect } from 'react-router';
 
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
       issues: [],
+      redirect: false,
     };
   }
 
@@ -39,8 +50,21 @@ export default class Dashboard extends Component {
     );
   };
 
+  logoutUser = () => {
+    axios.delete('/users/sign_out.json').then(
+      (response) => {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        this.setState({ redirect: true });
+      },
+      (error) => {
+        console.log(error);
+      },
+    );
+  };
+
   render() {
-    const { issues } = this.state;
+    const { issues, redirect } = this.state;
     const style = {
       height: 300,
       overflow: 'auto',
@@ -58,8 +82,27 @@ export default class Dashboard extends Component {
       ));
     }
 
+    if (redirect) {
+      return <Redirect to="/login" />;
+    }
+
     return (
       <section>
+        <nav>
+          <span>
+            <NavLink to="/profile" className="mr-2">
+              <Button variant="primary" size="sm">
+                Profile
+              </Button>
+            </NavLink>
+            <NavLink to="/" onClick={this.logoutUser}>
+              <Button variant="primary" size="sm">
+                Logout
+              </Button>
+            </NavLink>
+          </span>
+        </nav>
+
         <Container>
           <Row className="py-4">
             <Col xs={4}>
