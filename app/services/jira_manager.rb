@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class JiraManager
-  # TODO: Need to remove the hard-coded values
   def initialize(**params)
     required_keys = %i[username password site]
     unless required_keys.all? { |required_key| params.key? required_key }
@@ -20,7 +19,7 @@ class JiraManager
 
     @query_options = {
       fields: [],
-      start_at: 0,
+      start_at: params[:start_at] || 0,
       max_results: 10
     }
   end

@@ -4,11 +4,11 @@ class JirasController < ApplicationController
   # GET /jiras
   # GET /jiras.json
   def index
-    # TODO: Need to implement pagination
     jira = JiraManager.new(
       username: current_user.jira_username,
       password: current_user.jira_password,
-      site: current_user.jira_url
+      site: current_user.jira_url,
+      start_at: params[:start_at]
     )
     @issues = jira.fetch_issues
   rescue
