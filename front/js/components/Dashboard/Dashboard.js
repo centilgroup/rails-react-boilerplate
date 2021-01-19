@@ -1,14 +1,27 @@
 import React, { Component } from 'react';
+import { NavLink } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import GaugeChart from 'react-gauge-chart';
-import { Container, Row, Col, Card, ListGroup } from 'react-bootstrap';
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  ListGroup,
+  Badge,
+  Button,
+} from 'react-bootstrap';
+import Skeleton from 'react-loading-skeleton';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import axios from 'axios';
+import { Redirect } from 'react-router';
 
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
       issues: [],
+      redirect: false,
     };
   }
 
@@ -23,15 +36,73 @@ export default class Dashboard extends Component {
     );
   };
 
-  render() {
+  fetchMoreData = () => {
     const { issues } = this.state;
+    const startAt = issues.length;
 
-    const listIssues = issues.map((issue) => (
-      <ListGroup.Item key={issue.key}>{issue.summary}</ListGroup.Item>
-    ));
+    axios.get(`/jiras.json?start_at=${startAt}`).then(
+      (response) => {
+        this.setState({ issues: issues.concat(response.data) });
+      },
+      (error) => {
+        console.log(error);
+      },
+    );
+  };
+
+  logoutUser = () => {
+    axios.delete('/users/sign_out.json').then(
+      (response) => {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        this.setState({ redirect: true });
+      },
+      (error) => {
+        console.log(error);
+      },
+    );
+  };
+
+  render() {
+    const { issues, redirect } = this.state;
+    const style = {
+      height: 300,
+      overflow: 'auto',
+    };
+    let listIssues;
+
+    listIssues = <Skeleton count={10} />;
+
+    if (issues.length > 0) {
+      listIssues = issues.map((issue) => (
+        <ListGroup.Item key={issue.id}>
+          <Badge variant="primary">{issue.key}</Badge>
+          <div>{issue.summary}</div>
+        </ListGroup.Item>
+      ));
+    }
+
+    if (redirect) {
+      return <Redirect to="/login" />;
+    }
 
     return (
       <section>
+        <nav>
+          <span>
+            <NavLink to="/profile" className="mr-2">
+              <Button variant="primary" size="sm">
+                Profile
+              </Button>
+            </NavLink>
+            <NavLink to="/" onClick={this.logoutUser}>
+              <Button variant="primary" size="sm">
+                Logout
+              </Button>
+            </NavLink>
+          </span>
+        </nav>
+
         <Container>
           <Row className="py-4">
             <Col xs={4}>
@@ -73,7 +144,18 @@ export default class Dashboard extends Component {
             <Col xs={6}>
               <Card>
                 <Card.Body>
-                  <ListGroup variant="flush">{listIssues}</ListGroup>
+                  <Card.Title>Jira Activity</Card.Title>
+                  <ListGroup variant="flush" style={style} id="jiraActivity">
+                    <InfiniteScroll
+                      dataLength={issues.length}
+                      next={this.fetchMoreData}
+                      hasMore
+                      loader={<Skeleton count={10} />}
+                      scrollableTarget="jiraActivity"
+                    >
+                      {listIssues}
+                    </InfiniteScroll>
+                  </ListGroup>
                 </Card.Body>
               </Card>
             </Col>

@@ -7,7 +7,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { Switch } from 'react-router';
 import { GuardProvider, GuardedRoute } from 'react-router-guards';
 import { createBrowserHistory } from 'history';
-import axios from 'axios';
 
 import Login from '../Login/Login';
 import Register from '../Register/Register';
@@ -25,18 +24,6 @@ export default class App extends Component {
   }
 
   componentDidMount() {}
-
-  logoutUser = () => {
-    axios.delete('/users/sign_out.json').then(
-      (response) => {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user');
-      },
-      (error) => {
-        console.log(error);
-      },
-    );
-  };
 
   render() {
     const history = createBrowserHistory();
