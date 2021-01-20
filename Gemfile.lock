@@ -285,6 +285,7 @@ DEPENDENCIES
   jquery-rails
   jwt
   letter_opener
+  listen (~> 3.0.5)
   pg (~> 0.18)
   pry
   puma (~> 4.3.1)
