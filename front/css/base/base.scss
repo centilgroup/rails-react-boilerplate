@@ -479,3 +479,10 @@ nav {
   text-align: center;
   width: 100%;
 }
+
+.gas-gauge {
+  .needle,
+  .text-group {
+    display: none;
+  }
+}

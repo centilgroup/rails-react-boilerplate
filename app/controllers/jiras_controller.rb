@@ -8,6 +8,7 @@ class JirasController < ApplicationController
       username: current_user.jira_username,
       password: current_user.jira_password,
       site: current_user.jira_url,
+      user_id: current_user.id,
       start_at: params[:start_at]
     )
     @issues = jira.fetch_issues
