@@ -108,21 +108,33 @@ export default class Dashboard extends Component {
             <Col xs={4}>
               <Card>
                 <Card.Body>
-                  <GaugeChart className="gas-gauge" id="gauge_chart1" />
+                  <GaugeChart
+                    className="gas-gauge"
+                    id="gauge_chart_dev"
+                    nrOfLevels={2}
+                  />
                 </Card.Body>
               </Card>
             </Col>
             <Col xs={4}>
               <Card>
                 <Card.Body>
-                  <GaugeChart className="gas-gauge" id="gauge_chart2" />
+                  <GaugeChart
+                    className="gas-gauge"
+                    id="gauge_chart_qa"
+                    nrOfLevels={2}
+                  />
                 </Card.Body>
               </Card>
             </Col>
             <Col xs={4}>
               <Card>
                 <Card.Body>
-                  <GaugeChart className="gas-gauge" id="gauge_chart3" />
+                  <GaugeChart
+                    className="gas-gauge"
+                    id="gauge_chart_deploy"
+                    nrOfLevels={2}
+                  />
                 </Card.Body>
               </Card>
             </Col>

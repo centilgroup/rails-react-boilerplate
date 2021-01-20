@@ -7,4 +7,7 @@ class User < ApplicationRecord
   has_one_time_password column_name: :otp_secret_key, length: 6
 
   has_one_attached :avatar
+
+  has_many :projects
+  has_many :issues
 end
