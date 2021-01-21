@@ -10,6 +10,9 @@ import {
   ListGroup,
   Badge,
   Button,
+  Image,
+  OverlayTrigger,
+  Tooltip,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -60,9 +63,43 @@ export default class Dashboard extends Component {
 
     if (issues.length > 0) {
       listIssues = issues.map((issue) => (
-        <ListGroup.Item key={issue.id}>
-          <Badge variant="primary">{issue.key}</Badge>
-          <div>{issue.summary}</div>
+        <ListGroup.Item key={issue.id} className="d-flex">
+          <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip id={`tooltip-issue-type-${issue.id}`}>
+                {issue.issue_type.name}
+              </Tooltip>
+            }
+          >
+            <div>
+              <Image
+                src={issue.issue_type.icon_url}
+                alt={issue.issue_type.name}
+                rounded
+              />
+            </div>
+          </OverlayTrigger>
+          <div className="ml-2">
+            <strong>{issue.key}</strong>
+          </div>
+          <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip id={`tooltip-summary-${issue.id}`}>
+                {issue.summary}
+              </Tooltip>
+            }
+          >
+            <div className="text-truncate ml-2 issue-summary">
+              {issue.summary}
+            </div>
+          </OverlayTrigger>
+          <div className="ml-auto">
+            <Badge variant="secondary" className="text-uppercase">
+              {issue.status.name}
+            </Badge>
+          </div>
         </ListGroup.Item>
       ));
     }
