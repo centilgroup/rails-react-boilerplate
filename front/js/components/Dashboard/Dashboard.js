@@ -103,15 +103,21 @@ export default class Dashboard extends Component {
           </span>
         </nav>
 
-        <Container>
+        <Container className="pt-5">
           <Row className="py-4">
             <Col xs={4}>
               <Card>
                 <Card.Body>
+                  <Card.Title className="text-center">Development</Card.Title>
                   <GaugeChart
                     className="gas-gauge"
                     id="gauge_chart_dev"
                     nrOfLevels={2}
+                    colors={['#e5e5e5', '#009cf0']}
+                    cornerRadius={0}
+                    arcWidth={0.1}
+                    arcPadding={0.02}
+                    hideText
                   />
                 </Card.Body>
               </Card>
@@ -119,10 +125,16 @@ export default class Dashboard extends Component {
             <Col xs={4}>
               <Card>
                 <Card.Body>
+                  <Card.Title className="text-center">QA/Test</Card.Title>
                   <GaugeChart
                     className="gas-gauge"
                     id="gauge_chart_qa"
                     nrOfLevels={2}
+                    colors={['#e5e5e5', '#009cf0']}
+                    cornerRadius={0}
+                    arcWidth={0.1}
+                    arcPadding={0.02}
+                    hideText
                   />
                 </Card.Body>
               </Card>
@@ -130,10 +142,16 @@ export default class Dashboard extends Component {
             <Col xs={4}>
               <Card>
                 <Card.Body>
+                  <Card.Title className="text-center">Deploy</Card.Title>
                   <GaugeChart
                     className="gas-gauge"
                     id="gauge_chart_deploy"
                     nrOfLevels={2}
+                    colors={['#e5e5e5', '#009cf0']}
+                    cornerRadius={0}
+                    arcWidth={0.1}
+                    arcPadding={0.02}
+                    hideText
                   />
                 </Card.Body>
               </Card>
