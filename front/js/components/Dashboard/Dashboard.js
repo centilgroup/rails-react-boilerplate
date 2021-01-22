@@ -24,6 +24,9 @@ export default class Dashboard extends Component {
     super(props);
     this.state = {
       issues: [],
+      devArcLength: [0, 1],
+      testArcLength: [0, 1],
+      deployArcLength: [0, 1],
       redirect: false,
     };
   }
@@ -31,6 +34,36 @@ export default class Dashboard extends Component {
   componentDidMount = () => {
     axios.get('/jiras.json').then((response) => {
       this.setState({ issues: response.data });
+    });
+
+    axios.get('/jiras/stat.json').then((response) => {
+      const { data } = response;
+      const {
+        total_backlog,
+        total_in_progress,
+        total_done,
+        grand_total,
+      } = data;
+      let devPercent;
+      let devPendingPercent;
+      let testPercent;
+      let testPendingPercent;
+      let deployPercent;
+      let deployPendingPercent;
+
+      if (grand_total > 0) {
+        devPercent = total_backlog / grand_total;
+        devPendingPercent = (grand_total - total_backlog) / grand_total;
+        testPercent = total_in_progress / grand_total;
+        testPendingPercent = (grand_total - total_in_progress) / grand_total;
+        deployPercent = total_done / grand_total;
+        deployPendingPercent = (grand_total - total_done) / grand_total;
+      }
+      this.setState({
+        devArcLength: [devPercent, devPendingPercent],
+        testArcLength: [testPercent, testPendingPercent],
+        deployArcLength: [deployPercent, deployPendingPercent],
+      });
     });
   };
 
@@ -52,7 +85,13 @@ export default class Dashboard extends Component {
   };
 
   render() {
-    const { issues, redirect } = this.state;
+    const {
+      issues,
+      redirect,
+      devArcLength,
+      testArcLength,
+      deployArcLength,
+    } = this.state;
     const style = {
       height: 300,
       overflow: 'auto',
@@ -131,10 +170,17 @@ export default class Dashboard extends Component {
               <Card>
                 <Card.Body>
                   <Card.Title className="text-center">Development</Card.Title>
+                  <div className="d-flex align-items-center">
+                    <div className="legend left-legend" />
+                    <div className="legend-text">Backlog</div>
+                    <div className="legend-text ml-auto">Grand Total</div>
+                    <div className="legend right-legend" />
+                  </div>
                   <GaugeChart
                     className="gas-gauge"
                     id="gauge_chart_dev"
                     nrOfLevels={2}
+                    arcsLength={devArcLength}
                     colors={['#e5e5e5', '#009cf0']}
                     cornerRadius={0}
                     arcWidth={0.1}
@@ -148,10 +194,17 @@ export default class Dashboard extends Component {
               <Card>
                 <Card.Body>
                   <Card.Title className="text-center">QA/Test</Card.Title>
+                  <div className="d-flex align-items-center">
+                    <div className="legend left-legend" />
+                    <div className="legend-text">In Progress</div>
+                    <div className="legend-text ml-auto">Grand Total</div>
+                    <div className="legend right-legend" />
+                  </div>
                   <GaugeChart
                     className="gas-gauge"
                     id="gauge_chart_qa"
                     nrOfLevels={2}
+                    arcsLength={testArcLength}
                     colors={['#e5e5e5', '#009cf0']}
                     cornerRadius={0}
                     arcWidth={0.1}
@@ -165,10 +218,17 @@ export default class Dashboard extends Component {
               <Card>
                 <Card.Body>
                   <Card.Title className="text-center">Deploy</Card.Title>
+                  <div className="d-flex align-items-center">
+                    <div className="legend left-legend" />
+                    <div className="legend-text">Done</div>
+                    <div className="legend-text ml-auto">Grand Total</div>
+                    <div className="legend right-legend" />
+                  </div>
                   <GaugeChart
                     className="gas-gauge"
                     id="gauge_chart_deploy"
                     nrOfLevels={2}
+                    arcsLength={deployArcLength}
                     colors={['#e5e5e5', '#009cf0']}
                     cornerRadius={0}
                     arcWidth={0.1}

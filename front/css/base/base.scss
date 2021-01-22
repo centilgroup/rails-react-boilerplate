@@ -495,3 +495,22 @@ nav {
   opacity: 0.9;
   font-size: 12px;
 }
+
+.legend {
+  width: 30px;
+  height: 10px;
+}
+
+.legend-text {
+  font-family: verdana, arial, helvetica, sans-serif;
+}
+
+.left-legend {
+  background-color: #e5e5e5;
+  margin-right: 5px;
+}
+
+.right-legend {
+  background-color: #009cf0;
+  margin-left: 5px;
+}

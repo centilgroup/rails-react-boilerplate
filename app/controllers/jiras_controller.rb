@@ -1,19 +1,17 @@
 class JirasController < ApplicationController
   before_action :set_jira, only: [:show, :edit, :update, :destroy]
+  before_action :init_jira, only: [:index, :stat]
 
   # GET /jiras
   # GET /jiras.json
   def index
-    jira = JiraManager.new(
-      username: current_user.jira_username,
-      password: current_user.jira_password,
-      site: current_user.jira_url,
-      user_id: current_user.id,
-      start_at: params[:start_at]
-    )
-    @issues = jira.fetch_issues
-  rescue
-    render json: {status: :error}, status: :internal_server_error
+    @issues = @jira_manager.fetch_issues
+  rescue => error
+    render json: {message: error.message}, status: :internal_server_error
+  end
+
+  def stat
+    @stat = @jira_manager.fetch_gas_gauge_data
   end
 
   # GET /jiras/1
@@ -71,6 +69,16 @@ class JirasController < ApplicationController
   end
 
   private
+
+  def init_jira
+    @jira_manager = JiraManager.new(
+      username: current_user.jira_username,
+      password: current_user.jira_password,
+      site: current_user.jira_url,
+      user_id: current_user.id,
+      start_at: params[:start_at]
+    )
+  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_jira
