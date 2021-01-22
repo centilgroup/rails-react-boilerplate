@@ -33,18 +33,21 @@ module.exports = {
       },
       {
         test: /\.scss$/,
+        // exclude: /front/,
+        // exclude: path.resolve(__dirname, 'front/css/app.scss'),
+        
         use: [
-          MiniCssExtractPlugin.loader,
-          { loader: 'css-loader', options: { sourceMap: true } },
+          // {
+          //   loader: 'style-loader'
+          // },
           {
-            loader: 'postcss-loader',
-            options: {
-              plugins: () => [autoprefixer(), cssnano()],
-              sourceMap: true,
-            },
+            loader: 'css-loader'
           },
-          { loader: 'sass-loader', options: { sourceMap: true } },
-        ],
+          {
+            loader: 'sass-loader'
+          }
+        ]
+          
       },
     ],
   },

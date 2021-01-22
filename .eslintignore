@@ -1,0 +1,5 @@
+**/*.js
+**/*.scss
+base.scss
+app.scss
+front/css/base/*.scss

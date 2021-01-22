@@ -1,4 +1,5 @@
-$font-main: Montserrat, sans-serif;
+/* eslint-disable */
+$font-main: montserrat, sans-serif;
 $color-dark-blue: #07165e;
 $color-mid-dark-blue: #2477b6;
 $color-mid-blue: #48b5d9;
@@ -20,13 +21,15 @@ a {
 }
 
 .top-nav-1 {
-  text-align:left;
+  text-align: left;
   height: 100px;
   margin-top: -20px;
   margin-left: -20px;
+  
   .top-version {
-    margin-top:-40px;
+    margin-top: -40px;
   }
+
 }
 
 .sidenav {

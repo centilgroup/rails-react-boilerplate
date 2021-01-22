@@ -5,11 +5,15 @@
   "env": {
     "browser": true
   },
+  "ignorePatterns": [ "front/css/**", "front/css/base/*" ],
   "rules": {
     "arrow-body-style": 0,
     "camelcase": 0,
     "no-unused-vars": 0,
     "no-console": 0,
+    "no-eol-whitespace": 0,
+    "max-empty-lines": 0,
+
     "babel/camelcase": [
       0,
       {

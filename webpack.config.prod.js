@@ -5,7 +5,7 @@
 const webpack = require('webpack');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const StyleLintPlugin = require('stylelint-bare-webpack-plugin');
+// const StyleLintPlugin = require('stylelint-bare-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 
 const config = require('./webpack.config.base');
@@ -23,10 +23,10 @@ config.plugins = [
   new MiniCssExtractPlugin({
     filename: 'css/app.[chunkhash:8].css',
   }),
-  new StyleLintPlugin({
-    syntax: 'scss',
-    failOnError: true,
-  }),
+  // new StyleLintPlugin({
+  //   syntax: 'scss',
+  //   failOnError: false,
+  // }),
   new ManifestPlugin({
     fileName: 'manifest.json',
   }),
