@@ -32,15 +32,30 @@ class JiraManager
     @client.Issue.jql("project = VPI", @query_options)
   end
 
+  def fetch_gas_gauge_data
+    issues = Issue.where(project_id: "10015", user_id: @user.id)
+
+    grand_total = issues.count
+    total_backlog = issues.where("status->>'name' = 'Backlog'").count
+    total_in_progress = issues.where("status->>'name' = 'In Progress'").count
+    total_done = issues.where("status->>'name' = 'Done'").count
+
+    {
+      total_backlog: total_backlog, total_in_progress: total_in_progress,
+      total_done: total_done, grand_total: grand_total
+    }
+  end
+
   def sync_projects
     jira_projects = @client.Project.all
 
     jira_projects.each do |jira_project|
       project = {
-        project_id: "#{@user.id}_#{jira_project.id}", key: jira_project.key,
-        name: jira_project.name, user_id: @user.id
+        user_project_id: "#{@user.id}_#{jira_project.id}",
+        project_id: jira_project.id,
+        name: jira_project.name, user_id: @user.id, key: jira_project.key
       }
-      Project.upsert(project, unique_by: :project_id)
+      Project.upsert(project, unique_by: :user_project_id)
     end
 
     p "Projects synced for user - #{@user.id}"
@@ -54,7 +69,6 @@ class JiraManager
     max_results = 100
     loop do
       query_options = {
-        fields: [],
         start_at: start_at,
         max_results: max_results
       }
@@ -64,11 +78,12 @@ class JiraManager
 
       jira_issues.each do |jira_issue|
         project = {
-          project_id: "#{@user.id}_#{jira_issue.project.id}", key: jira_issue.key,
-          issue_id: "#{@user.id}_#{jira_issue.project.id}_#{jira_issue.id}",
-          summary: jira_issue.summary, user_id: @user.id
+          user_issue_id: "#{@user.id}_#{jira_issue.id}",
+          project_id: jira_issue.project.id, issue_id: jira_issue.id,
+          summary: jira_issue.summary, user_id: @user.id, key: jira_issue.key,
+          status: {name: jira_issue.status.name}
         }
-        Issue.upsert(project, unique_by: :issue_id)
+        Issue.upsert(project, unique_by: :user_issue_id)
       end
 
       start_at += max_results

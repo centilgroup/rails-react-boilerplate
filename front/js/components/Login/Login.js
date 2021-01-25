@@ -27,21 +27,16 @@ export default class Login extends Component {
     const { email, password } = this.state;
     const data = { email, password };
 
-    axios.post('/users/pre_otp.json', data).then(
-      (response) => {
-        const { auth_token, user } = response.data;
-        if (auth_token) {
-          localStorage.setItem('auth_token', auth_token);
-          localStorage.setItem('user', JSON.stringify(user));
-          this.setState({ redirect: 'no_otp' });
-        } else {
-          this.setState({ redirect: 'otp' });
-        }
-      },
-      (error) => {
-        console.log(error);
-      },
-    );
+    axios.post('/users/pre_otp.json', data).then((response) => {
+      const { auth_token, user } = response.data;
+      if (auth_token) {
+        localStorage.setItem('auth_token', auth_token);
+        localStorage.setItem('user', JSON.stringify(user));
+        this.setState({ redirect: 'no_otp' });
+      } else {
+        this.setState({ redirect: 'otp' });
+      }
+    });
   };
 
   clearInputs = () => {

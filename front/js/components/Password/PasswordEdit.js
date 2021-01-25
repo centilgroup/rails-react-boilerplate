@@ -33,14 +33,9 @@ export default class PasswordEdit extends Component {
     const { password, confirm_password, reset_password_token } = this.state;
     const data = { user: { password, confirm_password, reset_password_token } };
 
-    axios.put('/users/password.json', data).then(
-      (response) => {
-        this.setState({ redirect: true });
-      },
-      (error) => {
-        console.log(error);
-      },
-    );
+    axios.put('/users/password.json', data).then(() => {
+      this.setState({ redirect: true });
+    });
   };
 
   clearInputs = () => {
