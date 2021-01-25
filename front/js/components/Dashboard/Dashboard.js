@@ -25,9 +25,9 @@ export default class Dashboard extends Component {
     super(props);
     this.state = {
       issues: [],
-      devArcLength: [0, 1],
-      testArcLength: [0, 1],
-      deployArcLength: [0, 1],
+      devArcLength: [0.5, 0.5],
+      testArcLength: [0.5, 0.5],
+      deployArcLength: [0.5, 0.5],
       redirect: false,
     };
   }
