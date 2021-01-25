@@ -490,7 +490,7 @@ nav {
 }
 
 .issue-summary {
-  width: 18rem;
+  width: 50rem;
 }
 
 .tooltip-inner {
@@ -518,7 +518,8 @@ nav {
   height: 0.75rem;
 }
 
-.new-work {
+.new-work,
+.development {
   background-color: #e1f4f1;
 
   .progress-bar {
@@ -526,7 +527,8 @@ nav {
   }
 }
 
-.legacy-refactor {
+.legacy-refactor,
+.lead-time {
   background-color: #fcf5df;
 
   .progress-bar {
@@ -534,7 +536,8 @@ nav {
   }
 }
 
-.help-others {
+.help-others,
+.review {
   background-color: #dbedff;
 
   .progress-bar {
@@ -542,11 +545,30 @@ nav {
   }
 }
 
-.churn {
+.churn,
+.deployment {
   background-color: #ffdee6;
 
   .progress-bar {
     background-color: #fb4d7e;
+  }
+}
+
+.avg-count {
+  .dev {
+    color: #5ec4b6;
+  }
+
+  .le-ti {
+    color: #f1cb49;
+  }
+
+  .rev {
+    color: #3b9aff;
+  }
+
+  .deploy {
+    color: #fb4d7e;
   }
 }
 
