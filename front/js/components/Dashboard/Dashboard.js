@@ -443,6 +443,10 @@ export default class Dashboard extends Component {
             {/* </Col> */}
           </Row>
         </Container>
+
+        <hr />
+
+        <div className="m-3">Centil, LLC 2021.</div>
       </section>
     );
   }
