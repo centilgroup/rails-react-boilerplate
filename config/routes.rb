@@ -9,7 +9,11 @@ Rails.application.routes.draw do
     put "users/profile", to: "users/sessions#profile"
   end
 
-  resources :jiras
+  resources :jiras do
+    collection do
+      get :stat
+    end
+  end
   get "home/index"
   get "home/timestamp"
   get "/vpi-demo", to: "vpi_demo#index"

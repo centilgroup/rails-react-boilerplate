@@ -27,14 +27,9 @@ export default class Register extends Component {
     const { email, password, password_confirmation } = this.state;
     const data = { user: { email, password, password_confirmation } };
 
-    axios.post('/users.json', data).then(
-      (response) => {
-        this.setState({ redirect: true });
-      },
-      (error) => {
-        console.log(error);
-      },
-    );
+    axios.post('/users.json', data).then(() => {
+      this.setState({ redirect: true });
+    });
   };
 
   clearInputs = () => {

@@ -32,17 +32,12 @@ export default class Login extends Component {
     const { email, otp } = this.state;
     const data = { email, otp };
 
-    axios.post('/users/sign_in.json', data).then(
-      (response) => {
-        const { auth_token, user } = response.data;
-        localStorage.setItem('auth_token', auth_token);
-        localStorage.setItem('user', JSON.stringify(user));
-        this.setState({ redirect: true });
-      },
-      (error) => {
-        this.setState({ redirect: true });
-      },
-    );
+    axios.post('/users/sign_in.json', data).then((response) => {
+      const { auth_token, user } = response.data;
+      localStorage.setItem('auth_token', auth_token);
+      localStorage.setItem('user', JSON.stringify(user));
+      this.setState({ redirect: true });
+    });
   };
 
   clearInputs = () => {

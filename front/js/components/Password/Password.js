@@ -23,14 +23,7 @@ export default class Password extends Component {
     const { email } = this.state;
     const data = { user: { email } };
 
-    axios.post('/users/password.json', data).then(
-      (response) => {
-        console.log(response);
-      },
-      (error) => {
-        console.log(error);
-      },
-    );
+    axios.post('/users/password.json', data).then();
   };
 
   clearInputs = () => {
