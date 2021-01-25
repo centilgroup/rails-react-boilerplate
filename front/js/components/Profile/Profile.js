@@ -106,6 +106,7 @@ export default class Profile extends Component {
           <Row>
             <Col xs={3}>
               <Form.Group>
+                <Form.Label>First Name</Form.Label>
                 <Form.Control
                   onChange={this.handleChange}
                   value={first_name}
@@ -115,6 +116,7 @@ export default class Profile extends Component {
                 />
               </Form.Group>
               <Form.Group>
+                <Form.Label>Last Name</Form.Label>
                 <Form.Control
                   onChange={this.handleChange}
                   value={last_name}
@@ -124,6 +126,7 @@ export default class Profile extends Component {
                 />
               </Form.Group>
               <Form.Group>
+                <Form.Label>Username</Form.Label>
                 <Form.Control
                   onChange={this.handleChange}
                   value={username}
@@ -133,6 +136,7 @@ export default class Profile extends Component {
                 />
               </Form.Group>
               <Form.Group>
+                <Form.Label>Company Name</Form.Label>
                 <Form.Control
                   onChange={this.handleChange}
                   value={company_name}
@@ -170,6 +174,7 @@ export default class Profile extends Component {
           <Row>
             <Col xs={3}>
               <Form.Group>
+                <Form.Label>Jira URL</Form.Label>
                 <Form.Control
                   onChange={this.handleChange}
                   value={jira_url}
@@ -179,6 +184,7 @@ export default class Profile extends Component {
                 />
               </Form.Group>
               <Form.Group>
+                <Form.Label>API Version</Form.Label>
                 <Form.Control
                   onChange={this.handleChange}
                   value={api_version}
@@ -188,6 +194,7 @@ export default class Profile extends Component {
                 />
               </Form.Group>
               <Form.Group>
+                <Form.Label>Jira Username</Form.Label>
                 <Form.Control
                   onChange={this.handleChange}
                   value={jira_username}
@@ -197,6 +204,7 @@ export default class Profile extends Component {
                 />
               </Form.Group>
               <Form.Group>
+                <Form.Label>Jira Password</Form.Label>
                 <Form.Control
                   onChange={this.handleChange}
                   value={jira_password}

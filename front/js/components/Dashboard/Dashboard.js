@@ -171,7 +171,7 @@ export default class Dashboard extends Component {
         </nav>
 
         <Container className="pt-5">
-          <Row className="py-4">
+          <Row className="pt-4">
             <Col xs={4}>
               <Card>
                 <Card.Body>
@@ -245,7 +245,53 @@ export default class Dashboard extends Component {
               </Card>
             </Col>
           </Row>
-          <Row>
+          <Row className="pt-4">
+            <Col xs={3}>
+              <Card>
+                <Card.Body>
+                  <ProgressBar className="development" now={100} />
+                  <div className="mb-2">Development</div>
+                  <div className="avg-count">
+                    <span className="dev">1 day</span> avg.
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col xs={3}>
+              <Card>
+                <Card.Body>
+                  <ProgressBar className="lead-time" now={100} />
+                  <div className="mb-2">Lead Time</div>
+                  <div className="avg-count">
+                    <span className="le-ti">4 days</span> avg.
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col xs={3}>
+              <Card>
+                <Card.Body>
+                  <ProgressBar className="review" now={100} />
+                  <div className="mb-2">Review</div>
+                  <div className="avg-count">
+                    <span className="rev">12 hours</span> avg.
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col xs={3}>
+              <Card>
+                <Card.Body>
+                  <ProgressBar className="deployment" now={100} />
+                  <div className="mb-2">Deployment</div>
+                  <div className="avg-count">
+                    <span className="deploy">1 week</span> avg.
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+          <Row className="pt-4">
             <Col xs={4}>
               <Card>
                 <Card.Body>
@@ -370,7 +416,7 @@ export default class Dashboard extends Component {
             </Col>
           </Row>
           <Row className="py-4">
-            <Col xs={6}>
+            <Col xs={12}>
               <Card>
                 <Card.Body>
                   <Card.Title>Jira Activity</Card.Title>
@@ -388,13 +434,13 @@ export default class Dashboard extends Component {
                 </Card.Body>
               </Card>
             </Col>
-            <Col xs={6}>
-              <Card>
-                <Card.Body className="text-center">
-                  Project Flow Health
-                </Card.Body>
-              </Card>
-            </Col>
+            {/* <Col xs={6}> */}
+            {/*  <Card> */}
+            {/*    <Card.Body className="text-center"> */}
+            {/*      Project Flow Health */}
+            {/*    </Card.Body> */}
+            {/*  </Card> */}
+            {/* </Col> */}
           </Row>
         </Container>
       </section>
