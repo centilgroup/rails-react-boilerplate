@@ -96,8 +96,8 @@ Rails.application.configure do
 
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_deliveries = true
-  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
-  config.action_mailer.default_options = { from: 'info@flowlab.co' }
+  config.action_mailer.default_url_options = { :host=> ENV['MAILER_HOST_ADDRESS'].present? ? ENV['MAILER_HOST_ADDRESS'] : 'centil.io' }
+  config.action_mailer.default_options = { from: 'danielwetteroth2@gmail.com' }
   # For setting SMTP server please configure with company credentials
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
