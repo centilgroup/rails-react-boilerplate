@@ -98,6 +98,10 @@ export default class Register extends Component {
               <p className="nav-link">Go to login</p>
             </Link>
           </div>
+
+          <hr />
+
+          <div className="m-3">Centil, LLC 2021.</div>
         </fieldset>
       </article>
     );

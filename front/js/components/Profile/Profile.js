@@ -100,130 +100,136 @@ export default class Profile extends Component {
     } = this.state;
 
     return (
-      <Container>
-        <Form>
-          <h4>Profile Section</h4>
-          <Row>
-            <Col xs={3}>
-              <Form.Group>
-                <Form.Label>First Name</Form.Label>
-                <Form.Control
-                  onChange={this.handleChange}
-                  value={first_name}
-                  name="first_name"
-                  type="text"
-                  placeholder="First Name"
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Last Name</Form.Label>
-                <Form.Control
-                  onChange={this.handleChange}
-                  value={last_name}
-                  name="last_name"
-                  type="text"
-                  placeholder="Last Name"
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Username</Form.Label>
-                <Form.Control
-                  onChange={this.handleChange}
-                  value={username}
-                  name="username"
-                  type="text"
-                  placeholder="Username"
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Company Name</Form.Label>
-                <Form.Control
-                  onChange={this.handleChange}
-                  value={company_name}
-                  name="company_name"
-                  type="text"
-                  placeholder="Company Name"
-                />
-              </Form.Group>
-            </Col>
-            <Col xs={{ span: 3, offset: 2 }}>
-              <Form.Group>
-                <Form.File
-                  className="d-none"
-                  name="profile_photo"
-                  ref={this.photoUpload}
-                  onChange={this.handlePhotoChange}
-                />
-                <Figure onClick={this.handlePhotoClick}>
-                  <Figure.Image
-                    src={avatar_link || '/avatar.jpg'}
-                    roundedCircle
-                    width={160}
-                    height={160}
-                    alt="avatar"
+      <>
+        <Container>
+          <Form>
+            <h4>Profile Section</h4>
+            <Row>
+              <Col xs={3}>
+                <Form.Group>
+                  <Form.Label>First Name</Form.Label>
+                  <Form.Control
+                    onChange={this.handleChange}
+                    value={first_name}
+                    name="first_name"
+                    type="text"
+                    placeholder="First Name"
                   />
-                  <Figure.Caption className="text-center font-weight-bold">
-                    Add Photo
-                  </Figure.Caption>
-                </Figure>
-              </Form.Group>
-            </Col>
-          </Row>
-          <hr />
-          <h4>Jira Link</h4>
-          <Row>
-            <Col xs={3}>
-              <Form.Group>
-                <Form.Label>Jira URL</Form.Label>
-                <Form.Control
-                  onChange={this.handleChange}
-                  value={jira_url}
-                  name="jira_url"
-                  type="text"
-                  placeholder="Jira URL"
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>API Version</Form.Label>
-                <Form.Control
-                  onChange={this.handleChange}
-                  value={api_version}
-                  name="api_version"
-                  type="text"
-                  placeholder="API Version"
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Jira Username</Form.Label>
-                <Form.Control
-                  onChange={this.handleChange}
-                  value={jira_username}
-                  name="jira_username"
-                  type="text"
-                  placeholder="Jira Username"
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Jira Password</Form.Label>
-                <Form.Control
-                  onChange={this.handleChange}
-                  value={jira_password}
-                  name="jira_password"
-                  type="password"
-                  placeholder="Jira Password"
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-          <Button
-            variant="outline-primary"
-            type="submit"
-            onClick={this.handleSubmit}
-          >
-            Update
-          </Button>
-        </Form>
-      </Container>
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Last Name</Form.Label>
+                  <Form.Control
+                    onChange={this.handleChange}
+                    value={last_name}
+                    name="last_name"
+                    type="text"
+                    placeholder="Last Name"
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Username</Form.Label>
+                  <Form.Control
+                    onChange={this.handleChange}
+                    value={username}
+                    name="username"
+                    type="text"
+                    placeholder="Username"
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Company Name</Form.Label>
+                  <Form.Control
+                    onChange={this.handleChange}
+                    value={company_name}
+                    name="company_name"
+                    type="text"
+                    placeholder="Company Name"
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={{ span: 3, offset: 2 }}>
+                <Form.Group>
+                  <Form.File
+                    className="d-none"
+                    name="profile_photo"
+                    ref={this.photoUpload}
+                    onChange={this.handlePhotoChange}
+                  />
+                  <Figure onClick={this.handlePhotoClick}>
+                    <Figure.Image
+                      src={avatar_link || '/avatar.jpg'}
+                      roundedCircle
+                      width={160}
+                      height={160}
+                      alt="avatar"
+                    />
+                    <Figure.Caption className="text-center font-weight-bold">
+                      Add Photo
+                    </Figure.Caption>
+                  </Figure>
+                </Form.Group>
+              </Col>
+            </Row>
+            <hr />
+            <h4>Jira Link</h4>
+            <Row>
+              <Col xs={3}>
+                <Form.Group>
+                  <Form.Label>Jira URL</Form.Label>
+                  <Form.Control
+                    onChange={this.handleChange}
+                    value={jira_url}
+                    name="jira_url"
+                    type="text"
+                    placeholder="Jira URL"
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>API Version</Form.Label>
+                  <Form.Control
+                    onChange={this.handleChange}
+                    value={api_version}
+                    name="api_version"
+                    type="text"
+                    placeholder="API Version"
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Jira Username</Form.Label>
+                  <Form.Control
+                    onChange={this.handleChange}
+                    value={jira_username}
+                    name="jira_username"
+                    type="text"
+                    placeholder="Jira Username"
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Jira Password</Form.Label>
+                  <Form.Control
+                    onChange={this.handleChange}
+                    value={jira_password}
+                    name="jira_password"
+                    type="password"
+                    placeholder="Jira Password"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Button
+              variant="outline-primary"
+              type="submit"
+              onClick={this.handleSubmit}
+            >
+              Update
+            </Button>
+          </Form>
+        </Container>
+
+        <hr />
+
+        <div className="m-3">Centil, LLC 2021.</div>
+      </>
     );
   }
 }

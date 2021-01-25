@@ -97,6 +97,10 @@ export default class PasswordEdit extends Component {
               change my password
             </button>
           </div>
+
+          <hr />
+
+          <div className="m-3">Centil, LLC 2021.</div>
         </fieldset>
       </article>
     );

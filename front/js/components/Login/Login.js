@@ -106,6 +106,10 @@ export default class Login extends Component {
               <span className="nav-link">Forgot password?</span>
             </Link>
           </div>
+
+          <hr />
+
+          <div className="m-3">Centil, LLC 2021.</div>
         </fieldset>
       </article>
     );
