@@ -25,9 +25,9 @@ export default class Dashboard extends Component {
     super(props);
     this.state = {
       issues: [],
-      devArcLength: [0.5, 0.5],
-      testArcLength: [0.5, 0.5],
-      deployArcLength: [0.5, 0.5],
+      devArcLength: [0.7, 0.3],
+      testArcLength: [0.2, 0.8],
+      deployArcLength: [0.15, 0.85],
       redirect: false,
     };
   }
@@ -179,7 +179,7 @@ export default class Dashboard extends Component {
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
                     <div>Backlog</div>
-                    <div className="ml-auto">Grand Total</div>
+                    <div className="ml-auto">Remaining</div>
                     <div className="legend right-legend" />
                   </div>
                   <GaugeChart
@@ -203,7 +203,7 @@ export default class Dashboard extends Component {
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
                     <div>In Progress</div>
-                    <div className="ml-auto">Grand Total</div>
+                    <div className="ml-auto">Remaining</div>
                     <div className="legend right-legend" />
                   </div>
                   <GaugeChart
@@ -227,7 +227,7 @@ export default class Dashboard extends Component {
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
                     <div>Done</div>
-                    <div className="ml-auto">Grand Total</div>
+                    <div className="ml-auto">Remaining</div>
                     <div className="legend right-legend" />
                   </div>
                   <GaugeChart
@@ -249,10 +249,10 @@ export default class Dashboard extends Component {
             <Col xs={3}>
               <Card>
                 <Card.Body>
-                  <ProgressBar className="development" now={100} />
-                  <div className="mb-2">Development</div>
+                  <ProgressBar className="lead-time" now={100} />
+                  <div className="mb-2">Lead Time</div>
                   <div className="avg-count">
-                    <span className="dev">1 day</span> avg.
+                    <span className="le-ti">14 days</span> avg.
                   </div>
                 </Card.Body>
               </Card>
@@ -260,21 +260,22 @@ export default class Dashboard extends Component {
             <Col xs={3}>
               <Card>
                 <Card.Body>
-                  <ProgressBar className="lead-time" now={100} />
-                  <div className="mb-2">Lead Time</div>
+                  <ProgressBar className="development" now={100} />
+                  <div className="mb-2">Development</div>
                   <div className="avg-count">
-                    <span className="le-ti">4 days</span> avg.
+                    <span className="dev">2.3 day</span> avg.
                   </div>
                 </Card.Body>
               </Card>
             </Col>
+            
             <Col xs={3}>
               <Card>
                 <Card.Body>
                   <ProgressBar className="review" now={100} />
                   <div className="mb-2">Review</div>
                   <div className="avg-count">
-                    <span className="rev">12 hours</span> avg.
+                    <span className="rev">12.4 hours</span> avg.
                   </div>
                 </Card.Body>
               </Card>
@@ -285,7 +286,7 @@ export default class Dashboard extends Component {
                   <ProgressBar className="deployment" now={100} />
                   <div className="mb-2">Deployment</div>
                   <div className="avg-count">
-                    <span className="deploy">1 week</span> avg.
+                    <span className="deploy">2.7 week</span> avg.
                   </div>
                 </Card.Body>
               </Card>
@@ -299,29 +300,29 @@ export default class Dashboard extends Component {
                   <div className="focus">
                     <div className="mb-4">
                       <div className="mb-2 d-flex justify-content-between">
-                        <div>New Work</div>
+                        <div>New Feature Work</div>
                         <div>34%</div>
                       </div>
                       <ProgressBar className="new-work" now={34} />
                     </div>
                     <div className="mb-4">
                       <div className="mb-2 d-flex justify-content-between">
-                        <div>Legacy Refactor</div>
+                        <div>Refactor Work</div>
                         <div>20%</div>
                       </div>
                       <ProgressBar className="legacy-refactor" now={20} />
                     </div>
                     <div className="mb-4">
                       <div className="mb-2 d-flex justify-content-between">
-                        <div>Help Others</div>
-                        <div>20%</div>
+                        <div>Support</div>
+                        <div>14%</div>
                       </div>
-                      <ProgressBar className="help-others" now={20} />
+                      <ProgressBar className="help-others" now={14} />
                     </div>
                     <div>
                       <div className="mb-2 d-flex justify-content-between">
-                        <div>Churn</div>
-                        <div>26%</div>
+                        <div>Attrition Rate</div>
+                        <div>32%</div>
                       </div>
                       <ProgressBar className="churn" now={26} />
                     </div>
@@ -332,14 +333,14 @@ export default class Dashboard extends Component {
             <Col xs={8}>
               <Card>
                 <Card.Body>
-                  <Card.Title>Commit Risk Breakdown</Card.Title>
+                  <Card.Title>Commit Breakdown</Card.Title>
                   <div className="d-flex justify-content-around align-items-center">
                     <div className="commit-risk-chart-holder">
                       <Doughnut
                         data={{
                           datasets: [
                             {
-                              data: [60, 40, 0],
+                              data: [60, 35, 5],
                               backgroundColor: [
                                 'rgb(94,196,182)',
                                 'rgb(241,203,73)',
@@ -353,7 +354,7 @@ export default class Dashboard extends Component {
                         options={{
                           cutoutPercentage: 80,
                           tooltips: {
-                            enabled: false,
+                            enabled: true,
                           },
                         }}
                       />
@@ -365,7 +366,7 @@ export default class Dashboard extends Component {
                     </div>
                     <div className="risk-commit">
                       <div className="mb-4">
-                        <div className="mb-2">Low Risk Commits</div>
+                        <div className="mb-2">Low Risk</div>
                         <div className="d-flex align-items-center">
                           <div className="risk-commit-value low mr-2">
                             11 (61%)
@@ -375,12 +376,12 @@ export default class Dashboard extends Component {
                             83%
                           </div>
                           <div className="text-secondary">
-                            since last period
+                            since last PI
                           </div>
                         </div>
                       </div>
                       <div className="mb-4">
-                        <div className="mb-2">Medium Risk Commits</div>
+                        <div className="mb-2">Medium Risk</div>
                         <div className="d-flex align-items-center">
                           <div className="risk-commit-value medium mr-2">
                             7 (39%)
@@ -390,22 +391,22 @@ export default class Dashboard extends Component {
                             82%
                           </div>
                           <div className="text-secondary">
-                            since last period
+                            since last PI
                           </div>
                         </div>
                       </div>
                       <div>
-                        <div className="mb-2">High Risk Commits</div>
+                        <div className="mb-2">High Risk</div>
                         <div className="d-flex align-items-center">
                           <div className="risk-commit-value high mr-2">
-                            0 (0%)
+                            1 (0%)
                           </div>
                           <div className="mr-1 down text-danger">
                             <i className="fa fa-arrow-down mr-1" />
                             100%
                           </div>
                           <div className="text-secondary">
-                            since last period
+                            since last PI
                           </div>
                         </div>
                       </div>
