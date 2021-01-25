@@ -504,10 +504,6 @@ nav {
   height: 10px;
 }
 
-.legend-text {
-  font-family: verdana, arial, helvetica, sans-serif;
-}
-
 .left-legend {
   background-color: #e5e5e5;
   margin-right: 5px;
@@ -516,4 +512,96 @@ nav {
 .right-legend {
   background-color: #009cf0;
   margin-left: 5px;
+}
+
+.progress {
+  height: 0.75rem;
+}
+
+.new-work {
+  background-color: #e1f4f1;
+
+  .progress-bar {
+    background-color: #5ec4b6;
+  }
+}
+
+.legacy-refactor {
+  background-color: #fcf5df;
+
+  .progress-bar {
+    background-color: #f1cb49;
+  }
+}
+
+.help-others {
+  background-color: #dbedff;
+
+  .progress-bar {
+    background-color: #3b9aff;
+  }
+}
+
+.churn {
+  background-color: #ffdee6;
+
+  .progress-bar {
+    background-color: #fb4d7e;
+  }
+}
+
+.risk-commit-value {
+  font-size: 18px;
+}
+
+.risk-commit {
+  .low {
+    color: #5ec4b6;
+  }
+
+  .medium {
+    color: #f1cb49;
+  }
+
+  .high {
+    color: #fb4d7e;
+  }
+
+  .up,
+  .down {
+    font-size: 14px;
+  }
+
+  .up {
+    i {
+      transform: rotate(45deg);
+    }
+  }
+
+  .down {
+    i {
+      transform: rotate(-45deg);
+    }
+  }
+}
+
+.commit-risk-chart-holder {
+  position: relative;
+
+  .total-commit {
+    position: absolute;
+    top: 36%;
+    left: 34%;
+    text-align: center;
+
+    .number {
+      font-size: 32px;
+      margin-bottom: 1rem;
+    }
+
+    .text {
+      font-size: 16px;
+      margin-top: 0.25rem;
+    }
+  }
 }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Bar } from 'react-chartjs-2';
+import { Doughnut } from 'react-chartjs-2';
 import GaugeChart from 'react-gauge-chart';
 import {
   Container,
@@ -13,6 +13,7 @@ import {
   Image,
   OverlayTrigger,
   Tooltip,
+  ProgressBar,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -156,6 +157,11 @@ export default class Dashboard extends Component {
                 Profile
               </Button>
             </NavLink>
+            <a href="/vpi-demo" className="mr-2">
+              <Button variant="primary" size="sm">
+                VPI
+              </Button>
+            </a>
             <NavLink to="/" onClick={this.logoutUser}>
               <Button variant="primary" size="sm">
                 Logout
@@ -172,8 +178,8 @@ export default class Dashboard extends Component {
                   <Card.Title className="text-center">Development</Card.Title>
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
-                    <div className="legend-text">Backlog</div>
-                    <div className="legend-text ml-auto">Grand Total</div>
+                    <div>Backlog</div>
+                    <div className="ml-auto">Grand Total</div>
                     <div className="legend right-legend" />
                   </div>
                   <GaugeChart
@@ -196,8 +202,8 @@ export default class Dashboard extends Component {
                   <Card.Title className="text-center">QA/Test</Card.Title>
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
-                    <div className="legend-text">In Progress</div>
-                    <div className="legend-text ml-auto">Grand Total</div>
+                    <div>In Progress</div>
+                    <div className="ml-auto">Grand Total</div>
                     <div className="legend right-legend" />
                   </div>
                   <GaugeChart
@@ -220,8 +226,8 @@ export default class Dashboard extends Component {
                   <Card.Title className="text-center">Deploy</Card.Title>
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
-                    <div className="legend-text">Done</div>
-                    <div className="legend-text ml-auto">Grand Total</div>
+                    <div>Done</div>
+                    <div className="ml-auto">Grand Total</div>
                     <div className="legend right-legend" />
                   </div>
                   <GaugeChart
@@ -240,47 +246,125 @@ export default class Dashboard extends Component {
             </Col>
           </Row>
           <Row>
-            <Col xs={12}>
+            <Col xs={4}>
               <Card>
                 <Card.Body>
-                  <Bar
-                    data={{
-                      labels: [
-                        'Red',
-                        'Blue',
-                        'Yellow',
-                        'Green',
-                        'Purple',
-                        'Orange',
-                      ],
-                      datasets: [
-                        {
-                          label: '# of Votes',
-                          data: [12, 19, 3, 5, 2, 3],
-                          backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)',
+                  <Card.Title>Focus</Card.Title>
+                  <div className="focus">
+                    <div className="mb-4">
+                      <div className="mb-2 d-flex justify-content-between">
+                        <div>New Work</div>
+                        <div>34%</div>
+                      </div>
+                      <ProgressBar className="new-work" now={34} />
+                    </div>
+                    <div className="mb-4">
+                      <div className="mb-2 d-flex justify-content-between">
+                        <div>Legacy Refactor</div>
+                        <div>20%</div>
+                      </div>
+                      <ProgressBar className="legacy-refactor" now={20} />
+                    </div>
+                    <div className="mb-4">
+                      <div className="mb-2 d-flex justify-content-between">
+                        <div>Help Others</div>
+                        <div>20%</div>
+                      </div>
+                      <ProgressBar className="help-others" now={20} />
+                    </div>
+                    <div>
+                      <div className="mb-2 d-flex justify-content-between">
+                        <div>Churn</div>
+                        <div>26%</div>
+                      </div>
+                      <ProgressBar className="churn" now={26} />
+                    </div>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col xs={8}>
+              <Card>
+                <Card.Body>
+                  <Card.Title>Commit Risk Breakdown</Card.Title>
+                  <div className="d-flex justify-content-around align-items-center">
+                    <div className="commit-risk-chart-holder">
+                      <Doughnut
+                        data={{
+                          datasets: [
+                            {
+                              data: [60, 40, 0],
+                              backgroundColor: [
+                                'rgb(94,196,182)',
+                                'rgb(241,203,73)',
+                                'rgb(254,139,169)',
+                              ],
+                            },
                           ],
-                          borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)',
-                          ],
-                          borderWidth: 1,
-                        },
-                      ],
-                    }}
-                    width={100}
-                    height={250}
-                    options={{ maintainAspectRatio: false }}
-                  />
+                        }}
+                        width={224}
+                        height={224}
+                        options={{
+                          cutoutPercentage: 80,
+                          tooltips: {
+                            enabled: false,
+                          },
+                        }}
+                      />
+                      <div className="total-commit">
+                        <div className="number">18</div>
+                        <div className="text">Total</div>
+                        <div className="text">Commits</div>
+                      </div>
+                    </div>
+                    <div className="risk-commit">
+                      <div className="mb-4">
+                        <div className="mb-2">Low Risk Commits</div>
+                        <div className="d-flex align-items-center">
+                          <div className="risk-commit-value low mr-2">
+                            11 (61%)
+                          </div>
+                          <div className="mr-1 up text-success">
+                            <i className="fa fa-arrow-up mr-1" />
+                            83%
+                          </div>
+                          <div className="text-secondary">
+                            since last period
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mb-4">
+                        <div className="mb-2">Medium Risk Commits</div>
+                        <div className="d-flex align-items-center">
+                          <div className="risk-commit-value medium mr-2">
+                            7 (39%)
+                          </div>
+                          <div className="mr-1 down text-danger">
+                            <i className="fa fa-arrow-down mr-1" />
+                            82%
+                          </div>
+                          <div className="text-secondary">
+                            since last period
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="mb-2">High Risk Commits</div>
+                        <div className="d-flex align-items-center">
+                          <div className="risk-commit-value high mr-2">
+                            0 (0%)
+                          </div>
+                          <div className="mr-1 down text-danger">
+                            <i className="fa fa-arrow-down mr-1" />
+                            100%
+                          </div>
+                          <div className="text-secondary">
+                            since last period
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </Card.Body>
               </Card>
             </Col>

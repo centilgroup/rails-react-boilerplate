@@ -12,10 +12,22 @@ body {
   color: #333;
 }
 
-body, p, ol, ul, td {
+body,
+p,
+ol,
+ul,
+td,
+div {
   font-family: verdana, arial, helvetica, sans-serif;
+}
+
+body,
+p,
+ol,
+ul,
+td {
   font-size: 13px;
-  line-height: 18px; 
+  line-height: 18px;
 }
 
 h1 {
