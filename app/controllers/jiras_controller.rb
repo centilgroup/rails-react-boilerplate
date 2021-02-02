@@ -12,6 +12,7 @@ class JirasController < ApplicationController
 
   def stat
     @stat = @jira_manager.fetch_gas_gauge_data
+    @epics = @jira_manager.fetch_epics
   end
 
   # GET /jiras/1

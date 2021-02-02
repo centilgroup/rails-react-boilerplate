@@ -6,4 +6,7 @@
 @import '../../../front/css/base/colors';
 @import '../../../front/css/base/typography';
 
-
+.focus {
+  height: 224px;
+  overflow-y: scroll;
+}
