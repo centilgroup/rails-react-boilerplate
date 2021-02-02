@@ -13,6 +13,8 @@ class JirasController < ApplicationController
   def stat
     @stat = @jira_manager.fetch_gas_gauge_data
     @epics = @jira_manager.fetch_epics
+    epic_keys = @epics.pluck(:key)
+    @issues = Issue.where(project_id: "10015", user_id: current_user.id, epic_link: epic_keys)
   end
 
   # GET /jiras/1

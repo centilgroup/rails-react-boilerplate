@@ -88,6 +88,31 @@ export default class Dashboard extends Component {
     });
   };
 
+  renderFocus = (epic, index) => {
+    const colors = ['new-work', 'legacy-refactor', 'help-others', 'churn'];
+    let percentage;
+    if (epic.status.name === 'Done') {
+      percentage = 100;
+    } else if (epic.issues.length > 0) {
+      const done = epic.issues.filter((issue) => issue.status.name === 'Done')
+        .length;
+      const total = epic.issues.length;
+      percentage = (done / total) * 100;
+    } else {
+      percentage = 0;
+    }
+
+    return (
+      <div className="mb-4" key={epic.key}>
+        <div className="mb-2 d-flex justify-content-between">
+          <div>{epic.epic_name}</div>
+          <div>{percentage}%</div>
+        </div>
+        <ProgressBar className={colors[index % 4]} now={percentage} />
+      </div>
+    );
+  };
+
   render() {
     const {
       issues,
@@ -150,15 +175,7 @@ export default class Dashboard extends Component {
     }
 
     if (epics.length > 0) {
-      listEpics = epics.map((epic) => (
-        <div className="mb-4" key={epic.key}>
-          <div className="mb-2 d-flex justify-content-between">
-            <div>{epic.epic_name}</div>
-            <div>34%</div>
-          </div>
-          <ProgressBar className="new-work" now={34} />
-        </div>
-      ));
+      listEpics = epics.map((epic, index) => this.renderFocus(epic, index));
     }
 
     if (redirect) {
@@ -314,37 +331,7 @@ export default class Dashboard extends Component {
               <Card>
                 <Card.Body>
                   <Card.Title>Focus</Card.Title>
-                  <div className="focus">
-                    {listEpics}
-                    {/* <div className="mb-4"> */}
-                    {/*  <div className="mb-2 d-flex justify-content-between"> */}
-                    {/*    <div>New Feature Work</div> */}
-                    {/*    <div>34%</div> */}
-                    {/*  </div> */}
-                    {/*  <ProgressBar className="new-work" now={34} /> */}
-                    {/* </div> */}
-                    {/*  <div className="mb-4"> */}
-                    {/*    <div className="mb-2 d-flex justify-content-between"> */}
-                    {/*      <div>Refactor Work</div> */}
-                    {/*      <div>20%</div> */}
-                    {/*    </div> */}
-                    {/*    <ProgressBar className="legacy-refactor" now={20} /> */}
-                    {/*  </div> */}
-                    {/*  <div className="mb-4"> */}
-                    {/*    <div className="mb-2 d-flex justify-content-between"> */}
-                    {/*      <div>Support</div> */}
-                    {/*      <div>14%</div> */}
-                    {/*    </div> */}
-                    {/*    <ProgressBar className="help-others" now={14} /> */}
-                    {/*  </div> */}
-                    {/*  <div> */}
-                    {/*    <div className="mb-2 d-flex justify-content-between"> */}
-                    {/*      <div>Attrition Rate</div> */}
-                    {/*      <div>32%</div> */}
-                    {/*    </div> */}
-                    {/*    <ProgressBar className="churn" now={26} /> */}
-                    {/*  </div> */}
-                  </div>
+                  <div className="focus">{listEpics}</div>
                 </Card.Body>
               </Card>
             </Col>
