@@ -362,11 +362,15 @@ export default class Dashboard extends Component {
                               ],
                             },
                           ],
+                          labels: ['Low', 'Medium', 'High'],
                         }}
                         width={224}
                         height={224}
                         options={{
                           cutoutPercentage: 80,
+                          legend: {
+                            display: false,
+                          },
                           tooltips: {
                             enabled: true,
                           },
