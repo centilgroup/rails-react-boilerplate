@@ -48,7 +48,10 @@ class JiraManager
 
   def fetch_epics
     issues = Issue.where(project_id: "10015", user_id: @user.id)
-    issues.where("issue_type->>'name' = 'Epic'")
+    epics = issues.where("issue_type->>'name' = 'Epic'")
+    epic_keys = epics.pluck(:key)
+    epic_issues = issues.where(epic_link: epic_keys)
+    [epics, epic_issues]
   end
 
   def sync_projects

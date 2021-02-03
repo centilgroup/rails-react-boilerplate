@@ -26,6 +26,7 @@ export default class Dashboard extends Component {
     this.state = {
       issues: [],
       epics: [],
+      epicIssues: [],
       devArcLength: [0.7, 0.3],
       testArcLength: [0.2, 0.8],
       deployArcLength: [0.15, 0.85],
@@ -46,6 +47,7 @@ export default class Dashboard extends Component {
         total_done,
         grand_total,
         epics,
+        epic_issues,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -67,6 +69,7 @@ export default class Dashboard extends Component {
         testArcLength: [testPercent, testPendingPercent],
         deployArcLength: [deployPercent, deployPendingPercent],
         epics,
+        epicIssues: epic_issues,
       });
     });
   };
@@ -90,13 +93,19 @@ export default class Dashboard extends Component {
 
   renderFocus = (epic, index) => {
     const colors = ['new-work', 'legacy-refactor', 'help-others', 'churn'];
+    const { epicIssues } = this.state;
+    const filteredEpicIssues = epicIssues.filter(
+      (epicIssue) => epicIssue.epic_link === epic.key,
+    );
     let percentage;
     if (epic.status.name === 'Done') {
       percentage = 100;
-    } else if (epic.issues.length > 0) {
-      const done = epic.issues.filter((issue) => issue.status.name === 'Done')
-        .length;
-      const total = epic.issues.length;
+    } else if (filteredEpicIssues.length > 0) {
+      const doneEpicIssues = filteredEpicIssues.filter(
+        (issue) => issue.status.name === 'Done',
+      );
+      const done = doneEpicIssues.length;
+      const total = filteredEpicIssues.length;
       percentage = (done / total) * 100;
     } else {
       percentage = 0;

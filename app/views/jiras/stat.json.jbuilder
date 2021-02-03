@@ -6,8 +6,9 @@ json.epics @epics do |epic|
   json.key epic.key
   json.epic_name epic.epic_name
   json.status epic.status
-  json.issues @issues.where(epic_link: epic.key) do |issue|
-    json.key issue.key
-    json.status issue.status
-  end
+end
+json.epic_issues @epic_issues do |epic_issue|
+  json.key epic_issue.key
+  json.epic_link epic_issue.epic_link
+  json.status epic_issue.status
 end
