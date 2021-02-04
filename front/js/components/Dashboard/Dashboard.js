@@ -25,6 +25,8 @@ export default class Dashboard extends Component {
     super(props);
     this.state = {
       issues: [],
+      epics: [],
+      epicIssues: [],
       devArcLength: [0.7, 0.3],
       testArcLength: [0.2, 0.8],
       deployArcLength: [0.15, 0.85],
@@ -44,6 +46,8 @@ export default class Dashboard extends Component {
         total_in_progress,
         total_done,
         grand_total,
+        epics,
+        epic_issues,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -64,6 +68,8 @@ export default class Dashboard extends Component {
         devArcLength: [devPercent, devPendingPercent],
         testArcLength: [testPercent, testPendingPercent],
         deployArcLength: [deployPercent, deployPendingPercent],
+        epics,
+        epicIssues: epic_issues,
       });
     });
   };
@@ -85,9 +91,41 @@ export default class Dashboard extends Component {
     });
   };
 
+  renderFocus = (epic, index) => {
+    const colors = ['new-work', 'legacy-refactor', 'help-others', 'churn'];
+    const { epicIssues } = this.state;
+    const filteredEpicIssues = epicIssues.filter(
+      (epicIssue) => epicIssue.epic_link === epic.key,
+    );
+    let percentage;
+    if (epic.status.name === 'Done') {
+      percentage = 100;
+    } else if (filteredEpicIssues.length > 0) {
+      const doneEpicIssues = filteredEpicIssues.filter(
+        (issue) => issue.status.name === 'Done',
+      );
+      const done = doneEpicIssues.length;
+      const total = filteredEpicIssues.length;
+      percentage = (done / total) * 100;
+    } else {
+      percentage = 0;
+    }
+
+    return (
+      <div className="mb-4" key={epic.key}>
+        <div className="mb-2 d-flex justify-content-between">
+          <div>{epic.epic_name}</div>
+          <div>{percentage}%</div>
+        </div>
+        <ProgressBar className={colors[index % 4]} now={percentage} />
+      </div>
+    );
+  };
+
   render() {
     const {
       issues,
+      epics,
       redirect,
       devArcLength,
       testArcLength,
@@ -98,6 +136,7 @@ export default class Dashboard extends Component {
       overflow: 'auto',
     };
     let listIssues;
+    let listEpics;
 
     listIssues = <Skeleton count={10} />;
 
@@ -142,6 +181,10 @@ export default class Dashboard extends Component {
           </div>
         </ListGroup.Item>
       ));
+    }
+
+    if (epics.length > 0) {
+      listEpics = epics.map((epic, index) => this.renderFocus(epic, index));
     }
 
     if (redirect) {
@@ -268,7 +311,7 @@ export default class Dashboard extends Component {
                 </Card.Body>
               </Card>
             </Col>
-            
+
             <Col xs={3}>
               <Card>
                 <Card.Body>
@@ -297,36 +340,7 @@ export default class Dashboard extends Component {
               <Card>
                 <Card.Body>
                   <Card.Title>Focus</Card.Title>
-                  <div className="focus">
-                    <div className="mb-4">
-                      <div className="mb-2 d-flex justify-content-between">
-                        <div>New Feature Work</div>
-                        <div>34%</div>
-                      </div>
-                      <ProgressBar className="new-work" now={34} />
-                    </div>
-                    <div className="mb-4">
-                      <div className="mb-2 d-flex justify-content-between">
-                        <div>Refactor Work</div>
-                        <div>20%</div>
-                      </div>
-                      <ProgressBar className="legacy-refactor" now={20} />
-                    </div>
-                    <div className="mb-4">
-                      <div className="mb-2 d-flex justify-content-between">
-                        <div>Support</div>
-                        <div>14%</div>
-                      </div>
-                      <ProgressBar className="help-others" now={14} />
-                    </div>
-                    <div>
-                      <div className="mb-2 d-flex justify-content-between">
-                        <div>Attrition Rate</div>
-                        <div>32%</div>
-                      </div>
-                      <ProgressBar className="churn" now={26} />
-                    </div>
-                  </div>
+                  <div className="focus">{listEpics}</div>
                 </Card.Body>
               </Card>
             </Col>
@@ -348,11 +362,15 @@ export default class Dashboard extends Component {
                               ],
                             },
                           ],
+                          labels: ['Low', 'Medium', 'High'],
                         }}
                         width={224}
                         height={224}
                         options={{
                           cutoutPercentage: 80,
+                          legend: {
+                            display: false,
+                          },
                           tooltips: {
                             enabled: true,
                           },
@@ -375,9 +393,7 @@ export default class Dashboard extends Component {
                             <i className="fa fa-arrow-up mr-1" />
                             83%
                           </div>
-                          <div className="text-secondary">
-                            since last PI
-                          </div>
+                          <div className="text-secondary">since last PI</div>
                         </div>
                       </div>
                       <div className="mb-4">
@@ -390,9 +406,7 @@ export default class Dashboard extends Component {
                             <i className="fa fa-arrow-down mr-1" />
                             82%
                           </div>
-                          <div className="text-secondary">
-                            since last PI
-                          </div>
+                          <div className="text-secondary">since last PI</div>
                         </div>
                       </div>
                       <div>
@@ -405,9 +419,7 @@ export default class Dashboard extends Component {
                             <i className="fa fa-arrow-down mr-1" />
                             100%
                           </div>
-                          <div className="text-secondary">
-                            since last PI
-                          </div>
+                          <div className="text-secondary">since last PI</div>
                         </div>
                       </div>
                     </div>

@@ -46,6 +46,14 @@ class JiraManager
     }
   end
 
+  def fetch_epics
+    issues = Issue.where(project_id: "10015", user_id: @user.id)
+    epics = issues.where("issue_type->>'name' = 'Epic'")
+    epic_keys = epics.pluck(:key)
+    epic_issues = issues.where(epic_link: epic_keys)
+    [epics, epic_issues]
+  end
+
   def sync_projects
     jira_projects = @client.Project.all
 
@@ -81,7 +89,8 @@ class JiraManager
           user_issue_id: "#{@user.id}_#{jira_issue.id}",
           project_id: jira_issue.project.id, issue_id: jira_issue.id,
           summary: jira_issue.summary, user_id: @user.id, key: jira_issue.key,
-          status: {name: jira_issue.status.name}
+          status: {name: jira_issue.status.name}, issue_type: jira_issue.fields["issuetype"],
+          epic_link: jira_issue.try(:customfield_10014), epic_name: jira_issue.try(:customfield_10011)
         }
         Issue.upsert(project, unique_by: :user_issue_id)
       end
