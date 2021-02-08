@@ -2,7 +2,7 @@
 
 class JiraManager
   def initialize(**params)
-    required_keys = %i[username password site user_id]
+    required_keys = %i[username password site user_id project_id]
     unless required_keys.all? { |required_key| params.key? required_key }
       missing_keys = required_keys - params.keys
       message = "missing #{missing_keys.map(&:to_s).join(", ")}"
@@ -19,6 +19,8 @@ class JiraManager
 
     @user = User.where(id: params[:user_id]).first
 
+    @project = Project.where(project_id: params[:project_id], user_id: @user.id).first
+
     @client = JIRA::Client.new(options)
 
     @query_options = {
@@ -29,11 +31,11 @@ class JiraManager
   end
 
   def fetch_issues
-    @client.Issue.jql("project = VPI", @query_options)
+    @client.Issue.jql("project = #{@project.key}", @query_options)
   end
 
   def fetch_gas_gauge_data
-    issues = Issue.where(project_id: "10015", user_id: @user.id)
+    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
 
     grand_total = issues.count
     total_backlog = issues.where("status->>'name' = 'Backlog'").count
@@ -47,7 +49,7 @@ class JiraManager
   end
 
   def fetch_epics
-    issues = Issue.where(project_id: "10015", user_id: @user.id)
+    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
     epics = issues.where("issue_type->>'name' = 'Epic'")
     epic_keys = epics.pluck(:key)
     epic_issues = issues.where(epic_link: epic_keys)

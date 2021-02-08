@@ -72,12 +72,16 @@ class JirasController < ApplicationController
   private
 
   def init_jira
+    @projects = Project.where(user_id: current_user.id)
+    project_id = params[:project_id].present? ? params[:project_id] : @projects.first&.project_id
+
     @jira_manager = JiraManager.new(
       username: current_user.jira_username,
       password: current_user.jira_password,
       site: current_user.jira_url,
       user_id: current_user.id,
-      start_at: params[:start_at]
+      start_at: params[:start_at],
+      project_id: project_id
     )
   end
 

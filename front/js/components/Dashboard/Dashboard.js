@@ -14,6 +14,7 @@ import {
   OverlayTrigger,
   Tooltip,
   ProgressBar,
+  Form,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -27,19 +28,25 @@ export default class Dashboard extends Component {
       issues: [],
       epics: [],
       epicIssues: [],
+      projects: [],
       devArcLength: [0.7, 0.3],
       testArcLength: [0.2, 0.8],
       deployArcLength: [0.15, 0.85],
       redirect: false,
+      project_id: '',
     };
   }
 
   componentDidMount = () => {
-    axios.get('/jiras.json').then((response) => {
+    this.fetchInitData();
+  };
+
+  fetchInitData = (project_id = '') => {
+    axios.get(`/jiras.json?project_id=${project_id}`).then((response) => {
       this.setState({ issues: response.data });
     });
 
-    axios.get('/jiras/stat.json').then((response) => {
+    axios.get(`/jiras/stat.json?project_id=${project_id}`).then((response) => {
       const { data } = response;
       const {
         total_backlog,
@@ -48,6 +55,7 @@ export default class Dashboard extends Component {
         grand_total,
         epics,
         epic_issues,
+        projects,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -70,17 +78,20 @@ export default class Dashboard extends Component {
         deployArcLength: [deployPercent, deployPendingPercent],
         epics,
         epicIssues: epic_issues,
+        projects,
       });
     });
   };
 
   fetchMoreData = () => {
-    const { issues } = this.state;
+    const { issues, project_id } = this.state;
     const startAt = issues.length;
 
-    axios.get(`/jiras.json?start_at=${startAt}`).then((response) => {
-      this.setState({ issues: issues.concat(response.data) });
-    });
+    axios
+      .get(`/jiras.json?start_at=${startAt}&project_id=${project_id}`)
+      .then((response) => {
+        this.setState({ issues: issues.concat(response.data) });
+      });
   };
 
   logoutUser = () => {
@@ -89,6 +100,12 @@ export default class Dashboard extends Component {
       localStorage.removeItem('user');
       this.setState({ redirect: true });
     });
+  };
+
+  handleProjectChange = (event) => {
+    const { value } = event.target;
+    this.setState({ project_id: value });
+    this.fetchInitData(value);
   };
 
   renderFocus = (epic, index) => {
@@ -106,7 +123,7 @@ export default class Dashboard extends Component {
       );
       const done = doneEpicIssues.length;
       const total = filteredEpicIssues.length;
-      percentage = (done / total) * 100;
+      percentage = Math.round((done / total) * 100);
     } else {
       percentage = 0;
     }
@@ -126,6 +143,7 @@ export default class Dashboard extends Component {
     const {
       issues,
       epics,
+      projects,
       redirect,
       devArcLength,
       testArcLength,
@@ -214,6 +232,24 @@ export default class Dashboard extends Component {
         </nav>
 
         <Container className="pt-5">
+          <Row className="pt-4">
+            <Col xs={12}>
+              <Form>
+                <Form.Label>Projects Filter</Form.Label>
+                <Form.Control
+                  as="select"
+                  size="lg"
+                  onChange={this.handleProjectChange}
+                >
+                  {projects.map((project) => (
+                    <option key={project.project_id} value={project.project_id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form>
+            </Col>
+          </Row>
           <Row className="pt-4">
             <Col xs={4}>
               <Card>
