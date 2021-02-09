@@ -12,3 +12,8 @@ json.epic_issues @epic_issues do |epic_issue|
   json.epic_link epic_issue.epic_link
   json.status epic_issue.status
 end
+json.projects @projects do |project|
+  json.project_id project.project_id
+  json.key project.key
+  json.name project.name
+end
