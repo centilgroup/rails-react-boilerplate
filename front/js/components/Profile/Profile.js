@@ -4,12 +4,9 @@
 
 import React, { Component } from 'react';
 import axios from 'axios';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Figure from 'react-bootstrap/Figure';
+import { Container, Row, Col, Form, Button, Figure } from 'react-bootstrap';
+import { NavLink } from 'react-router-dom';
+import { Redirect } from 'react-router';
 
 export default class Profile extends Component {
   constructor(props) {
@@ -26,6 +23,7 @@ export default class Profile extends Component {
       jira_password: '',
       avatar: '',
       avatar_link: '',
+      redirect: false,
     };
   }
 
@@ -86,6 +84,14 @@ export default class Profile extends Component {
     });
   };
 
+  logoutUser = () => {
+    axios.delete('/users/sign_out.json').then(() => {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user');
+      this.setState({ redirect: true });
+    });
+  };
+
   render() {
     const {
       first_name,
@@ -97,12 +103,37 @@ export default class Profile extends Component {
       jira_username,
       jira_password,
       avatar_link,
+      redirect,
     } = this.state;
 
+    if (redirect) {
+      return <Redirect to="/login" />;
+    }
+
     return (
-      <>
-        <Container>
-          <Form>
+      <section>
+        <nav>
+          <span>
+            <NavLink to="/" className="mr-2">
+              <Button variant="primary" size="sm">
+                Dashboard
+              </Button>
+            </NavLink>
+            <a href="/vpi-demo" className="mr-2">
+              <Button variant="primary" size="sm">
+                VPI
+              </Button>
+            </a>
+            <NavLink to="/" onClick={this.logoutUser}>
+              <Button variant="primary" size="sm">
+                Logout
+              </Button>
+            </NavLink>
+          </span>
+        </nav>
+
+        <Container className="pt-5">
+          <Form className="pt-4">
             <h4>Profile Section</h4>
             <Row>
               <Col xs={3}>
@@ -229,7 +260,7 @@ export default class Profile extends Component {
         <hr />
 
         <div className="m-3">Centil, LLC 2021.</div>
-      </>
+      </section>
     );
   }
 }
