@@ -34,6 +34,8 @@ export default class Dashboard extends Component {
       deployArcLength: [0.15, 0.85],
       redirect: false,
       project_id: '',
+      jiraActivityLoading: false,
+      jiraActivityHasMore: true,
     };
   }
 
@@ -42,9 +44,22 @@ export default class Dashboard extends Component {
   };
 
   fetchInitData = (project_id = '') => {
-    axios.get(`/jiras.json?project_id=${project_id}`).then((response) => {
-      this.setState({ issues: response.data });
-    });
+    this.setState({ jiraActivityLoading: true, jiraActivityHasMore: true });
+
+    axios
+      .get(`/jiras.json?project_id=${project_id}`)
+      .then((response) => {
+        this.setState({ issues: response.data, jiraActivityLoading: false });
+      })
+      .catch(() => {
+        this.setState({ jiraActivityLoading: false });
+      })
+      .finally(() => {
+        const { issues } = this.state;
+        if (issues.length === 0) {
+          this.setState({ jiraActivityHasMore: false });
+        }
+      });
 
     axios.get(`/jiras/stat.json?project_id=${project_id}`).then((response) => {
       const { data } = response;
@@ -91,6 +106,9 @@ export default class Dashboard extends Component {
       .get(`/jiras.json?start_at=${startAt}&project_id=${project_id}`)
       .then((response) => {
         this.setState({ issues: issues.concat(response.data) });
+        if (response.data.length === 0) {
+          this.setState({ jiraActivityHasMore: false });
+        }
       });
   };
 
@@ -148,6 +166,8 @@ export default class Dashboard extends Component {
       devArcLength,
       testArcLength,
       deployArcLength,
+      jiraActivityLoading,
+      jiraActivityHasMore,
     } = this.state;
     const style = {
       height: 300,
@@ -156,9 +176,11 @@ export default class Dashboard extends Component {
     let listIssues;
     let listEpics;
 
-    listIssues = <Skeleton count={10} />;
-
-    if (issues.length > 0) {
+    if (jiraActivityLoading) {
+      listIssues = <Skeleton count={10} />;
+    } else if (issues.length === 0) {
+      listIssues = <div>No activity found.</div>;
+    } else {
       listIssues = issues.map((issue) => (
         <ListGroup.Item key={issue.id} className="d-flex">
           <OverlayTrigger
@@ -203,6 +225,8 @@ export default class Dashboard extends Component {
 
     if (epics.length > 0) {
       listEpics = epics.map((epic, index) => this.renderFocus(epic, index));
+    } else {
+      listEpics = <div>No epics found.</div>;
     }
 
     if (redirect) {
@@ -473,7 +497,7 @@ export default class Dashboard extends Component {
                     <InfiniteScroll
                       dataLength={issues.length}
                       next={this.fetchMoreData}
-                      hasMore
+                      hasMore={jiraActivityHasMore}
                       loader={<Skeleton count={10} />}
                       scrollableTarget="jiraActivity"
                     >
