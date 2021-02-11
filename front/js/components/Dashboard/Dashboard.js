@@ -15,6 +15,7 @@ import {
   Tooltip,
   ProgressBar,
   Form,
+  Alert,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -34,6 +35,9 @@ export default class Dashboard extends Component {
       deployArcLength: [0.15, 0.85],
       redirect: false,
       project_id: '',
+      jiraActivityLoading: false,
+      jiraActivityHasMore: true,
+      showAlert: false,
     };
   }
 
@@ -42,9 +46,25 @@ export default class Dashboard extends Component {
   };
 
   fetchInitData = (project_id = '') => {
-    axios.get(`/jiras.json?project_id=${project_id}`).then((response) => {
-      this.setState({ issues: response.data });
-    });
+    this.setState({ jiraActivityLoading: true, jiraActivityHasMore: true });
+
+    axios
+      .get(`/jiras.json?project_id=${project_id}`)
+      .then((response) => {
+        this.setState({ issues: response.data, jiraActivityLoading: false });
+      })
+      .catch(() => {
+        this.setState({ jiraActivityLoading: false, showAlert: true });
+      })
+      .finally(() => {
+        const { issues } = this.state;
+        if (issues.length === 0) {
+          this.setState({ jiraActivityHasMore: false });
+        }
+        setTimeout(() => {
+          this.setState({ showAlert: false });
+        }, 3000);
+      });
 
     axios.get(`/jiras/stat.json?project_id=${project_id}`).then((response) => {
       const { data } = response;
@@ -91,6 +111,17 @@ export default class Dashboard extends Component {
       .get(`/jiras.json?start_at=${startAt}&project_id=${project_id}`)
       .then((response) => {
         this.setState({ issues: issues.concat(response.data) });
+        if (response.data.length === 0) {
+          this.setState({ jiraActivityHasMore: false });
+        }
+      })
+      .catch(() => {
+        this.setState({ showAlert: true });
+      })
+      .finally(() => {
+        setTimeout(() => {
+          this.setState({ showAlert: false });
+        }, 3000);
       });
   };
 
@@ -148,17 +179,28 @@ export default class Dashboard extends Component {
       devArcLength,
       testArcLength,
       deployArcLength,
+      jiraActivityLoading,
+      jiraActivityHasMore,
+      showAlert,
     } = this.state;
     const style = {
       height: 300,
       overflow: 'auto',
     };
+    const alertStyle = {
+      position: 'fixed',
+      zIndex: 2,
+      width: '100%',
+    };
     let listIssues;
     let listEpics;
+    let alert;
 
-    listIssues = <Skeleton count={10} />;
-
-    if (issues.length > 0) {
+    if (jiraActivityLoading) {
+      listIssues = <Skeleton count={10} />;
+    } else if (issues.length === 0) {
+      listIssues = <div>No activities found.</div>;
+    } else {
       listIssues = issues.map((issue) => (
         <ListGroup.Item key={issue.id} className="d-flex">
           <OverlayTrigger
@@ -203,14 +245,28 @@ export default class Dashboard extends Component {
 
     if (epics.length > 0) {
       listEpics = epics.map((epic, index) => this.renderFocus(epic, index));
+    } else {
+      listEpics = <div>No epics found.</div>;
     }
 
     if (redirect) {
       return <Redirect to="/login" />;
     }
 
+    if (showAlert) {
+      alert = (
+        <Alert variant="danger" style={alertStyle}>
+          <span>
+            An unexpected error occurred while fetching Jira issues!!!
+          </span>
+        </Alert>
+      );
+    }
+
     return (
       <section>
+        {alert}
+
         <nav>
           <span>
             <NavLink to="/profile" className="mr-2">
@@ -473,7 +529,7 @@ export default class Dashboard extends Component {
                     <InfiniteScroll
                       dataLength={issues.length}
                       next={this.fetchMoreData}
-                      hasMore
+                      hasMore={jiraActivityHasMore}
                       loader={<Skeleton count={10} />}
                       scrollableTarget="jiraActivity"
                     >
