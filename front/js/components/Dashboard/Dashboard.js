@@ -15,6 +15,7 @@ import {
   Tooltip,
   ProgressBar,
   Form,
+  Alert,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -36,6 +37,7 @@ export default class Dashboard extends Component {
       project_id: '',
       jiraActivityLoading: false,
       jiraActivityHasMore: true,
+      showAlert: false,
     };
   }
 
@@ -52,13 +54,16 @@ export default class Dashboard extends Component {
         this.setState({ issues: response.data, jiraActivityLoading: false });
       })
       .catch(() => {
-        this.setState({ jiraActivityLoading: false });
+        this.setState({ jiraActivityLoading: false, showAlert: true });
       })
       .finally(() => {
         const { issues } = this.state;
         if (issues.length === 0) {
           this.setState({ jiraActivityHasMore: false });
         }
+        setTimeout(() => {
+          this.setState({ showAlert: false });
+        }, 3000);
       });
 
     axios.get(`/jiras/stat.json?project_id=${project_id}`).then((response) => {
@@ -109,6 +114,14 @@ export default class Dashboard extends Component {
         if (response.data.length === 0) {
           this.setState({ jiraActivityHasMore: false });
         }
+      })
+      .catch(() => {
+        this.setState({ showAlert: true });
+      })
+      .finally(() => {
+        setTimeout(() => {
+          this.setState({ showAlert: false });
+        }, 3000);
       });
   };
 
@@ -168,18 +181,25 @@ export default class Dashboard extends Component {
       deployArcLength,
       jiraActivityLoading,
       jiraActivityHasMore,
+      showAlert,
     } = this.state;
     const style = {
       height: 300,
       overflow: 'auto',
     };
+    const alertStyle = {
+      position: 'fixed',
+      zIndex: 2,
+      width: '100%',
+    };
     let listIssues;
     let listEpics;
+    let alert;
 
     if (jiraActivityLoading) {
       listIssues = <Skeleton count={10} />;
     } else if (issues.length === 0) {
-      listIssues = <div>No activity found.</div>;
+      listIssues = <div>No activities found.</div>;
     } else {
       listIssues = issues.map((issue) => (
         <ListGroup.Item key={issue.id} className="d-flex">
@@ -233,8 +253,20 @@ export default class Dashboard extends Component {
       return <Redirect to="/login" />;
     }
 
+    if (showAlert) {
+      alert = (
+        <Alert variant="danger" style={alertStyle}>
+          <span>
+            An unexpected error occurred while fetching Jira issues!!!
+          </span>
+        </Alert>
+      );
+    }
+
     return (
       <section>
+        {alert}
+
         <nav>
           <span>
             <NavLink to="/profile" className="mr-2">
