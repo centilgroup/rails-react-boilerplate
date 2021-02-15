@@ -4,7 +4,8 @@ def init_jira(user)
     password: user.jira_password,
     site: user.jira_url,
     user_id: user.id,
-    start_at: 0
+    start_at: 0,
+    project_id: ""
   )
 end
 
