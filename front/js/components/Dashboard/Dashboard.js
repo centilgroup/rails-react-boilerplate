@@ -21,12 +21,14 @@ import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import axios from 'axios';
 import { Redirect } from 'react-router';
+import moment from 'moment';
 
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
       issues: [],
+      selectedIssueId: '',
       epics: [],
       epicIssues: [],
       projects: [],
@@ -60,6 +62,8 @@ export default class Dashboard extends Component {
         const { issues } = this.state;
         if (issues.length === 0) {
           this.setState({ jiraActivityHasMore: false });
+        } else {
+          this.setState({ selectedIssueId: issues[0].id });
         }
         setTimeout(() => {
           this.setState({ showAlert: false });
@@ -139,6 +143,10 @@ export default class Dashboard extends Component {
     this.fetchInitData(value);
   };
 
+  selectIssue = (issueId) => {
+    this.setState({ selectedIssueId: issueId });
+  };
+
   renderFocus = (epic, index) => {
     const colors = ['new-work', 'legacy-refactor', 'help-others', 'churn'];
     const { epicIssues } = this.state;
@@ -170,6 +178,173 @@ export default class Dashboard extends Component {
     );
   };
 
+  renderAverageTimes = () => {
+    let leadTime = 0;
+    let developmentTime = 0;
+    let reviewTime = 0;
+    let deploymentTime = 0;
+    const { issues, selectedIssueId } = this.state;
+    const selectedIssue = issues.filter(
+      (issue) => issue.id === selectedIssueId,
+    );
+    const style = {
+      height: 300,
+      overflow: 'auto',
+    };
+
+    if (selectedIssue.length === 0) {
+      return <div />;
+    }
+
+    const { histories } = selectedIssue[0].change_log;
+    const IssueCreatedAt = selectedIssue[0].created;
+    const currentStatus = selectedIssue[0].status.name.toLowerCase();
+    const totalTime = moment().diff(moment(selectedIssue[0].created), 'days');
+    const statusChanges = histories.filter(
+      (history) =>
+        history.items[0].field === 'status' &&
+        history.items[0].fieldtype === 'jira',
+    );
+
+    if (statusChanges.length === 0) {
+      if (['backlog', 'to do', 'open'].includes(currentStatus)) {
+        leadTime += totalTime;
+      } else if (['in progress'].includes(currentStatus)) {
+        developmentTime += totalTime;
+      } else if (['review', 'qa', 'ready for review'].includes(currentStatus)) {
+        reviewTime += totalTime;
+      } else if (['done', 'closed'].includes(currentStatus)) {
+        deploymentTime += totalTime;
+      }
+    }
+
+    statusChanges.forEach((statusChange, index) => {
+      const status = statusChange.items[0].toString.toLowerCase();
+      if (index === 0) {
+        if (['backlog', 'to do', 'open'].includes(status)) {
+          leadTime += moment().diff(moment(statusChange.created), 'days');
+        } else if (['in progress'].includes(status)) {
+          developmentTime += moment().diff(
+            moment(statusChange.created),
+            'days',
+          );
+        } else if (['review', 'qa', 'ready for review'].includes(status)) {
+          reviewTime += moment().diff(moment(statusChange.created), 'days');
+        } else if (['done', 'closed'].includes(status)) {
+          deploymentTime += moment().diff(moment(statusChange.created), 'days');
+        }
+      } else if (index === statusChange.length - 1) {
+        if (['backlog', 'to do', 'open'].includes(status)) {
+          leadTime += moment(IssueCreatedAt).diff(
+            moment(statusChange.created),
+            'days',
+          );
+        } else if (['in progress'].includes(status)) {
+          developmentTime += moment(IssueCreatedAt).diff(
+            moment(statusChange.created),
+            'days',
+          );
+        } else if (['review', 'qa', 'ready for review'].includes(status)) {
+          reviewTime += moment(IssueCreatedAt).diff(
+            moment(statusChange.created),
+            'days',
+          );
+        } else if (['done', 'closed'].includes(status)) {
+          deploymentTime += moment(IssueCreatedAt).diff(
+            moment(statusChange.created),
+            'days',
+          );
+        }
+      } else if (index > 0 && index < statusChange.length - 1) {
+        const createdAt = statusChanges[index + 1].created;
+        if (['backlog', 'to do', 'open'].includes(status)) {
+          leadTime += moment(createdAt).diff(
+            moment(statusChange.created),
+            'days',
+          );
+        } else if (['in progress'].includes(status)) {
+          developmentTime += moment(createdAt).diff(
+            moment(statusChange.created),
+            'days',
+          );
+        } else if (['review', 'qa', 'ready for review'].includes(status)) {
+          reviewTime += moment(createdAt).diff(
+            moment(statusChange.created),
+            'days',
+          );
+        } else if (['done', 'closed'].includes(status)) {
+          deploymentTime += moment(createdAt).diff(
+            moment(statusChange.created),
+            'days',
+          );
+        }
+      }
+    });
+
+    if (
+      leadTime === 0 &&
+      developmentTime === 0 &&
+      reviewTime === 0 &&
+      deploymentTime === 0
+    ) {
+      if (['backlog', 'to do', 'open'].includes(currentStatus)) {
+        leadTime += totalTime;
+      } else if (['in progress'].includes(currentStatus)) {
+        developmentTime += totalTime;
+      } else if (['review', 'qa', 'ready for review'].includes(currentStatus)) {
+        reviewTime += totalTime;
+      } else if (['done', 'closed'].includes(currentStatus)) {
+        deploymentTime += totalTime;
+      }
+    }
+
+    const leadPercentage = Math.round((leadTime / totalTime) * 100);
+    const devPercentage = Math.round((developmentTime / totalTime) * 100);
+    const reviewPercentage = Math.round((reviewTime / totalTime) * 100);
+    const deployPercentage = Math.round((deploymentTime / totalTime) * 100);
+
+    return (
+      <Card>
+        <Card.Body>
+          <Card.Title>Time Spent</Card.Title>
+          <div style={style}>
+            <div className="mb-4">
+              <div className="mb-2 d-flex justify-content-between avg-count">
+                <div>Lead Time</div>
+                <div className="le-ti">{leadTime} day(s)</div>
+              </div>
+              <ProgressBar className="lead-time" now={leadPercentage} />
+            </div>
+
+            <div className="mb-4">
+              <div className="mb-2 d-flex justify-content-between avg-count">
+                <div>Development Time</div>
+                <div className="dev">{developmentTime} day(s)</div>
+              </div>
+              <ProgressBar className="development" now={devPercentage} />
+            </div>
+
+            <div className="mb-4">
+              <div className="mb-2 d-flex justify-content-between avg-count">
+                <div>Review Time</div>
+                <div className="rev">{reviewTime} day(s)</div>
+              </div>
+              <ProgressBar className="review" now={reviewPercentage} />
+            </div>
+
+            <div className="mb-4">
+              <div className="mb-2 d-flex justify-content-between avg-count">
+                <div>Deployment Time</div>
+                <div className="deploy">{deploymentTime} day(s)</div>
+              </div>
+              <ProgressBar className="deployment" now={deployPercentage} />
+            </div>
+          </div>
+        </Card.Body>
+      </Card>
+    );
+  };
+
   render() {
     const {
       issues,
@@ -182,6 +357,7 @@ export default class Dashboard extends Component {
       jiraActivityLoading,
       jiraActivityHasMore,
       showAlert,
+      selectedIssueId,
     } = this.state;
     const style = {
       height: 300,
@@ -202,7 +378,13 @@ export default class Dashboard extends Component {
       listIssues = <div>No activities found.</div>;
     } else {
       listIssues = issues.map((issue) => (
-        <ListGroup.Item key={issue.id} className="d-flex">
+        <ListGroup.Item
+          key={issue.id}
+          className={`${
+            selectedIssueId === issue.id ? 'selected d-flex' : 'd-flex'
+          }`}
+          onClick={() => this.selectIssue(issue.id)}
+        >
           <OverlayTrigger
             placement="top"
             overlay={
@@ -380,53 +562,53 @@ export default class Dashboard extends Component {
               </Card>
             </Col>
           </Row>
-          <Row className="pt-4">
-            <Col xs={3}>
-              <Card>
-                <Card.Body>
-                  <ProgressBar className="lead-time" now={100} />
-                  <div className="mb-2">Lead Time</div>
-                  <div className="avg-count">
-                    <span className="le-ti">14 days</span> avg.
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col xs={3}>
-              <Card>
-                <Card.Body>
-                  <ProgressBar className="development" now={100} />
-                  <div className="mb-2">Development</div>
-                  <div className="avg-count">
-                    <span className="dev">2.3 day</span> avg.
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
+          {/* <Row className="pt-4"> */}
+          {/*  <Col xs={3}> */}
+          {/*    <Card> */}
+          {/*      <Card.Body> */}
+          {/*        <ProgressBar className="lead-time" now={100} /> */}
+          {/*        <div className="mb-2">Lead Time</div> */}
+          {/*        <div className="avg-count"> */}
+          {/*          <span className="le-ti">14 days</span> avg. */}
+          {/*        </div> */}
+          {/*      </Card.Body> */}
+          {/*    </Card> */}
+          {/*  </Col> */}
+          {/*  <Col xs={3}> */}
+          {/*    <Card> */}
+          {/*      <Card.Body> */}
+          {/*        <ProgressBar className="development" now={100} /> */}
+          {/*        <div className="mb-2">Development</div> */}
+          {/*        <div className="avg-count"> */}
+          {/*          <span className="dev">2.3 day</span> avg. */}
+          {/*        </div> */}
+          {/*      </Card.Body> */}
+          {/*    </Card> */}
+          {/*  </Col> */}
 
-            <Col xs={3}>
-              <Card>
-                <Card.Body>
-                  <ProgressBar className="review" now={100} />
-                  <div className="mb-2">Review</div>
-                  <div className="avg-count">
-                    <span className="rev">12.4 hours</span> avg.
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col xs={3}>
-              <Card>
-                <Card.Body>
-                  <ProgressBar className="deployment" now={100} />
-                  <div className="mb-2">Deployment</div>
-                  <div className="avg-count">
-                    <span className="deploy">2.7 week</span> avg.
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+          {/*  <Col xs={3}> */}
+          {/*    <Card> */}
+          {/*      <Card.Body> */}
+          {/*        <ProgressBar className="review" now={100} /> */}
+          {/*        <div className="mb-2">Review</div> */}
+          {/*        <div className="avg-count"> */}
+          {/*          <span className="rev">12.4 hours</span> avg. */}
+          {/*        </div> */}
+          {/*      </Card.Body> */}
+          {/*    </Card> */}
+          {/*  </Col> */}
+          {/*  <Col xs={3}> */}
+          {/*    <Card> */}
+          {/*      <Card.Body> */}
+          {/*        <ProgressBar className="deployment" now={100} /> */}
+          {/*        <div className="mb-2">Deployment</div> */}
+          {/*        <div className="avg-count"> */}
+          {/*          <span className="deploy">2.7 week</span> avg. */}
+          {/*        </div> */}
+          {/*      </Card.Body> */}
+          {/*    </Card> */}
+          {/*  </Col> */}
+          {/* </Row> */}
           <Row className="pt-4">
             <Col xs={4}>
               <Card>
@@ -521,7 +703,7 @@ export default class Dashboard extends Component {
             </Col>
           </Row>
           <Row className="py-4">
-            <Col xs={12}>
+            <Col xs={8}>
               <Card>
                 <Card.Body>
                   <Card.Title>Jira Activity</Card.Title>
@@ -539,6 +721,7 @@ export default class Dashboard extends Component {
                 </Card.Body>
               </Card>
             </Col>
+            <Col xs={4}>{this.renderAverageTimes()}</Col>
             {/* <Col xs={6}> */}
             {/*  <Card> */}
             {/*    <Card.Body className="text-center"> */}

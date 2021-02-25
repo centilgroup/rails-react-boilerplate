@@ -10,3 +10,18 @@
   height: 224px;
   overflow-y: scroll;
 }
+
+#jiraActivity {
+  .list-group-item.selected {
+    background-color: #9cd6ff;
+  }
+
+  .list-group-item:hover {
+    cursor: pointer;
+    background-color: #e2e2e2;
+  }
+
+  .issue-summary {
+    width: 20rem !important;
+  }
+}

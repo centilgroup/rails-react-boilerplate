@@ -26,7 +26,8 @@ class JiraManager
     @query_options = {
       fields: [],
       start_at: params[:start_at] || 0,
-      max_results: 10
+      max_results: 10,
+      expand: "changelog"
     }
   end
 
