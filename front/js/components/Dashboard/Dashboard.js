@@ -199,17 +199,22 @@ export default class Dashboard extends Component {
     const { histories } = selectedIssue[0].change_log;
     const IssueCreatedAt = selectedIssue[0].created;
     const currentStatus = selectedIssue[0].status.name.toLowerCase();
-    const totalTime = moment().diff(moment(selectedIssue[0].created), 'days');
+    const totalTime = moment().diff(
+      moment(selectedIssue[0].created),
+      'minutes',
+    );
     const statusChanges = histories.filter(
       (history) =>
-        history.items[0].field === 'status' &&
+        ['status', 'resolution'].includes(history.items[0].field) &&
         history.items[0].fieldtype === 'jira',
     );
 
     if (statusChanges.length === 0) {
       if (['backlog', 'to do', 'open'].includes(currentStatus)) {
         leadTime += totalTime;
-      } else if (['in progress'].includes(currentStatus)) {
+      } else if (
+        ['selected for development', 'in progress'].includes(currentStatus)
+      ) {
         developmentTime += totalTime;
       } else if (['review', 'qa', 'ready for review'].includes(currentStatus)) {
         reviewTime += totalTime;
@@ -219,64 +224,59 @@ export default class Dashboard extends Component {
     }
 
     statusChanges.forEach((statusChange, index) => {
-      const status = statusChange.items[0].toString.toLowerCase();
+      const lastIndex = statusChange.items.length - 1;
+      const status = statusChange.items[lastIndex].toString
+        .toString()
+        .toLowerCase();
+
       if (index === 0) {
+        const diff = moment().diff(moment(statusChange.created), 'minutes');
+
         if (['backlog', 'to do', 'open'].includes(status)) {
-          leadTime += moment().diff(moment(statusChange.created), 'days');
-        } else if (['in progress'].includes(status)) {
-          developmentTime += moment().diff(
-            moment(statusChange.created),
-            'days',
-          );
+          leadTime += diff;
+        } else if (
+          ['selected for development', 'in progress'].includes(status)
+        ) {
+          developmentTime += diff;
         } else if (['review', 'qa', 'ready for review'].includes(status)) {
-          reviewTime += moment().diff(moment(statusChange.created), 'days');
+          reviewTime += diff;
         } else if (['done', 'closed'].includes(status)) {
-          deploymentTime += moment().diff(moment(statusChange.created), 'days');
+          deploymentTime += diff;
         }
-      } else if (index === statusChange.length - 1) {
+      } else if (index === statusChanges.length - 1) {
+        const diff = moment(statusChange.created).diff(
+          moment(IssueCreatedAt),
+          'minutes',
+        );
+
         if (['backlog', 'to do', 'open'].includes(status)) {
-          leadTime += moment(IssueCreatedAt).diff(
-            moment(statusChange.created),
-            'days',
-          );
-        } else if (['in progress'].includes(status)) {
-          developmentTime += moment(IssueCreatedAt).diff(
-            moment(statusChange.created),
-            'days',
-          );
+          leadTime += diff;
+        } else if (
+          ['selected for development', 'in progress'].includes(status)
+        ) {
+          developmentTime += diff;
         } else if (['review', 'qa', 'ready for review'].includes(status)) {
-          reviewTime += moment(IssueCreatedAt).diff(
-            moment(statusChange.created),
-            'days',
-          );
+          reviewTime += diff;
         } else if (['done', 'closed'].includes(status)) {
-          deploymentTime += moment(IssueCreatedAt).diff(
-            moment(statusChange.created),
-            'days',
-          );
+          deploymentTime += diff;
         }
-      } else if (index > 0 && index < statusChange.length - 1) {
+      } else if (index > 0 || index < statusChanges.length - 1) {
         const createdAt = statusChanges[index + 1].created;
+        const diff = moment(statusChange.created).diff(
+          moment(createdAt),
+          'minutes',
+        );
+
         if (['backlog', 'to do', 'open'].includes(status)) {
-          leadTime += moment(createdAt).diff(
-            moment(statusChange.created),
-            'days',
-          );
-        } else if (['in progress'].includes(status)) {
-          developmentTime += moment(createdAt).diff(
-            moment(statusChange.created),
-            'days',
-          );
+          leadTime += diff;
+        } else if (
+          ['selected for development', 'in progress'].includes(status)
+        ) {
+          developmentTime += diff;
         } else if (['review', 'qa', 'ready for review'].includes(status)) {
-          reviewTime += moment(createdAt).diff(
-            moment(statusChange.created),
-            'days',
-          );
+          reviewTime += diff;
         } else if (['done', 'closed'].includes(status)) {
-          deploymentTime += moment(createdAt).diff(
-            moment(statusChange.created),
-            'days',
-          );
+          deploymentTime += diff;
         }
       }
     });
@@ -289,7 +289,9 @@ export default class Dashboard extends Component {
     ) {
       if (['backlog', 'to do', 'open'].includes(currentStatus)) {
         leadTime += totalTime;
-      } else if (['in progress'].includes(currentStatus)) {
+      } else if (
+        ['selected for development', 'in progress'].includes(currentStatus)
+      ) {
         developmentTime += totalTime;
       } else if (['review', 'qa', 'ready for review'].includes(currentStatus)) {
         reviewTime += totalTime;
@@ -298,10 +300,41 @@ export default class Dashboard extends Component {
       }
     }
 
-    const leadPercentage = Math.round((leadTime / totalTime) * 100);
-    const devPercentage = Math.round((developmentTime / totalTime) * 100);
-    const reviewPercentage = Math.round((reviewTime / totalTime) * 100);
-    const deployPercentage = Math.round((deploymentTime / totalTime) * 100);
+    const leadPercentage = Math.floor((leadTime / totalTime) * 100);
+    const devPercentage = Math.floor((developmentTime / totalTime) * 100);
+    const reviewPercentage = Math.floor((reviewTime / totalTime) * 100);
+    const deployPercentage = Math.floor((deploymentTime / totalTime) * 100);
+
+    const formattedTime = (timeInMinutes) => {
+      let displayTime = timeInMinutes;
+      let unit = 'minute';
+      if (displayTime >= 60) {
+        displayTime = Math.floor(timeInMinutes / 60);
+        unit = 'hour';
+      }
+      if (displayTime >= 24) {
+        displayTime = Math.floor(timeInMinutes / (60 * 24));
+        unit = 'day';
+      }
+      if (displayTime >= 7) {
+        displayTime = Math.floor(timeInMinutes / (60 * 24 * 7));
+        unit = 'week';
+      }
+      if (displayTime >= 5) {
+        displayTime = Math.floor(timeInMinutes / (60 * 24 * 7 * 5));
+        unit = 'month';
+      }
+      if (displayTime >= 12) {
+        displayTime = Math.floor(timeInMinutes / (60 * 24 * 7 * 5 * 12));
+        unit = 'year';
+      }
+
+      if (displayTime > 1) {
+        unit += 's';
+      }
+
+      return `${displayTime} ${unit}`;
+    };
 
     return (
       <Card>
@@ -311,7 +344,7 @@ export default class Dashboard extends Component {
             <div className="mb-4">
               <div className="mb-2 d-flex justify-content-between avg-count">
                 <div>Lead Time</div>
-                <div className="le-ti">{leadTime} day(s)</div>
+                <div className="le-ti">{formattedTime(leadTime)}</div>
               </div>
               <ProgressBar className="lead-time" now={leadPercentage} />
             </div>
@@ -319,7 +352,7 @@ export default class Dashboard extends Component {
             <div className="mb-4">
               <div className="mb-2 d-flex justify-content-between avg-count">
                 <div>Development Time</div>
-                <div className="dev">{developmentTime} day(s)</div>
+                <div className="dev">{formattedTime(developmentTime)}</div>
               </div>
               <ProgressBar className="development" now={devPercentage} />
             </div>
@@ -327,7 +360,7 @@ export default class Dashboard extends Component {
             <div className="mb-4">
               <div className="mb-2 d-flex justify-content-between avg-count">
                 <div>Review Time</div>
-                <div className="rev">{reviewTime} day(s)</div>
+                <div className="rev">{formattedTime(reviewTime)}</div>
               </div>
               <ProgressBar className="review" now={reviewPercentage} />
             </div>
@@ -335,7 +368,7 @@ export default class Dashboard extends Component {
             <div className="mb-4">
               <div className="mb-2 d-flex justify-content-between avg-count">
                 <div>Deployment Time</div>
-                <div className="deploy">{deploymentTime} day(s)</div>
+                <div className="deploy">{formattedTime(deploymentTime)}</div>
               </div>
               <ProgressBar className="deployment" now={deployPercentage} />
             </div>
