@@ -16,6 +16,7 @@ import {
   ProgressBar,
   Form,
   Alert,
+  Spinner,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -40,6 +41,8 @@ export default class Dashboard extends Component {
       jiraActivityLoading: false,
       jiraActivityHasMore: true,
       showAlert: false,
+      projectsSync: false,
+      issuesSync: false,
     };
   }
 
@@ -147,6 +150,33 @@ export default class Dashboard extends Component {
     this.setState({ selectedIssueId: issueId });
   };
 
+  syncProjects = () => {
+    this.setState({ projectsSync: true });
+
+    axios
+      .put('/users/sync_projects.json', {})
+      .then((response) => {
+        const { projects } = response.data;
+        this.setState({ projects });
+      })
+      .finally(() => {
+        this.setState({ projectsSync: false });
+      });
+  };
+
+  syncIssues = () => {
+    this.setState({ issuesSync: true });
+
+    axios
+      .put('/users/sync_issues.json', {})
+      .then((response) => {
+        window.location.href = '/';
+      })
+      .finally(() => {
+        this.setState({ issuesSync: false });
+      });
+  };
+
   renderFocus = (epic, index) => {
     const colors = ['new-work', 'legacy-refactor', 'help-others', 'churn'];
     const { epicIssues } = this.state;
@@ -191,6 +221,10 @@ export default class Dashboard extends Component {
       height: 300,
       overflow: 'auto',
     };
+    const leadStatus = ['backlog', 'to do', 'open'];
+    const devStatus = ['selected for development', 'in progress'];
+    const revStatus = ['review', 'qa', 'ready for review'];
+    const deployStatus = ['done', 'closed'];
 
     if (selectedIssue.length === 0) {
       return <div />;
@@ -210,15 +244,13 @@ export default class Dashboard extends Component {
     );
 
     if (statusChanges.length === 0) {
-      if (['backlog', 'to do', 'open'].includes(currentStatus)) {
+      if (leadStatus.includes(currentStatus)) {
         leadTime += totalTime;
-      } else if (
-        ['selected for development', 'in progress'].includes(currentStatus)
-      ) {
+      } else if (devStatus.includes(currentStatus)) {
         developmentTime += totalTime;
-      } else if (['review', 'qa', 'ready for review'].includes(currentStatus)) {
+      } else if (revStatus.includes(currentStatus)) {
         reviewTime += totalTime;
-      } else if (['done', 'closed'].includes(currentStatus)) {
+      } else if (deployStatus.includes(currentStatus)) {
         deploymentTime += totalTime;
       }
     }
@@ -232,15 +264,13 @@ export default class Dashboard extends Component {
       if (index === 0) {
         const diff = moment().diff(moment(statusChange.created), 'minutes');
 
-        if (['backlog', 'to do', 'open'].includes(status)) {
+        if (leadStatus.includes(status)) {
           leadTime += diff;
-        } else if (
-          ['selected for development', 'in progress'].includes(status)
-        ) {
+        } else if (devStatus.includes(status)) {
           developmentTime += diff;
-        } else if (['review', 'qa', 'ready for review'].includes(status)) {
+        } else if (revStatus.includes(status)) {
           reviewTime += diff;
-        } else if (['done', 'closed'].includes(status)) {
+        } else if (deployStatus.includes(status)) {
           deploymentTime += diff;
         }
       } else if (index === statusChanges.length - 1) {
@@ -249,15 +279,13 @@ export default class Dashboard extends Component {
           'minutes',
         );
 
-        if (['backlog', 'to do', 'open'].includes(status)) {
+        if (leadStatus.includes(status)) {
           leadTime += diff;
-        } else if (
-          ['selected for development', 'in progress'].includes(status)
-        ) {
+        } else if (devStatus.includes(status)) {
           developmentTime += diff;
-        } else if (['review', 'qa', 'ready for review'].includes(status)) {
+        } else if (revStatus.includes(status)) {
           reviewTime += diff;
-        } else if (['done', 'closed'].includes(status)) {
+        } else if (deployStatus.includes(status)) {
           deploymentTime += diff;
         }
       } else if (index > 0 || index < statusChanges.length - 1) {
@@ -267,15 +295,13 @@ export default class Dashboard extends Component {
           'minutes',
         );
 
-        if (['backlog', 'to do', 'open'].includes(status)) {
+        if (leadStatus.includes(status)) {
           leadTime += diff;
-        } else if (
-          ['selected for development', 'in progress'].includes(status)
-        ) {
+        } else if (devStatus.includes(status)) {
           developmentTime += diff;
-        } else if (['review', 'qa', 'ready for review'].includes(status)) {
+        } else if (revStatus.includes(status)) {
           reviewTime += diff;
-        } else if (['done', 'closed'].includes(status)) {
+        } else if (deployStatus.includes(status)) {
           deploymentTime += diff;
         }
       }
@@ -287,23 +313,18 @@ export default class Dashboard extends Component {
       reviewTime === 0 &&
       deploymentTime === 0
     ) {
-      if (['backlog', 'to do', 'open'].includes(currentStatus)) {
+      if (leadStatus.includes(currentStatus)) {
         leadTime += totalTime;
-      } else if (
-        ['selected for development', 'in progress'].includes(currentStatus)
-      ) {
+      } else if (devStatus.includes(currentStatus)) {
         developmentTime += totalTime;
-      } else if (['review', 'qa', 'ready for review'].includes(currentStatus)) {
+      } else if (revStatus.includes(currentStatus)) {
         reviewTime += totalTime;
-      } else if (['done', 'closed'].includes(currentStatus)) {
+      } else if (deployStatus.includes(currentStatus)) {
         deploymentTime += totalTime;
       }
     }
 
-    const leadPercentage = Math.floor((leadTime / totalTime) * 100);
-    const devPercentage = Math.floor((developmentTime / totalTime) * 100);
-    const reviewPercentage = Math.floor((reviewTime / totalTime) * 100);
-    const deployPercentage = Math.floor((deploymentTime / totalTime) * 100);
+    const percentage = (time) => Math.floor((time / totalTime) * 100);
 
     const formattedTime = (timeInMinutes) => {
       let displayTime = timeInMinutes;
@@ -346,7 +367,7 @@ export default class Dashboard extends Component {
                 <div>Lead Time</div>
                 <div className="le-ti">{formattedTime(leadTime)}</div>
               </div>
-              <ProgressBar className="lead-time" now={leadPercentage} />
+              <ProgressBar className="lead-time" now={percentage(leadTime)} />
             </div>
 
             <div className="mb-4">
@@ -354,7 +375,10 @@ export default class Dashboard extends Component {
                 <div>Development Time</div>
                 <div className="dev">{formattedTime(developmentTime)}</div>
               </div>
-              <ProgressBar className="development" now={devPercentage} />
+              <ProgressBar
+                className="development"
+                now={percentage(developmentTime)}
+              />
             </div>
 
             <div className="mb-4">
@@ -362,7 +386,7 @@ export default class Dashboard extends Component {
                 <div>Review Time</div>
                 <div className="rev">{formattedTime(reviewTime)}</div>
               </div>
-              <ProgressBar className="review" now={reviewPercentage} />
+              <ProgressBar className="review" now={percentage(reviewTime)} />
             </div>
 
             <div className="mb-4">
@@ -370,7 +394,10 @@ export default class Dashboard extends Component {
                 <div>Deployment Time</div>
                 <div className="deploy">{formattedTime(deploymentTime)}</div>
               </div>
-              <ProgressBar className="deployment" now={deployPercentage} />
+              <ProgressBar
+                className="deployment"
+                now={percentage(deploymentTime)}
+              />
             </div>
           </div>
         </Card.Body>
@@ -391,6 +418,8 @@ export default class Dashboard extends Component {
       jiraActivityHasMore,
       showAlert,
       selectedIssueId,
+      projectsSync,
+      issuesSync,
     } = this.state;
     const style = {
       height: 300,
@@ -499,6 +528,48 @@ export default class Dashboard extends Component {
                 Logout
               </Button>
             </NavLink>
+          </span>
+
+          <span>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={this.syncProjects}
+              disabled={projectsSync}
+              className="mr-2"
+            >
+              Sync Projects{' '}
+              {projectsSync ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                ''
+              )}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={this.syncIssues}
+              disabled={issuesSync}
+            >
+              Sync Issues{' '}
+              {issuesSync ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                ''
+              )}
+            </Button>
           </span>
         </nav>
 

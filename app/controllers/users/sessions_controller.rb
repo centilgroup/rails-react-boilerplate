@@ -41,6 +41,25 @@ class Users::SessionsController < Devise::SessionsController
     current_user.avatar.attach(params[:user][:avatar]) if params[:user][:avatar].present?
   end
 
+  # PUT /resource/sync_projects
+  def sync_projects
+    jira = init_jira(current_user)
+    jira.sync_projects
+    @projects = current_user.projects
+  rescue => e
+    p e.message
+    render json: {error: e.message}, status: :internal_server_error
+  end
+
+  # PUT /resource/sync_issues
+  def sync_issues
+    jira = init_jira(current_user)
+    jira.sync_issues
+  rescue => e
+    p e.message
+    render json: {error: e.message}, status: :internal_server_error
+  end
+
   # protected
 
   # If you have extra params to permit, append them to the sanitizer.
@@ -71,5 +90,16 @@ class Users::SessionsController < Devise::SessionsController
   def encode(payload, exp = 1.month.from_now)
     payload[:exp] = exp.to_i
     JWT.encode(payload, Rails.application.secrets.secret_key_base)
+  end
+
+  def init_jira(user)
+    JiraManager.new(
+      username: user.jira_username,
+      password: user.jira_password,
+      site: user.jira_url,
+      user_id: user.id,
+      start_at: 0,
+      project_id: ""
+    )
   end
 end
