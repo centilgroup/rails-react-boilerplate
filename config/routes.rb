@@ -7,6 +7,8 @@ Rails.application.routes.draw do
   devise_scope :user do
     post "users/pre_otp", to: "users/sessions#pre_otp"
     put "users/profile", to: "users/sessions#profile"
+    put "users/sync_projects", to: "users/sessions#sync_projects"
+    put "users/sync_issues", to: "users/sessions#sync_issues"
   end
 
   resources :jiras do
