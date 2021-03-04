@@ -1,6 +1,7 @@
 class JirasController < ApplicationController
-  before_action :set_jira, only: [:show, :edit, :update, :destroy]
+  before_action :set_jira, only: [:edit, :update, :destroy]
   before_action :init_jira, only: [:index, :stat]
+  before_action :set_jira_client, only: [:show]
 
   # GET /jiras
   # GET /jiras.json
@@ -18,6 +19,11 @@ class JirasController < ApplicationController
   # GET /jiras/1
   # GET /jiras/1.json
   def show
+    @issue = @client.Issue.find(params[:id], {
+      expand: "changelog"
+    })
+  rescue => error
+    render json: {message: error.message}, status: :internal_server_error
   end
 
   # GET /jiras/new
@@ -70,6 +76,17 @@ class JirasController < ApplicationController
   end
 
   private
+
+  def set_jira_client
+    options = {
+      username: current_user.jira_username,
+      password: current_user.jira_password,
+      site: current_user.jira_url,
+      context_path: "",
+      auth_type: :basic
+    }
+    @client = JIRA::Client.new(options)
+  end
 
   def init_jira
     @projects = Project.where(user_id: current_user.id)

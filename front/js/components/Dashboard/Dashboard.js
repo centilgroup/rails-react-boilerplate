@@ -23,6 +23,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import moment from 'moment';
+import formattedTime from '../../utils/timeFormatter';
 
 export default class Dashboard extends Component {
   constructor(props) {
@@ -43,6 +44,8 @@ export default class Dashboard extends Component {
       showAlert: false,
       projectsSync: false,
       issuesSync: false,
+      epicLeadTime: '',
+      hoveredEpic: '',
     };
   }
 
@@ -150,6 +153,11 @@ export default class Dashboard extends Component {
     this.setState({ selectedIssueId: issueId });
   };
 
+  clearEpicLeadTime = (event) => {
+    event.stopPropagation();
+    this.setState({ hoveredEpic: '', epicLeadTime: '' });
+  };
+
   syncProjects = () => {
     this.setState({ projectsSync: true });
 
@@ -177,9 +185,78 @@ export default class Dashboard extends Component {
       });
   };
 
+  displayLeadTime = (epicId) => {
+    this.setState({ hoveredEpic: epicId, epicLeadTime: 'Loading...' });
+
+    axios
+      .get(`/jiras/${epicId}.json`)
+      .then((response) => {
+        const { data } = response;
+        let leadTime = 0;
+        const leadStatus = ['backlog', 'to do', 'open'];
+        const { histories } = data.change_log;
+        const IssueCreatedAt = data.created;
+        const currentStatus = data.status.name.toLowerCase();
+        const totalTime = moment().diff(moment(IssueCreatedAt), 'minutes');
+        const statusChanges = histories.filter(
+          (history) =>
+            ['status', 'resolution'].includes(history.items[0].field) &&
+            history.items[0].fieldtype === 'jira',
+        );
+
+        if (statusChanges.length === 0 && leadStatus.includes(currentStatus)) {
+          leadTime += totalTime;
+        }
+
+        statusChanges.forEach((statusChange, index) => {
+          const lastIndex = statusChange.items.length - 1;
+          const status = statusChange.items[lastIndex].toString
+            .toString()
+            .toLowerCase();
+
+          if (index === 0) {
+            const diff = moment().diff(moment(statusChange.created), 'minutes');
+
+            if (leadStatus.includes(status)) {
+              leadTime += diff;
+            }
+          } else if (index === statusChanges.length - 1) {
+            const diff = moment(statusChange.created).diff(
+              moment(IssueCreatedAt),
+              'minutes',
+            );
+
+            if (leadStatus.includes(status)) {
+              leadTime += diff;
+            }
+          } else if (index > 0 || index < statusChanges.length - 1) {
+            const createdAt = statusChanges[index + 1].created;
+            const diff = moment(statusChange.created).diff(
+              moment(createdAt),
+              'minutes',
+            );
+
+            if (leadStatus.includes(status)) {
+              leadTime += diff;
+            }
+          }
+        });
+
+        if (leadTime === 0 && leadStatus.includes(currentStatus)) {
+          leadTime += totalTime;
+        }
+
+        this.setState({
+          hoveredEpic: epicId,
+          epicLeadTime: formattedTime(leadTime),
+        });
+      })
+      .finally(() => {});
+  };
+
   renderFocus = (epic, index) => {
     const colors = ['new-work', 'legacy-refactor', 'help-others', 'churn'];
-    const { epicIssues } = this.state;
+    const { epicIssues, epicLeadTime, hoveredEpic } = this.state;
     const filteredEpicIssues = epicIssues.filter(
       (epicIssue) => epicIssue.epic_link === epic.key,
     );
@@ -198,10 +275,26 @@ export default class Dashboard extends Component {
     }
 
     return (
-      <div className="mb-4" key={epic.key}>
+      <div
+        className="mb-4"
+        key={epic.key}
+        onClick={() => this.displayLeadTime(epic.issue_id)}
+        style={{ cursor: 'pointer' }}
+        aria-hidden="true"
+      >
         <div className="mb-2 d-flex justify-content-between">
           <div>{epic.epic_name}</div>
-          <div>{percentage}%</div>
+          <div className={`${hoveredEpic === epic.issue_id ? '' : 'd-none'}`}>
+            [Lead Time: {epicLeadTime}]
+            <i
+              className="fa fa-times ml-1"
+              onClick={this.clearEpicLeadTime}
+              aria-hidden="true"
+            />
+          </div>
+          <div className={`${hoveredEpic === epic.issue_id ? 'd-none' : ''}`}>
+            {percentage}%
+          </div>
         </div>
         <ProgressBar className={colors[index % 4]} now={percentage} />
       </div>
@@ -325,37 +418,6 @@ export default class Dashboard extends Component {
     }
 
     const percentage = (time) => Math.floor((time / totalTime) * 100);
-
-    const formattedTime = (timeInMinutes) => {
-      let displayTime = timeInMinutes;
-      let unit = 'minute';
-      if (displayTime >= 60) {
-        displayTime = Math.floor(timeInMinutes / 60);
-        unit = 'hour';
-      }
-      if (displayTime >= 24) {
-        displayTime = Math.floor(timeInMinutes / (60 * 24));
-        unit = 'day';
-      }
-      if (displayTime >= 7) {
-        displayTime = Math.floor(timeInMinutes / (60 * 24 * 7));
-        unit = 'week';
-      }
-      if (displayTime >= 5) {
-        displayTime = Math.floor(timeInMinutes / (60 * 24 * 7 * 5));
-        unit = 'month';
-      }
-      if (displayTime >= 12) {
-        displayTime = Math.floor(timeInMinutes / (60 * 24 * 7 * 5 * 12));
-        unit = 'year';
-      }
-
-      if (displayTime > 1) {
-        unit += 's';
-      }
-
-      return `${displayTime} ${unit}`;
-    };
 
     return (
       <Card>
