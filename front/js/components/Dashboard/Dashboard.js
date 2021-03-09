@@ -46,6 +46,9 @@ export default class Dashboard extends Component {
       issuesSync: false,
       epicLeadTime: '',
       hoveredEpic: '',
+      remaining_days: null,
+      remaining_issues: 0,
+      average_time_to_close: null,
     };
   }
 
@@ -86,6 +89,9 @@ export default class Dashboard extends Component {
         epics,
         epic_issues,
         projects,
+        remaining_days,
+        remaining_issues,
+        average_time_to_close,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -109,6 +115,9 @@ export default class Dashboard extends Component {
         epics,
         epicIssues: epic_issues,
         projects,
+        remaining_days,
+        remaining_issues,
+        average_time_to_close,
       });
     });
   };
@@ -316,7 +325,7 @@ export default class Dashboard extends Component {
     };
     const leadStatus = ['backlog', 'to do', 'open'];
     const devStatus = ['selected for development', 'in progress'];
-    const revStatus = ['review', 'qa', 'ready for review'];
+    const revStatus = ['review', 'qa', 'ready for review', 'in review'];
     const deployStatus = ['done', 'closed'];
 
     if (selectedIssue.length === 0) {
@@ -482,6 +491,9 @@ export default class Dashboard extends Component {
       selectedIssueId,
       projectsSync,
       issuesSync,
+      remaining_days,
+      remaining_issues,
+      average_time_to_close,
     } = this.state;
     const style = {
       height: 300,
@@ -495,6 +507,8 @@ export default class Dashboard extends Component {
     let listIssues;
     let listEpics;
     let alert;
+    let VPI;
+    let healthRecommendation;
 
     if (jiraActivityLoading) {
       listIssues = <Skeleton count={10} />;
@@ -567,6 +581,35 @@ export default class Dashboard extends Component {
           </span>
         </Alert>
       );
+    }
+
+    if (
+      remaining_days === null ||
+      remaining_issues === 0 ||
+      [0, null].includes(average_time_to_close)
+    ) {
+      VPI = '--';
+    } else {
+      VPI = (
+        remaining_days /
+        (remaining_issues * average_time_to_close)
+      ).toFixed(2);
+    }
+
+    if (remaining_days === null) {
+      healthRecommendation =
+        'Please assign due date at least for an issue to view the VPI score.';
+    } else if (remaining_issues === 0) {
+      healthRecommendation =
+        'There are no remaining issues to view the VPI score';
+    } else if (average_time_to_close === null) {
+      healthRecommendation =
+        'At least one issue needs to be completed to view the VPI score.';
+    } else if (average_time_to_close === 0) {
+      healthRecommendation =
+        'Average completion rate should be greater than zero to view the VPI score.';
+    } else {
+      healthRecommendation = '';
     }
 
     return (
@@ -658,7 +701,7 @@ export default class Dashboard extends Component {
             <Col xs={4}>
               <Card>
                 <Card.Body>
-                  <Card.Title className="text-center">Development</Card.Title>
+                  <Card.Title className="text-center">Backlog</Card.Title>
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
                     <div>Backlog</div>
@@ -682,7 +725,9 @@ export default class Dashboard extends Component {
             <Col xs={4}>
               <Card>
                 <Card.Body>
-                  <Card.Title className="text-center">QA/Test</Card.Title>
+                  <Card.Title className="text-center">
+                    Development/QA/Test
+                  </Card.Title>
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
                     <div>In Progress</div>
@@ -706,7 +751,7 @@ export default class Dashboard extends Component {
             <Col xs={4}>
               <Card>
                 <Card.Body>
-                  <Card.Title className="text-center">Deploy</Card.Title>
+                  <Card.Title className="text-center">Deployment</Card.Title>
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
                     <div>Done</div>
@@ -868,6 +913,42 @@ export default class Dashboard extends Component {
               </Card>
             </Col>
           </Row>
+          <Row className="pt-4">
+            <Col xs={12}>
+              <Card>
+                <Card.Body className="text-center">
+                  <Card.Title>Project Flow Health</Card.Title>
+                  <Card.Text className="text-info">
+                    {healthRecommendation}
+                  </Card.Text>
+                  <div className="d-flex align-items-center justify-content-around">
+                    <div className="pt-2">
+                      <div style={{ fontSize: '32px' }}>
+                        {remaining_days === null ? '--' : remaining_days}
+                      </div>
+                      <div className="mt-1">Remaining Period (Days)</div>
+                    </div>
+                    <div className="pt-2">
+                      <div style={{ fontSize: '32px' }}>{remaining_issues}</div>
+                      <div className="mt-1">Remaining Issues</div>
+                    </div>
+                    <div className="pt-2">
+                      <div style={{ fontSize: '32px' }}>
+                        {average_time_to_close === null
+                          ? '--'
+                          : average_time_to_close}
+                      </div>
+                      <div className="mt-1">Average Completion Rate (Days)</div>
+                    </div>
+                    <div className="pt-2">
+                      <div style={{ fontSize: '32px' }}>{VPI}</div>
+                      <div className="mt-1">VPI</div>
+                    </div>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
           <Row className="py-4">
             <Col xs={8}>
               <Card>
@@ -888,13 +969,6 @@ export default class Dashboard extends Component {
               </Card>
             </Col>
             <Col xs={4}>{this.renderAverageTimes()}</Col>
-            {/* <Col xs={6}> */}
-            {/*  <Card> */}
-            {/*    <Card.Body className="text-center"> */}
-            {/*      Project Flow Health */}
-            {/*    </Card.Body> */}
-            {/*  </Card> */}
-            {/* </Col> */}
           </Row>
         </Container>
 

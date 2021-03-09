@@ -14,6 +14,7 @@ class JirasController < ApplicationController
   def stat
     @stat = @jira_manager.fetch_gas_gauge_data
     @epics, @epic_issues = @jira_manager.fetch_epics
+    @vpi = @jira_manager.fetch_vpi_data
   end
 
   # GET /jiras/1
@@ -89,7 +90,7 @@ class JirasController < ApplicationController
   end
 
   def init_jira
-    @projects = Project.where(user_id: current_user.id)
+    @projects = Project.where(user_id: current_user.id).order(id: :asc)
     project_id = params[:project_id].present? ? params[:project_id] : @projects.first&.project_id
 
     @jira_manager = JiraManager.new(

@@ -19,7 +19,9 @@ class JiraManager
 
     @user = User.where(id: params[:user_id]).first
 
-    @project = Project.where(project_id: params[:project_id], user_id: @user.id).first
+    @project =
+      Project.where(project_id: params[:project_id], user_id: @user.id)
+        .order(id: :asc).first
 
     @client = JIRA::Client.new(options)
 
@@ -37,15 +39,43 @@ class JiraManager
 
   def fetch_gas_gauge_data
     issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
+    backlog = ["backlog", "to do", "open"]
+    in_progress = ["selected for development", "in progress", "review", "qa", "ready for review", "in review"]
+    done = %w[done closed]
 
     grand_total = issues.count
-    total_backlog = issues.where("status->>'name' = 'Backlog'").count
-    total_in_progress = issues.where("status->>'name' = 'In Progress'").count
-    total_done = issues.where("status->>'name' = 'Done'").count
+    total_backlog = issues.where("lower(status->>'name') IN (?)", backlog).count
+    total_in_progress = issues.where("lower(status->>'name') IN (?)", in_progress).count
+    total_done = issues.where("lower(status->>'name') IN (?)", done).count
 
     {
       total_backlog: total_backlog, total_in_progress: total_in_progress,
       total_done: total_done, grand_total: grand_total
+    }
+  end
+
+  def fetch_vpi_data
+    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
+    done = %w[done closed]
+    remaining_issues = issues.where.not("lower(status->>'name') IN (?)", done)
+    done_issues = issues.where("lower(status->>'name') IN (?)", done)
+    current_date = Date.today
+    max_due_date =
+      issues.where.not(due_date: nil).order(due_date: :desc).limit(1)
+        .pluck(:due_date).first
+    remaining_days =
+      if max_due_date.present?
+        (max_due_date - current_date).to_i
+      end
+    average_time_to_close =
+      if done_issues.length.positive?
+        done_issues.pluck(:time_to_close_in_days).map(&:to_i).sum / done_issues.length
+      end
+
+    {
+      remaining_days: remaining_days,
+      remaining_issues: remaining_issues.length,
+      average_time_to_close: average_time_to_close
     }
   end
 
@@ -81,7 +111,8 @@ class JiraManager
     loop do
       query_options = {
         start_at: start_at,
-        max_results: max_results
+        max_results: max_results,
+        expand: "changelog"
       }
       jira_issues = @client.Issue.jql("", query_options)
 
@@ -93,7 +124,9 @@ class JiraManager
           project_id: jira_issue.project.id, issue_id: jira_issue.id,
           summary: jira_issue.summary, user_id: @user.id, key: jira_issue.key,
           status: {name: jira_issue.status.name}, issue_type: jira_issue.fields["issuetype"],
-          epic_link: jira_issue.try(:customfield_10014), epic_name: jira_issue.try(:customfield_10011)
+          epic_link: jira_issue.try(:customfield_10014), epic_name: jira_issue.try(:customfield_10011),
+          due_date: jira_issue.try(:duedate), change_log: jira_issue.try(:changelog),
+          created: jira_issue.try(:created), time_to_close_in_days: time_to_close_in_days(jira_issue)
         }
         Issue.upsert(project, unique_by: :user_issue_id)
       end
@@ -105,5 +138,26 @@ class JiraManager
   rescue => e
     p e.message
     p "Issues not synced for user - #{@user.id}"
+  end
+
+  private
+
+  def time_to_close_in_days(issue)
+    change_log = issue.try(:changelog)
+    histories = change_log["histories"]
+    issue_created_at = Date.parse issue.try(:created)
+    current_status = issue.status.name.downcase
+    return unless %w[done closed].include? current_status
+
+    histories.reverse.each do |history|
+      item = history["items"].first
+      if %w[status resolution].include?(item["field"]) && item["fieldtype"] == "jira"
+        status = history["items"].last["toString"].downcase
+        if %w[done closed].include? status
+          history_created_at = Date.parse history["created"]
+          return (history_created_at - issue_created_at).to_i
+        end
+      end
+    end
   end
 end
