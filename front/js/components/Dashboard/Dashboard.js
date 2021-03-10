@@ -17,6 +17,7 @@ import {
   Form,
   Alert,
   Spinner,
+  Modal,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -49,6 +50,11 @@ export default class Dashboard extends Component {
       remaining_days: null,
       remaining_issues: 0,
       average_time_to_close: null,
+      showVPI: false,
+      testVPI: 1,
+      testAverageTimeToClose: 1,
+      testRemainingIssues: 1,
+      testRemainingDays: 1,
     };
   }
 
@@ -165,6 +171,54 @@ export default class Dashboard extends Component {
   clearEpicLeadTime = (event) => {
     event.stopPropagation();
     this.setState({ hoveredEpic: '', epicLeadTime: '' });
+  };
+
+  handleVPIClose = () => this.setState({ showVPI: false });
+
+  handleVPIShow = () => this.setState({ showVPI: true });
+
+  handleRD = (event) => {
+    const { value } = event.target;
+    if (value === '') return;
+    this.setState({ testRemainingDays: value });
+    this.updateVPI('rd', value);
+  };
+
+  handleRI = (event) => {
+    const { value } = event.target;
+    if (value === '') return;
+    this.setState({ testRemainingIssues: value });
+    this.updateVPI('ri', value);
+  };
+
+  handleACR = (event) => {
+    const { value } = event.target;
+    if (value === '') return;
+    this.setState({ testAverageTimeToClose: value });
+    this.updateVPI('acr', value);
+  };
+
+  updateVPI = (param, value) => {
+    let {
+      testAverageTimeToClose,
+      testRemainingIssues,
+      testRemainingDays,
+    } = this.state;
+
+    if (param === 'rd') {
+      testRemainingDays = value;
+    } else if (param === 'ri') {
+      testRemainingIssues = value;
+    } else if (param === 'acr') {
+      testAverageTimeToClose = value;
+    }
+
+    const testVPI = (
+      testRemainingDays /
+      (testAverageTimeToClose * testRemainingIssues)
+    ).toFixed(2);
+
+    this.setState({ testVPI });
   };
 
   syncProjects = () => {
@@ -494,6 +548,11 @@ export default class Dashboard extends Component {
       remaining_days,
       remaining_issues,
       average_time_to_close,
+      showVPI,
+      testVPI,
+      testAverageTimeToClose,
+      testRemainingIssues,
+      testRemainingDays,
     } = this.state;
     const style = {
       height: 300,
@@ -623,11 +682,14 @@ export default class Dashboard extends Component {
                 Profile
               </Button>
             </NavLink>
-            <a href="/vpi-demo" className="mr-2">
-              <Button variant="primary" size="sm">
-                VPI
-              </Button>
-            </a>
+            <Button
+              className="mr-2"
+              variant="primary"
+              size="sm"
+              onClick={this.handleVPIShow}
+            >
+              VPI
+            </Button>
             <NavLink to="/" onClick={this.logoutUser}>
               <Button variant="primary" size="sm">
                 Logout
@@ -677,6 +739,49 @@ export default class Dashboard extends Component {
             </Button>
           </span>
         </nav>
+
+        <Modal
+          show={showVPI}
+          onHide={this.handleVPIClose}
+          backdrop="static"
+          keyboard={false}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>VPI Test Harness</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Group>
+              <Form.Label>Remaining Period (Days)</Form.Label>
+              <Form.Control
+                type="number"
+                value={testRemainingDays}
+                onChange={this.handleRD}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Remaining Issues</Form.Label>
+              <Form.Control
+                type="number"
+                value={testRemainingIssues}
+                onChange={this.handleRI}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Average Completion Rate (Days)</Form.Label>
+              <Form.Control
+                type="number"
+                value={testAverageTimeToClose}
+                onChange={this.handleACR}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Value Performance Index</Form.Label>
+              <div className="text-center" style={{ fontSize: '32px' }}>
+                {testVPI}
+              </div>
+            </Form.Group>
+          </Modal.Body>
+        </Modal>
 
         <Container className="pt-5">
           <Row className="pt-4">
