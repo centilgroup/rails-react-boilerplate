@@ -1,6 +1,7 @@
 class JirasController < ApplicationController
-  before_action :set_jira, only: [:show, :edit, :update, :destroy]
+  before_action :set_jira, only: [:edit, :update, :destroy]
   before_action :init_jira, only: [:index, :stat]
+  before_action :set_jira_client, only: [:show]
 
   # GET /jiras
   # GET /jiras.json
@@ -13,11 +14,17 @@ class JirasController < ApplicationController
   def stat
     @stat = @jira_manager.fetch_gas_gauge_data
     @epics, @epic_issues = @jira_manager.fetch_epics
+    @vpi = @jira_manager.fetch_vpi_data
   end
 
   # GET /jiras/1
   # GET /jiras/1.json
   def show
+    @issue = @client.Issue.find(params[:id], {
+      expand: "changelog"
+    })
+  rescue => error
+    render json: {message: error.message}, status: :internal_server_error
   end
 
   # GET /jiras/new
@@ -71,8 +78,19 @@ class JirasController < ApplicationController
 
   private
 
+  def set_jira_client
+    options = {
+      username: current_user.jira_username,
+      password: current_user.jira_password,
+      site: current_user.jira_url,
+      context_path: "",
+      auth_type: :basic
+    }
+    @client = JIRA::Client.new(options)
+  end
+
   def init_jira
-    @projects = Project.where(user_id: current_user.id)
+    @projects = Project.where(user_id: current_user.id).order(id: :asc)
     project_id = params[:project_id].present? ? params[:project_id] : @projects.first&.project_id
 
     @jira_manager = JiraManager.new(

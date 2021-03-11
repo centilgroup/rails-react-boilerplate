@@ -14,4 +14,5 @@ json.array! @issues do |issue|
   json.epic_name issue.try(:customfield_10011)
   json.change_log issue.try(:changelog)
   json.created issue.try(:created)
+  json.due_date issue.try(:duedate)
 end

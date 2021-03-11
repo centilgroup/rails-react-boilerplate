@@ -18,7 +18,6 @@ Rails.application.routes.draw do
   end
   get "home/index"
   get "home/timestamp"
-  get "/vpi-demo", to: "vpi_demo#index"
   get "/csv", to: "vpi_demo#csv"
   root "home#index"
 

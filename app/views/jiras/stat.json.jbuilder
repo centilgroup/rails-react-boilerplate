@@ -2,7 +2,11 @@ json.total_backlog @stat[:total_backlog]
 json.total_in_progress @stat[:total_in_progress]
 json.total_done @stat[:total_done]
 json.grand_total @stat[:grand_total]
+json.remaining_days @vpi[:remaining_days]
+json.remaining_issues @vpi[:remaining_issues]
+json.average_time_to_close @vpi[:average_time_to_close]
 json.epics @epics do |epic|
+  json.issue_id epic.issue_id
   json.key epic.key
   json.epic_name epic.epic_name
   json.status epic.status

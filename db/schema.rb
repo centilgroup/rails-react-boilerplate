@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_02_170059) do
+ActiveRecord::Schema.define(version: 2021_03_09_133628) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,6 +47,10 @@ ActiveRecord::Schema.define(version: 2021_02_02_170059) do
     t.json "issue_type"
     t.string "epic_link"
     t.string "epic_name"
+    t.date "due_date"
+    t.json "change_log"
+    t.date "created"
+    t.integer "time_to_close_in_days"
     t.index ["issue_id"], name: "index_issues_on_issue_id"
     t.index ["project_id"], name: "index_issues_on_project_id"
     t.index ["user_id"], name: "index_issues_on_user_id"

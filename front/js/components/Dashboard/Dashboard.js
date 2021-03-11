@@ -17,12 +17,14 @@ import {
   Form,
   Alert,
   Spinner,
+  Modal,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import moment from 'moment';
+import formattedTime from '../../utils/timeFormatter';
 
 export default class Dashboard extends Component {
   constructor(props) {
@@ -43,6 +45,16 @@ export default class Dashboard extends Component {
       showAlert: false,
       projectsSync: false,
       issuesSync: false,
+      epicLeadTime: '',
+      hoveredEpic: '',
+      remaining_days: null,
+      remaining_issues: 0,
+      average_time_to_close: null,
+      showVPI: false,
+      testVPI: 1,
+      testAverageTimeToClose: 1,
+      testRemainingIssues: 1,
+      testRemainingDays: 1,
     };
   }
 
@@ -83,6 +95,9 @@ export default class Dashboard extends Component {
         epics,
         epic_issues,
         projects,
+        remaining_days,
+        remaining_issues,
+        average_time_to_close,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -106,6 +121,9 @@ export default class Dashboard extends Component {
         epics,
         epicIssues: epic_issues,
         projects,
+        remaining_days,
+        remaining_issues,
+        average_time_to_close,
       });
     });
   };
@@ -150,6 +168,59 @@ export default class Dashboard extends Component {
     this.setState({ selectedIssueId: issueId });
   };
 
+  clearEpicLeadTime = (event) => {
+    event.stopPropagation();
+    this.setState({ hoveredEpic: '', epicLeadTime: '' });
+  };
+
+  handleVPIClose = () => this.setState({ showVPI: false });
+
+  handleVPIShow = () => this.setState({ showVPI: true });
+
+  handleRD = (event) => {
+    const { value } = event.target;
+    if (value === '') return;
+    this.setState({ testRemainingDays: value });
+    this.updateVPI('rd', value);
+  };
+
+  handleRI = (event) => {
+    const { value } = event.target;
+    if (value === '') return;
+    this.setState({ testRemainingIssues: value });
+    this.updateVPI('ri', value);
+  };
+
+  handleACR = (event) => {
+    const { value } = event.target;
+    if (value === '') return;
+    this.setState({ testAverageTimeToClose: value });
+    this.updateVPI('acr', value);
+  };
+
+  updateVPI = (param, value) => {
+    let {
+      testAverageTimeToClose,
+      testRemainingIssues,
+      testRemainingDays,
+    } = this.state;
+
+    if (param === 'rd') {
+      testRemainingDays = value;
+    } else if (param === 'ri') {
+      testRemainingIssues = value;
+    } else if (param === 'acr') {
+      testAverageTimeToClose = value;
+    }
+
+    const testVPI = (
+      testRemainingDays /
+      (testAverageTimeToClose * testRemainingIssues)
+    ).toFixed(2);
+
+    this.setState({ testVPI });
+  };
+
   syncProjects = () => {
     this.setState({ projectsSync: true });
 
@@ -177,9 +248,78 @@ export default class Dashboard extends Component {
       });
   };
 
+  displayLeadTime = (epicId) => {
+    this.setState({ hoveredEpic: epicId, epicLeadTime: 'Loading...' });
+
+    axios
+      .get(`/jiras/${epicId}.json`)
+      .then((response) => {
+        const { data } = response;
+        let leadTime = 0;
+        const leadStatus = ['backlog', 'to do', 'open'];
+        const { histories } = data.change_log;
+        const IssueCreatedAt = data.created;
+        const currentStatus = data.status.name.toLowerCase();
+        const totalTime = moment().diff(moment(IssueCreatedAt), 'minutes');
+        const statusChanges = histories.filter(
+          (history) =>
+            ['status', 'resolution'].includes(history.items[0].field) &&
+            history.items[0].fieldtype === 'jira',
+        );
+
+        if (statusChanges.length === 0 && leadStatus.includes(currentStatus)) {
+          leadTime += totalTime;
+        }
+
+        statusChanges.forEach((statusChange, index) => {
+          const lastIndex = statusChange.items.length - 1;
+          const status = statusChange.items[lastIndex].toString
+            .toString()
+            .toLowerCase();
+
+          if (index === 0) {
+            const diff = moment().diff(moment(statusChange.created), 'minutes');
+
+            if (leadStatus.includes(status)) {
+              leadTime += diff;
+            }
+          } else if (index === statusChanges.length - 1) {
+            const diff = moment(statusChange.created).diff(
+              moment(IssueCreatedAt),
+              'minutes',
+            );
+
+            if (leadStatus.includes(status)) {
+              leadTime += diff;
+            }
+          } else if (index > 0 || index < statusChanges.length - 1) {
+            const createdAt = statusChanges[index + 1].created;
+            const diff = moment(statusChange.created).diff(
+              moment(createdAt),
+              'minutes',
+            );
+
+            if (leadStatus.includes(status)) {
+              leadTime += diff;
+            }
+          }
+        });
+
+        if (leadTime === 0 && leadStatus.includes(currentStatus)) {
+          leadTime += totalTime;
+        }
+
+        this.setState({
+          hoveredEpic: epicId,
+          epicLeadTime: formattedTime(leadTime),
+        });
+      })
+      .finally(() => {});
+  };
+
   renderFocus = (epic, index) => {
     const colors = ['new-work', 'legacy-refactor', 'help-others', 'churn'];
-    const { epicIssues } = this.state;
+    const { epicIssues, epicLeadTime, hoveredEpic } = this.state;
     const filteredEpicIssues = epicIssues.filter(
       (epicIssue) => epicIssue.epic_link === epic.key,
     );
@@ -198,10 +338,26 @@ export default class Dashboard extends Component {
     }
 
     return (
-      <div className="mb-4" key={epic.key}>
+      <div
+        className="mb-4"
+        key={epic.key}
+        onClick={() => this.displayLeadTime(epic.issue_id)}
+        style={{ cursor: 'pointer' }}
+        aria-hidden="true"
+      >
         <div className="mb-2 d-flex justify-content-between">
           <div>{epic.epic_name}</div>
-          <div>{percentage}%</div>
+          <div className={`${hoveredEpic === epic.issue_id ? '' : 'd-none'}`}>
+            [Lead Time: {epicLeadTime}]
+            <i
+              className="fa fa-times ml-1"
+              onClick={this.clearEpicLeadTime}
+              aria-hidden="true"
+            />
+          </div>
+          <div className={`${hoveredEpic === epic.issue_id ? 'd-none' : ''}`}>
+            {percentage}%
+          </div>
         </div>
         <ProgressBar className={colors[index % 4]} now={percentage} />
       </div>
@@ -223,7 +379,7 @@ export default class Dashboard extends Component {
     };
     const leadStatus = ['backlog', 'to do', 'open'];
     const devStatus = ['selected for development', 'in progress'];
-    const revStatus = ['review', 'qa', 'ready for review'];
+    const revStatus = ['review', 'qa', 'ready for review', 'in review'];
     const deployStatus = ['done', 'closed'];
 
     if (selectedIssue.length === 0) {
@@ -326,37 +482,6 @@ export default class Dashboard extends Component {
 
     const percentage = (time) => Math.floor((time / totalTime) * 100);
 
-    const formattedTime = (timeInMinutes) => {
-      let displayTime = timeInMinutes;
-      let unit = 'minute';
-      if (displayTime >= 60) {
-        displayTime = Math.floor(timeInMinutes / 60);
-        unit = 'hour';
-      }
-      if (displayTime >= 24) {
-        displayTime = Math.floor(timeInMinutes / (60 * 24));
-        unit = 'day';
-      }
-      if (displayTime >= 7) {
-        displayTime = Math.floor(timeInMinutes / (60 * 24 * 7));
-        unit = 'week';
-      }
-      if (displayTime >= 5) {
-        displayTime = Math.floor(timeInMinutes / (60 * 24 * 7 * 5));
-        unit = 'month';
-      }
-      if (displayTime >= 12) {
-        displayTime = Math.floor(timeInMinutes / (60 * 24 * 7 * 5 * 12));
-        unit = 'year';
-      }
-
-      if (displayTime > 1) {
-        unit += 's';
-      }
-
-      return `${displayTime} ${unit}`;
-    };
-
     return (
       <Card>
         <Card.Body>
@@ -420,6 +545,14 @@ export default class Dashboard extends Component {
       selectedIssueId,
       projectsSync,
       issuesSync,
+      remaining_days,
+      remaining_issues,
+      average_time_to_close,
+      showVPI,
+      testVPI,
+      testAverageTimeToClose,
+      testRemainingIssues,
+      testRemainingDays,
     } = this.state;
     const style = {
       height: 300,
@@ -433,6 +566,8 @@ export default class Dashboard extends Component {
     let listIssues;
     let listEpics;
     let alert;
+    let VPI;
+    let healthRecommendation;
 
     if (jiraActivityLoading) {
       listIssues = <Skeleton count={10} />;
@@ -507,6 +642,35 @@ export default class Dashboard extends Component {
       );
     }
 
+    if (
+      remaining_days === null ||
+      remaining_issues === 0 ||
+      [0, null].includes(average_time_to_close)
+    ) {
+      VPI = '--';
+    } else {
+      VPI = (
+        remaining_days /
+        (remaining_issues * average_time_to_close)
+      ).toFixed(2);
+    }
+
+    if (remaining_days === null) {
+      healthRecommendation =
+        'Please assign due date at least for an issue to view the VPI score.';
+    } else if (remaining_issues === 0) {
+      healthRecommendation =
+        'There are no remaining issues to view the VPI score';
+    } else if (average_time_to_close === null) {
+      healthRecommendation =
+        'At least one issue needs to be completed to view the VPI score.';
+    } else if (average_time_to_close === 0) {
+      healthRecommendation =
+        'Average completion rate should be greater than zero to view the VPI score.';
+    } else {
+      healthRecommendation = '';
+    }
+
     return (
       <section>
         {alert}
@@ -518,11 +682,14 @@ export default class Dashboard extends Component {
                 Profile
               </Button>
             </NavLink>
-            <a href="/vpi-demo" className="mr-2">
-              <Button variant="primary" size="sm">
-                VPI
-              </Button>
-            </a>
+            <Button
+              className="mr-2"
+              variant="primary"
+              size="sm"
+              onClick={this.handleVPIShow}
+            >
+              VPI
+            </Button>
             <NavLink to="/" onClick={this.logoutUser}>
               <Button variant="primary" size="sm">
                 Logout
@@ -573,6 +740,49 @@ export default class Dashboard extends Component {
           </span>
         </nav>
 
+        <Modal
+          show={showVPI}
+          onHide={this.handleVPIClose}
+          backdrop="static"
+          keyboard={false}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>VPI Test Harness</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Group>
+              <Form.Label>Remaining Period (Days)</Form.Label>
+              <Form.Control
+                type="number"
+                value={testRemainingDays}
+                onChange={this.handleRD}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Remaining Issues</Form.Label>
+              <Form.Control
+                type="number"
+                value={testRemainingIssues}
+                onChange={this.handleRI}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Average Completion Rate (Days)</Form.Label>
+              <Form.Control
+                type="number"
+                value={testAverageTimeToClose}
+                onChange={this.handleACR}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Value Performance Index</Form.Label>
+              <div className="text-center" style={{ fontSize: '32px' }}>
+                {testVPI}
+              </div>
+            </Form.Group>
+          </Modal.Body>
+        </Modal>
+
         <Container className="pt-5">
           <Row className="pt-4">
             <Col xs={12}>
@@ -596,7 +806,7 @@ export default class Dashboard extends Component {
             <Col xs={4}>
               <Card>
                 <Card.Body>
-                  <Card.Title className="text-center">Development</Card.Title>
+                  <Card.Title className="text-center">Backlog</Card.Title>
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
                     <div>Backlog</div>
@@ -620,7 +830,9 @@ export default class Dashboard extends Component {
             <Col xs={4}>
               <Card>
                 <Card.Body>
-                  <Card.Title className="text-center">QA/Test</Card.Title>
+                  <Card.Title className="text-center">
+                    Development/QA/Test
+                  </Card.Title>
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
                     <div>In Progress</div>
@@ -644,7 +856,7 @@ export default class Dashboard extends Component {
             <Col xs={4}>
               <Card>
                 <Card.Body>
-                  <Card.Title className="text-center">Deploy</Card.Title>
+                  <Card.Title className="text-center">Deployment</Card.Title>
                   <div className="d-flex align-items-center">
                     <div className="legend left-legend" />
                     <div>Done</div>
@@ -806,6 +1018,42 @@ export default class Dashboard extends Component {
               </Card>
             </Col>
           </Row>
+          <Row className="pt-4">
+            <Col xs={12}>
+              <Card>
+                <Card.Body className="text-center">
+                  <Card.Title>Project Flow Health</Card.Title>
+                  <Card.Text className="text-info">
+                    {healthRecommendation}
+                  </Card.Text>
+                  <div className="d-flex align-items-center justify-content-around">
+                    <div className="pt-2">
+                      <div style={{ fontSize: '32px' }}>
+                        {remaining_days === null ? '--' : remaining_days}
+                      </div>
+                      <div className="mt-1">Remaining Period (Days)</div>
+                    </div>
+                    <div className="pt-2">
+                      <div style={{ fontSize: '32px' }}>{remaining_issues}</div>
+                      <div className="mt-1">Remaining Issues</div>
+                    </div>
+                    <div className="pt-2">
+                      <div style={{ fontSize: '32px' }}>
+                        {average_time_to_close === null
+                          ? '--'
+                          : average_time_to_close}
+                      </div>
+                      <div className="mt-1">Average Completion Rate (Days)</div>
+                    </div>
+                    <div className="pt-2">
+                      <div style={{ fontSize: '32px' }}>{VPI}</div>
+                      <div className="mt-1">VPI</div>
+                    </div>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
           <Row className="py-4">
             <Col xs={8}>
               <Card>
@@ -826,13 +1074,6 @@ export default class Dashboard extends Component {
               </Card>
             </Col>
             <Col xs={4}>{this.renderAverageTimes()}</Col>
-            {/* <Col xs={6}> */}
-            {/*  <Card> */}
-            {/*    <Card.Body className="text-center"> */}
-            {/*      Project Flow Health */}
-            {/*    </Card.Body> */}
-            {/*  </Card> */}
-            {/* </Col> */}
           </Row>
         </Container>
 
