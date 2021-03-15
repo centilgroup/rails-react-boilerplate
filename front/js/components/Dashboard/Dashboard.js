@@ -797,11 +797,11 @@ export default class Dashboard extends Component {
             scales: {
               xAxes: [
                 {
-                  beginAtZero: true,
                   gridLines: {
                     display: false,
                   },
                   ticks: {
+                    min: 0,
                     display: false,
                   },
                 },
