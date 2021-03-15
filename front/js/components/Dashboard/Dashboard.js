@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Doughnut } from 'react-chartjs-2';
+import { Doughnut, Bar, Bubble } from 'react-chartjs-2';
 import GaugeChart from 'react-gauge-chart';
 import {
   Container,
@@ -55,6 +55,10 @@ export default class Dashboard extends Component {
       testAverageTimeToClose: 1,
       testRemainingIssues: 1,
       testRemainingDays: 1,
+      totalBacklog: 0,
+      totalWorkInProgress: 0,
+      totalWorkInReview: 0,
+      WIPChartType: 'bar',
     };
   }
 
@@ -98,6 +102,8 @@ export default class Dashboard extends Component {
         remaining_days,
         remaining_issues,
         average_time_to_close,
+        total_work_in_progress,
+        total_work_in_review,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -124,6 +130,9 @@ export default class Dashboard extends Component {
         remaining_days,
         remaining_issues,
         average_time_to_close,
+        totalBacklog: total_backlog,
+        totalWorkInProgress: total_work_in_progress,
+        totalWorkInReview: total_work_in_review,
       });
     });
   };
@@ -219,6 +228,10 @@ export default class Dashboard extends Component {
     ).toFixed(2);
 
     this.setState({ testVPI });
+  };
+
+  WIPChartTypeChangeHandler = (event) => {
+    this.setState({ WIPChartType: event.target.id });
   };
 
   syncProjects = () => {
@@ -553,6 +566,10 @@ export default class Dashboard extends Component {
       testAverageTimeToClose,
       testRemainingIssues,
       testRemainingDays,
+      totalBacklog,
+      totalWorkInProgress,
+      totalWorkInReview,
+      WIPChartType,
     } = this.state;
     const style = {
       height: 300,
@@ -568,6 +585,7 @@ export default class Dashboard extends Component {
     let alert;
     let VPI;
     let healthRecommendation;
+    let WIPChart;
 
     if (jiraActivityLoading) {
       listIssues = <Skeleton count={10} />;
@@ -669,6 +687,139 @@ export default class Dashboard extends Component {
         'Average completion rate should be greater than zero to view the VPI score.';
     } else {
       healthRecommendation = '';
+    }
+
+    if (WIPChartType === 'bar') {
+      WIPChart = (
+        <Bar
+          data={{
+            labels: ['To Do', 'In Progress', 'In Review'],
+            datasets: [
+              {
+                data: [totalBacklog, totalWorkInProgress, totalWorkInReview],
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                ],
+                borderColor: [
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                ],
+                borderWidth: 1,
+              },
+            ],
+          }}
+          width={100}
+          height={250}
+          options={{
+            maintainAspectRatio: false,
+            legend: {
+              display: false,
+            },
+            scales: {
+              xAxes: [
+                {
+                  gridLines: {
+                    display: false,
+                  },
+                  ticks: {
+                    display: false,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  gridLines: {
+                    display: false,
+                  },
+                  ticks: {
+                    display: false,
+                  },
+                },
+              ],
+            },
+          }}
+        />
+      );
+    } else if (WIPChartType === 'bubble') {
+      WIPChart = (
+        <Bubble
+          data={{
+            labels: ['To Do', 'In Progress', 'In Review'],
+            datasets: [
+              {
+                label: 'To Do',
+                data: [{ x: 1, y: 1, r: totalBacklog }],
+                backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+                borderColor: ['rgba(255, 99, 132, 1)'],
+                borderWidth: 1,
+              },
+              {
+                label: 'In Progress',
+                data: [{ x: 2, y: 1, r: totalWorkInProgress }],
+                backgroundColor: ['rgba(54, 162, 235, 0.2)'],
+                borderColor: ['rgba(54, 162, 235, 1)'],
+                borderWidth: 1,
+              },
+              {
+                label: 'In Review',
+                data: [{ x: 3, y: 1, r: totalWorkInReview }],
+                backgroundColor: ['rgba(255, 206, 86, 0.2)'],
+                borderColor: ['rgba(255, 206, 86, 1)'],
+                borderWidth: 1,
+              },
+            ],
+          }}
+          width={100}
+          height={250}
+          options={{
+            maintainAspectRatio: false,
+            legend: {
+              display: false,
+            },
+            tooltips: {
+              enabled: true,
+              callbacks: {
+                label(tooltipItem, data) {
+                  let label =
+                    data.datasets[tooltipItem.datasetIndex].label || '';
+
+                  if (label) {
+                    label += ': ';
+                  }
+                  label += data.datasets[tooltipItem.datasetIndex].data[0].r;
+                  return label;
+                },
+              },
+            },
+            scales: {
+              xAxes: [
+                {
+                  beginAtZero: true,
+                  gridLines: {
+                    display: false,
+                  },
+                  ticks: {
+                    display: false,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  gridLines: {
+                    display: false,
+                  },
+                  ticks: {
+                    display: false,
+                  },
+                },
+              ],
+            },
+          }}
+        />
+      );
     }
 
     return (
@@ -787,7 +938,7 @@ export default class Dashboard extends Component {
           <Row className="pt-4">
             <Col xs={12}>
               <Form>
-                <Form.Label>Projects Filter</Form.Label>
+                <div className="mb-1">Projects Filter</div>
                 <Form.Control
                   as="select"
                   size="lg"
@@ -800,6 +951,33 @@ export default class Dashboard extends Component {
                   ))}
                 </Form.Control>
               </Form>
+            </Col>
+          </Row>
+          <Row className="pt-4">
+            <Col xs={12}>
+              <div className="mb-1 d-inline-flex">
+                <div className="mr-2">WIP</div>
+                <Form onChange={this.WIPChartTypeChangeHandler}>
+                  <Form.Check
+                    inline
+                    label="Graph"
+                    type="radio"
+                    id="bar"
+                    name="WIP"
+                    defaultChecked
+                  />
+                  <Form.Check
+                    inline
+                    label="Circle Chart"
+                    type="radio"
+                    id="bubble"
+                    name="WIP"
+                  />
+                </Form>
+              </div>
+              <Card>
+                <Card.Body>{WIPChart}</Card.Body>
+              </Card>
             </Col>
           </Row>
           <Row className="pt-4">

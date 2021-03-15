@@ -42,15 +42,21 @@ class JiraManager
     backlog = ["backlog", "to do", "open"]
     in_progress = ["selected for development", "in progress", "review", "qa", "ready for review", "in review"]
     done = %w[done closed]
+    work_in_progress = ["selected for development", "in progress"]
+    work_in_review = ["review", "qa", "ready for review", "in review"]
 
     grand_total = issues.count
     total_backlog = issues.where("lower(status->>'name') IN (?)", backlog).count
     total_in_progress = issues.where("lower(status->>'name') IN (?)", in_progress).count
     total_done = issues.where("lower(status->>'name') IN (?)", done).count
+    total_work_in_progress = issues.where("lower(status->>'name') IN (?)", work_in_progress).count
+    total_work_in_review = issues.where("lower(status->>'name') IN (?)", work_in_review).count
 
     {
       total_backlog: total_backlog, total_in_progress: total_in_progress,
-      total_done: total_done, grand_total: grand_total
+      total_done: total_done, grand_total: grand_total,
+      total_work_in_progress: total_work_in_progress,
+      total_work_in_review: total_work_in_review
     }
   end
 
