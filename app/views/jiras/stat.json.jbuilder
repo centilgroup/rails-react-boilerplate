@@ -23,3 +23,8 @@ json.projects @projects do |project|
   json.key project.key
   json.name project.name
 end
+json.boards @boards do |board|
+  json.board_id board.board_id
+  json.name board.name
+  json.column_config board.column_config
+end
