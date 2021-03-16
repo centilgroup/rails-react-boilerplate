@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Doughnut } from 'react-chartjs-2';
+import { Doughnut, Bar, Bubble } from 'react-chartjs-2';
+import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import GaugeChart from 'react-gauge-chart';
 import {
   Container,
@@ -55,6 +56,13 @@ export default class Dashboard extends Component {
       testAverageTimeToClose: 1,
       testRemainingIssues: 1,
       testRemainingDays: 1,
+      totalBacklog: 0,
+      totalWorkInProgress: 0,
+      totalWorkInReview: 0,
+      backlogLimit: 0,
+      inProgressLimit: 0,
+      inReviewLimit: 0,
+      WIPChartType: 'bar',
     };
   }
 
@@ -98,6 +106,9 @@ export default class Dashboard extends Component {
         remaining_days,
         remaining_issues,
         average_time_to_close,
+        total_work_in_progress,
+        total_work_in_review,
+        boards,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -105,6 +116,12 @@ export default class Dashboard extends Component {
       let testPendingPercent;
       let deployPercent;
       let deployPendingPercent;
+      let backlogLimit = 0;
+      let inProgressLimit = 0;
+      let inReviewLimit = 0;
+      const leadStatus = ['backlog', 'to do', 'open'];
+      const devStatus = ['selected for development', 'in progress'];
+      const revStatus = ['review', 'qa', 'ready for review', 'in review'];
 
       if (grand_total > 0) {
         devPercent = total_backlog / grand_total;
@@ -114,6 +131,21 @@ export default class Dashboard extends Component {
         deployPercent = total_done / grand_total;
         deployPendingPercent = (grand_total - total_done) / grand_total;
       }
+
+      if (boards.length > 0) {
+        boards[0].column_config.forEach((config) => {
+          if (config.statuses.length > 0 && config.max !== undefined) {
+            if (leadStatus.includes(config.name.toLowerCase())) {
+              backlogLimit += config.max;
+            } else if (devStatus.includes(config.name.toLowerCase())) {
+              inProgressLimit += config.max;
+            } else if (revStatus.includes(config.name.toLowerCase())) {
+              inReviewLimit += config.max;
+            }
+          }
+        });
+      }
+
       this.setState({
         devArcLength: [devPercent, devPendingPercent],
         testArcLength: [testPercent, testPendingPercent],
@@ -124,6 +156,12 @@ export default class Dashboard extends Component {
         remaining_days,
         remaining_issues,
         average_time_to_close,
+        totalBacklog: total_backlog,
+        totalWorkInProgress: total_work_in_progress,
+        totalWorkInReview: total_work_in_review,
+        backlogLimit,
+        inProgressLimit,
+        inReviewLimit,
       });
     });
   };
@@ -219,6 +257,10 @@ export default class Dashboard extends Component {
     ).toFixed(2);
 
     this.setState({ testVPI });
+  };
+
+  WIPChartTypeChangeHandler = (event) => {
+    this.setState({ WIPChartType: event.target.id });
   };
 
   syncProjects = () => {
@@ -553,6 +595,13 @@ export default class Dashboard extends Component {
       testAverageTimeToClose,
       testRemainingIssues,
       testRemainingDays,
+      totalBacklog,
+      totalWorkInProgress,
+      totalWorkInReview,
+      WIPChartType,
+      backlogLimit,
+      inProgressLimit,
+      inReviewLimit,
     } = this.state;
     const style = {
       height: 300,
@@ -568,6 +617,7 @@ export default class Dashboard extends Component {
     let alert;
     let VPI;
     let healthRecommendation;
+    let WIPChart;
 
     if (jiraActivityLoading) {
       listIssues = <Skeleton count={10} />;
@@ -669,6 +719,231 @@ export default class Dashboard extends Component {
         'Average completion rate should be greater than zero to view the VPI score.';
     } else {
       healthRecommendation = '';
+    }
+
+    if (WIPChartType === 'bar') {
+      const commonAnnotation = {
+        drawTime: 'afterDatasetsDraw',
+        type: 'box',
+        xScaleID: 'x-axis-0',
+        yScaleID: 'y-axis-0',
+        backgroundColor: 'rgba(101, 33, 171, 0.5)',
+        borderColor: 'rgb(101, 33, 171)',
+        borderWidth: 1,
+      };
+      const backlogAnnotation = {
+        ...commonAnnotation,
+        xMin: -0.4,
+        xMax: 0.4,
+        yMin: backlogLimit,
+        yMax: backlogLimit + 0.5,
+      };
+      const inProgressAnnotation = {
+        ...commonAnnotation,
+        xMin: 0.6,
+        xMax: 1.4,
+        yMin: inProgressLimit,
+        yMax: inProgressLimit + 0.5,
+      };
+      const inReviewAnnotation = {
+        ...commonAnnotation,
+        xMin: 1.6,
+        xMax: 2.4,
+        yMin: inReviewLimit,
+        yMax: inReviewLimit + 0.5,
+      };
+      WIPChart = (
+        <Bar
+          data={{
+            labels: ['To Do', 'In Progress', 'In Review'],
+            datasets: [
+              {
+                data: [totalBacklog, totalWorkInProgress, totalWorkInReview],
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                ],
+                borderColor: [
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                ],
+                borderWidth: 1,
+              },
+            ],
+          }}
+          width={100}
+          height={250}
+          plugins={[ChartAnnotation]}
+          options={{
+            annotation: {
+              annotations: [
+                backlogLimit === 0 ? {} : backlogAnnotation,
+                inProgressLimit === 0 ? {} : inProgressAnnotation,
+                inReviewLimit === 0 ? {} : inReviewAnnotation,
+              ],
+            },
+            maintainAspectRatio: false,
+            legend: {
+              display: false,
+            },
+            tooltips: {
+              enabled: true,
+              callbacks: {
+                label(tooltipItem, data) {
+                  const value = data.datasets[0].data[tooltipItem.index];
+                  let label = ` WIP: ${value}`;
+                  if (
+                    tooltipItem.label.toLowerCase() === 'to do' &&
+                    backlogLimit > 0
+                  ) {
+                    label += `; WIP Limit: ${backlogLimit}; Limit %: ${
+                      (value / backlogLimit).toFixed(2) * 100
+                    }`;
+                  } else if (
+                    tooltipItem.label.toLowerCase() === 'in progress' &&
+                    inProgressLimit > 0
+                  ) {
+                    label += `; WIP Limit: ${inProgressLimit}; Limit %: ${
+                      (value / inProgressLimit).toFixed(2) * 100
+                    }`;
+                  } else if (
+                    tooltipItem.label.toLowerCase() === 'in review' &&
+                    inReviewLimit > 0
+                  ) {
+                    label += `; WIP Limit: ${inReviewLimit}; Limit %: ${
+                      (value / inReviewLimit).toFixed(2) * 100
+                    }`;
+                  }
+
+                  return label;
+                },
+              },
+            },
+            scales: {
+              xAxes: [
+                {
+                  gridLines: {
+                    display: false,
+                  },
+                  ticks: {
+                    display: true,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  gridLines: {
+                    display: false,
+                  },
+                  ticks: {
+                    display: false,
+                  },
+                },
+              ],
+            },
+          }}
+        />
+      );
+    } else if (WIPChartType === 'bubble') {
+      WIPChart = (
+        <Bubble
+          data={{
+            labels: ['To Do', 'In Progress', 'In Review'],
+            datasets: [
+              {
+                label: 'To Do',
+                data: [{ x: 0.5, y: 1, r: totalBacklog }],
+                backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+                borderColor: ['rgba(255, 99, 132, 1)'],
+                borderWidth: 1,
+              },
+              {
+                label: 'To Do Limit',
+                data: [{ x: 0.5, y: 1, r: backlogLimit }],
+                backgroundColor: ['rgba(255, 255, 255, 0.2)'],
+                borderColor: ['rgba(255, 99, 132, 0.5)'],
+                borderWidth: 2,
+              },
+              {
+                label: 'In Progress',
+                data: [{ x: 1.5, y: 1, r: totalWorkInProgress }],
+                backgroundColor: ['rgba(54, 162, 235, 0.2)'],
+                borderColor: ['rgba(54, 162, 235, 1)'],
+                borderWidth: 1,
+              },
+              {
+                label: 'In Progress Limit',
+                data: [{ x: 1.5, y: 1, r: inProgressLimit }],
+                backgroundColor: ['rgba(255, 255, 255, 0.2)'],
+                borderColor: ['rgba(54, 162, 235, 0.5)'],
+                borderWidth: 2,
+              },
+              {
+                label: 'In Review',
+                data: [{ x: 2.5, y: 1, r: totalWorkInReview }],
+                backgroundColor: ['rgba(255, 206, 86, 0.2)'],
+                borderColor: ['rgba(255, 206, 86, 1)'],
+                borderWidth: 1,
+              },
+              {
+                label: 'In Review Limit',
+                data: [{ x: 2.5, y: 1, r: inReviewLimit }],
+                backgroundColor: ['rgba(255, 255, 255, 0.2)'],
+                borderColor: ['rgba(255, 206, 86, 0.5)'],
+                borderWidth: 2,
+              },
+            ],
+          }}
+          width={100}
+          height={250}
+          options={{
+            maintainAspectRatio: false,
+            legend: {
+              display: false,
+            },
+            tooltips: {
+              enabled: true,
+              callbacks: {
+                label(tooltipItem, data) {
+                  let label =
+                    data.datasets[tooltipItem.datasetIndex].label || '';
+
+                  if (label) {
+                    label += ': ';
+                  }
+                  label += data.datasets[tooltipItem.datasetIndex].data[0].r;
+                  return label;
+                },
+              },
+            },
+            scales: {
+              xAxes: [
+                {
+                  gridLines: {
+                    display: false,
+                  },
+                  ticks: {
+                    min: 0,
+                    display: false,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  gridLines: {
+                    display: false,
+                  },
+                  ticks: {
+                    display: false,
+                  },
+                },
+              ],
+            },
+          }}
+        />
+      );
     }
 
     return (
@@ -787,7 +1062,7 @@ export default class Dashboard extends Component {
           <Row className="pt-4">
             <Col xs={12}>
               <Form>
-                <Form.Label>Projects Filter</Form.Label>
+                <div className="mb-1">Projects Filter</div>
                 <Form.Control
                   as="select"
                   size="lg"
@@ -800,6 +1075,33 @@ export default class Dashboard extends Component {
                   ))}
                 </Form.Control>
               </Form>
+            </Col>
+          </Row>
+          <Row className="pt-4">
+            <Col xs={12}>
+              <div className="mb-1 d-inline-flex">
+                <div className="mr-2">WIP + WIP Limits</div>
+                <Form onChange={this.WIPChartTypeChangeHandler}>
+                  <Form.Check
+                    inline
+                    label="Graph"
+                    type="radio"
+                    id="bar"
+                    name="WIP"
+                    defaultChecked
+                  />
+                  <Form.Check
+                    inline
+                    label="Circle Chart"
+                    type="radio"
+                    id="bubble"
+                    name="WIP"
+                  />
+                </Form>
+              </div>
+              <Card>
+                <Card.Body>{WIPChart}</Card.Body>
+              </Card>
             </Col>
           </Row>
           <Row className="pt-4">

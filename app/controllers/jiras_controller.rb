@@ -15,6 +15,7 @@ class JirasController < ApplicationController
     @stat = @jira_manager.fetch_gas_gauge_data
     @epics, @epic_issues = @jira_manager.fetch_epics
     @vpi = @jira_manager.fetch_vpi_data
+    @boards = @jira_manager.fetch_board_data
   end
 
   # GET /jiras/1

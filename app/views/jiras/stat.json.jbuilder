@@ -2,6 +2,8 @@ json.total_backlog @stat[:total_backlog]
 json.total_in_progress @stat[:total_in_progress]
 json.total_done @stat[:total_done]
 json.grand_total @stat[:grand_total]
+json.total_work_in_progress @stat[:total_work_in_progress]
+json.total_work_in_review @stat[:total_work_in_review]
 json.remaining_days @vpi[:remaining_days]
 json.remaining_issues @vpi[:remaining_issues]
 json.average_time_to_close @vpi[:average_time_to_close]
@@ -20,4 +22,9 @@ json.projects @projects do |project|
   json.project_id project.project_id
   json.key project.key
   json.name project.name
+end
+json.boards @boards do |board|
+  json.board_id board.board_id
+  json.name board.name
+  json.column_config board.column_config
 end

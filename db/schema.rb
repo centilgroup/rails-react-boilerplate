@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_09_133628) do
+ActiveRecord::Schema.define(version: 2021_03_16_031308) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,6 +34,20 @@ ActiveRecord::Schema.define(version: 2021_03_09_133628) do
     t.string "checksum", null: false
     t.datetime "created_at", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "boards", force: :cascade do |t|
+    t.string "board_id", null: false
+    t.string "name"
+    t.string "board_type"
+    t.string "project_id", null: false
+    t.json "column_config"
+    t.bigint "user_id", null: false
+    t.string "user_board_id", null: false
+    t.index ["board_id"], name: "index_boards_on_board_id"
+    t.index ["project_id"], name: "index_boards_on_project_id"
+    t.index ["user_board_id"], name: "index_boards_on_user_board_id", unique: true
+    t.index ["user_id"], name: "index_boards_on_user_id"
   end
 
   create_table "issues", force: :cascade do |t|
@@ -96,6 +110,7 @@ ActiveRecord::Schema.define(version: 2021_03_09_133628) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "boards", "users"
   add_foreign_key "issues", "users"
   add_foreign_key "projects", "users"
 end

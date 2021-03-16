@@ -42,16 +42,26 @@ class JiraManager
     backlog = ["backlog", "to do", "open"]
     in_progress = ["selected for development", "in progress", "review", "qa", "ready for review", "in review"]
     done = %w[done closed]
+    work_in_progress = ["selected for development", "in progress"]
+    work_in_review = ["review", "qa", "ready for review", "in review"]
 
     grand_total = issues.count
     total_backlog = issues.where("lower(status->>'name') IN (?)", backlog).count
     total_in_progress = issues.where("lower(status->>'name') IN (?)", in_progress).count
     total_done = issues.where("lower(status->>'name') IN (?)", done).count
+    total_work_in_progress = issues.where("lower(status->>'name') IN (?)", work_in_progress).count
+    total_work_in_review = issues.where("lower(status->>'name') IN (?)", work_in_review).count
 
     {
       total_backlog: total_backlog, total_in_progress: total_in_progress,
-      total_done: total_done, grand_total: grand_total
+      total_done: total_done, grand_total: grand_total,
+      total_work_in_progress: total_work_in_progress,
+      total_work_in_review: total_work_in_review
     }
+  end
+
+  def fetch_board_data
+    Board.where(project_id: @project.project_id, user_id: @user.id)
   end
 
   def fetch_vpi_data
@@ -89,12 +99,24 @@ class JiraManager
 
   def sync_projects
     jira_projects = @client.Project.all
+    jira_boards = @client.Board.all
+
+    jira_boards.each do |jira_board|
+      config = jira_board.configuration
+      board = {
+        user_board_id: "#{@user.id}_#{config.id}",
+        board_id: config.id, name: config.name,
+        board_type: config.type, project_id: config.location["id"],
+        user_id: @user.id, column_config: config.columnConfig["columns"]
+      }
+      Board.upsert(board, unique_by: :user_board_id)
+    end
 
     jira_projects.each do |jira_project|
       project = {
         user_project_id: "#{@user.id}_#{jira_project.id}",
-        project_id: jira_project.id,
-        name: jira_project.name, user_id: @user.id, key: jira_project.key
+        project_id: jira_project.id, name: jira_project.name,
+        user_id: @user.id, key: jira_project.key
       }
       Project.upsert(project, unique_by: :user_project_id)
     end
