@@ -16,6 +16,7 @@ class JirasController < ApplicationController
     @epics, @epic_issues = @jira_manager.fetch_epics
     @vpi = @jira_manager.fetch_vpi_data
     @boards = @jira_manager.fetch_board_data
+    @min_max = current_user.min_max
   end
 
   # GET /jiras/1

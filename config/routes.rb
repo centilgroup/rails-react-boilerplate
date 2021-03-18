@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     put "users/profile", to: "users/sessions#profile"
     put "users/sync_projects", to: "users/sessions#sync_projects"
     put "users/sync_issues", to: "users/sessions#sync_issues"
+    put "users/min_max_config", to: "users/sessions#min_max_config"
   end
 
   resources :jiras do

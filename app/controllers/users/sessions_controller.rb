@@ -41,6 +41,11 @@ class Users::SessionsController < Devise::SessionsController
     current_user.avatar.attach(params[:user][:avatar]) if params[:user][:avatar].present?
   end
 
+  # PUT /resource/min_max_config
+  def min_max_config
+    current_user.update(min_max: params[:min_max])
+  end
+
   # PUT /resource/sync_projects
   def sync_projects
     jira = init_jira(current_user)
