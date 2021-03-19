@@ -46,6 +46,11 @@ class Users::SessionsController < Devise::SessionsController
     current_user.update(min_max: params[:min_max])
   end
 
+  # PUT /resource/sortable_items_config
+  def sortable_items_config
+    current_user.update(sortable_items: params[:sortable_items])
+  end
+
   # PUT /resource/sync_projects
   def sync_projects
     jira = init_jira(current_user)

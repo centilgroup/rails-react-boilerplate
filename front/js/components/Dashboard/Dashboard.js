@@ -26,6 +26,12 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import moment from 'moment';
+import {
+  SortableContainer,
+  SortableElement,
+  SortableHandle,
+} from 'react-sortable-hoc';
+import arrayMove from 'array-move';
 import formattedTime from '../../utils/timeFormatter';
 
 export default class Dashboard extends Component {
@@ -69,6 +75,7 @@ export default class Dashboard extends Component {
       showFocusSection: true,
       showVPISection: true,
       showActivitiesSection: true,
+      sortableItems: ['wip', 'gauge', 'focus', 'vpi', 'activities'],
     };
   }
 
@@ -116,6 +123,7 @@ export default class Dashboard extends Component {
         total_work_in_review,
         boards,
         min_max,
+        sortable_items,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -131,6 +139,7 @@ export default class Dashboard extends Component {
       let showFocusSection = true;
       let showVPISection = true;
       let showActivitiesSection = true;
+      let sortableItems = ['wip', 'gauge', 'focus', 'vpi', 'activities'];
       const leadStatus = ['backlog', 'to do', 'open'];
       const devStatus = ['selected for development', 'in progress'];
       const revStatus = ['review', 'qa', 'ready for review', 'in review'];
@@ -166,6 +175,10 @@ export default class Dashboard extends Component {
         showActivitiesSection = min_max.showActivitiesSection;
       }
 
+      if (sortable_items !== null) {
+        sortableItems = sortable_items;
+      }
+
       this.setState({
         devArcLength: [devPercent, devPendingPercent],
         testArcLength: [testPercent, testPendingPercent],
@@ -187,6 +200,7 @@ export default class Dashboard extends Component {
         showFocusSection,
         showVPISection,
         showActivitiesSection,
+        sortableItems,
       });
     });
   };
@@ -627,6 +641,18 @@ export default class Dashboard extends Component {
     axios.put('/users/min_max_config.json', data);
   };
 
+  onSortEnd = ({ oldIndex, newIndex }) => {
+    let { sortableItems } = this.state;
+
+    sortableItems = arrayMove(sortableItems, oldIndex, newIndex);
+
+    this.setState({ sortableItems });
+
+    axios.put('/users/sortable_items_config.json', {
+      sortable_items: sortableItems,
+    });
+  };
+
   render() {
     const {
       issues,
@@ -662,6 +688,7 @@ export default class Dashboard extends Component {
       showFocusSection,
       showVPISection,
       showActivitiesSection,
+      sortableItems,
     } = this.state;
     const style = {
       height: 300,
@@ -1006,6 +1033,413 @@ export default class Dashboard extends Component {
       );
     }
 
+    const DragHandle = SortableHandle(() => (
+      <i className="fa fa-bars" style={{ cursor: 'move' }} />
+    ));
+
+    const SortableItem = SortableElement(({ value }) => {
+      if (value === 'wip') {
+        return (
+          <Row className="pt-4">
+            <Col xs={12}>
+              <Card>
+                <Card.Header
+                  className="d-flex justify-content-between align-items-center"
+                  onClick={() =>
+                    this.minMaxHandler('showWIPSection', showWIPSection)
+                  }
+                >
+                  <div className="d-inline-flex">
+                    <div className="mr-2">
+                      <DragHandle /> WIP + WIP Limits
+                    </div>
+                    <Form onClick={(event) => event.stopPropagation()}>
+                      <Form.Check
+                        inline
+                        label="Graph"
+                        type="radio"
+                        id="bar"
+                        name="WIP"
+                        onClick={this.WIPChartTypeChangeHandler}
+                        defaultChecked={WIPChartType === 'bar'}
+                      />
+                      <Form.Check
+                        inline
+                        label="Circle Chart"
+                        type="radio"
+                        id="bubble"
+                        name="WIP"
+                        onClick={this.WIPChartTypeChangeHandler}
+                        defaultChecked={WIPChartType === 'bubble'}
+                      />
+                    </Form>
+                  </div>
+                  {this.renderMinMaxIcon(showWIPSection)}
+                </Card.Header>
+                <Collapse in={showWIPSection} className="wip">
+                  <Card.Body>{WIPChart}</Card.Body>
+                </Collapse>
+              </Card>
+            </Col>
+          </Row>
+        );
+      }
+
+      if (value === 'gauge') {
+        return (
+          <Row className="pt-4">
+            <Col xs={12}>
+              <Card>
+                <Card.Header
+                  className="d-flex justify-content-between align-items-center"
+                  onClick={() =>
+                    this.minMaxHandler('showGaugeSection', showGaugeSection)
+                  }
+                >
+                  <span>
+                    <DragHandle /> Status Gauges
+                  </span>
+                  {this.renderMinMaxIcon(showGaugeSection)}
+                </Card.Header>
+                <Collapse in={showGaugeSection}>
+                  <Card.Body>
+                    <Row>
+                      <Col xs={4}>
+                        <Card>
+                          <Card.Body>
+                            <Card.Title className="text-center">
+                              Backlog
+                            </Card.Title>
+                            <div className="d-flex align-items-center">
+                              <div className="legend left-legend" />
+                              <div>Backlog</div>
+                              <div className="ml-auto">Remaining</div>
+                              <div className="legend right-legend" />
+                            </div>
+                            <GaugeChart
+                              className="gas-gauge"
+                              id="gauge_chart_dev"
+                              nrOfLevels={2}
+                              arcsLength={devArcLength}
+                              colors={['#e5e5e5', '#009cf0']}
+                              cornerRadius={0}
+                              arcWidth={0.1}
+                              arcPadding={0.02}
+                              hideText
+                            />
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                      <Col xs={4}>
+                        <Card>
+                          <Card.Body>
+                            <Card.Title className="text-center">
+                              Development/QA/Test
+                            </Card.Title>
+                            <div className="d-flex align-items-center">
+                              <div className="legend left-legend" />
+                              <div>In Progress</div>
+                              <div className="ml-auto">Remaining</div>
+                              <div className="legend right-legend" />
+                            </div>
+                            <GaugeChart
+                              className="gas-gauge"
+                              id="gauge_chart_qa"
+                              nrOfLevels={2}
+                              arcsLength={testArcLength}
+                              colors={['#e5e5e5', '#009cf0']}
+                              cornerRadius={0}
+                              arcWidth={0.1}
+                              arcPadding={0.02}
+                              hideText
+                            />
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                      <Col xs={4}>
+                        <Card>
+                          <Card.Body>
+                            <Card.Title className="text-center">
+                              Deployment
+                            </Card.Title>
+                            <div className="d-flex align-items-center">
+                              <div className="legend left-legend" />
+                              <div>Done</div>
+                              <div className="ml-auto">Remaining</div>
+                              <div className="legend right-legend" />
+                            </div>
+                            <GaugeChart
+                              className="gas-gauge"
+                              id="gauge_chart_deploy"
+                              nrOfLevels={2}
+                              arcsLength={deployArcLength}
+                              colors={['#e5e5e5', '#009cf0']}
+                              cornerRadius={0}
+                              arcWidth={0.1}
+                              arcPadding={0.02}
+                              hideText
+                            />
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Collapse>
+              </Card>
+            </Col>
+          </Row>
+        );
+      }
+
+      if (value === 'focus') {
+        return (
+          <Row className="pt-4">
+            <Col xs={12}>
+              <Card>
+                <Card.Header
+                  className="d-flex justify-content-between align-items-center"
+                  onClick={() =>
+                    this.minMaxHandler('showFocusSection', showFocusSection)
+                  }
+                >
+                  <span>
+                    <DragHandle /> Focus & Risk Commit
+                  </span>
+                  {this.renderMinMaxIcon(showFocusSection)}
+                </Card.Header>
+                <Collapse in={showFocusSection}>
+                  <Card.Body>
+                    <Row>
+                      <Col xs={4}>
+                        <Card>
+                          <Card.Body>
+                            <Card.Title>Focus</Card.Title>
+                            <div className="focus">{listEpics}</div>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                      <Col xs={8}>
+                        <Card>
+                          <Card.Body>
+                            <Card.Title>Commit Breakdown</Card.Title>
+                            <div className="d-flex justify-content-around align-items-center">
+                              <div className="commit-risk-chart-holder">
+                                <Doughnut
+                                  data={{
+                                    datasets: [
+                                      {
+                                        data: [60, 35, 5],
+                                        backgroundColor: [
+                                          'rgb(94,196,182)',
+                                          'rgb(241,203,73)',
+                                          'rgb(254,139,169)',
+                                        ],
+                                      },
+                                    ],
+                                    labels: ['Low', 'Medium', 'High'],
+                                  }}
+                                  width={224}
+                                  height={224}
+                                  options={{
+                                    cutoutPercentage: 80,
+                                    legend: {
+                                      display: false,
+                                    },
+                                    tooltips: {
+                                      enabled: true,
+                                    },
+                                  }}
+                                />
+                                <div className="total-commit">
+                                  <div className="number">18</div>
+                                  <div className="text">Total</div>
+                                  <div className="text">Commits</div>
+                                </div>
+                              </div>
+                              <div className="risk-commit">
+                                <div className="mb-4">
+                                  <div className="mb-2">Low Risk</div>
+                                  <div className="d-flex align-items-center">
+                                    <div className="risk-commit-value low mr-2">
+                                      11 (61%)
+                                    </div>
+                                    <div className="mr-1 up text-success">
+                                      <i className="fa fa-arrow-up mr-1" />
+                                      83%
+                                    </div>
+                                    <div className="text-secondary">
+                                      since last PI
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="mb-4">
+                                  <div className="mb-2">Medium Risk</div>
+                                  <div className="d-flex align-items-center">
+                                    <div className="risk-commit-value medium mr-2">
+                                      7 (39%)
+                                    </div>
+                                    <div className="mr-1 down text-danger">
+                                      <i className="fa fa-arrow-down mr-1" />
+                                      82%
+                                    </div>
+                                    <div className="text-secondary">
+                                      since last PI
+                                    </div>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="mb-2">High Risk</div>
+                                  <div className="d-flex align-items-center">
+                                    <div className="risk-commit-value high mr-2">
+                                      1 (0%)
+                                    </div>
+                                    <div className="mr-1 down text-danger">
+                                      <i className="fa fa-arrow-down mr-1" />
+                                      100%
+                                    </div>
+                                    <div className="text-secondary">
+                                      since last PI
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Collapse>
+              </Card>
+            </Col>
+          </Row>
+        );
+      }
+
+      if (value === 'vpi') {
+        return (
+          <Row className="pt-4">
+            <Col xs={12}>
+              <Card>
+                <Card.Header
+                  className="d-flex justify-content-between align-items-center"
+                  onClick={() =>
+                    this.minMaxHandler('showVPISection', showVPISection)
+                  }
+                >
+                  <span>
+                    <DragHandle /> Project Flow Health
+                  </span>
+                  {this.renderMinMaxIcon(showVPISection)}
+                </Card.Header>
+                <Collapse in={showVPISection}>
+                  <Card.Body className="text-center">
+                    <Card.Text className="text-info">
+                      {healthRecommendation}
+                    </Card.Text>
+                    <div className="d-flex align-items-center justify-content-around">
+                      <div className="pt-2">
+                        <div style={{ fontSize: '32px' }}>
+                          {remaining_days === null ? '--' : remaining_days}
+                        </div>
+                        <div className="mt-1">Remaining Period (Days)</div>
+                      </div>
+                      <div className="pt-2">
+                        <div style={{ fontSize: '32px' }}>
+                          {remaining_issues}
+                        </div>
+                        <div className="mt-1">Remaining Issues</div>
+                      </div>
+                      <div className="pt-2">
+                        <div style={{ fontSize: '32px' }}>
+                          {average_time_to_close === null
+                            ? '--'
+                            : average_time_to_close}
+                        </div>
+                        <div className="mt-1">
+                          Average Completion Rate (Days)
+                        </div>
+                      </div>
+                      <div className="pt-2">
+                        <div style={{ fontSize: '32px' }}>{VPI}</div>
+                        <div className="mt-1">VPI</div>
+                      </div>
+                    </div>
+                  </Card.Body>
+                </Collapse>
+              </Card>
+            </Col>
+          </Row>
+        );
+      }
+
+      if (value === 'activities') {
+        return (
+          <Row className="py-4">
+            <Col xs={12}>
+              <Card>
+                <Card.Header
+                  className="d-flex justify-content-between align-items-center"
+                  onClick={() =>
+                    this.minMaxHandler(
+                      'showActivitiesSection',
+                      showActivitiesSection,
+                    )
+                  }
+                >
+                  <span>
+                    <DragHandle /> Activities & Time Spent
+                  </span>
+                  {this.renderMinMaxIcon(showActivitiesSection)}
+                </Card.Header>
+                <Collapse in={showActivitiesSection}>
+                  <Card.Body>
+                    <Row>
+                      <Col xs={8}>
+                        <Card>
+                          <Card.Body>
+                            <Card.Title>Activities</Card.Title>
+                            <ListGroup
+                              variant="flush"
+                              style={style}
+                              id="jiraActivity"
+                            >
+                              <InfiniteScroll
+                                dataLength={issues.length}
+                                next={this.fetchMoreData}
+                                hasMore={jiraActivityHasMore}
+                                loader={<Skeleton count={10} />}
+                                scrollableTarget="jiraActivity"
+                              >
+                                {listIssues}
+                              </InfiniteScroll>
+                            </ListGroup>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                      <Col xs={4}>{this.renderAverageTimes()}</Col>
+                    </Row>
+                  </Card.Body>
+                </Collapse>
+              </Card>
+            </Col>
+          </Row>
+        );
+      }
+
+      return '';
+    });
+
+    const SortableList = SortableContainer(({ items }) => {
+      return (
+        <div>
+          {items.map((value, index) => (
+            <SortableItem key={`item-${value}`} index={index} value={value} />
+          ))}
+        </div>
+      );
+    });
+
     return (
       <section>
         {alert}
@@ -1137,142 +1571,11 @@ export default class Dashboard extends Component {
               </Form>
             </Col>
           </Row>
-          <Row className="pt-4">
-            <Col xs={12}>
-              <Card>
-                <Card.Header
-                  className="d-flex justify-content-between align-items-center"
-                  onClick={() =>
-                    this.minMaxHandler('showWIPSection', showWIPSection)
-                  }
-                >
-                  <div className="d-inline-flex">
-                    <div className="mr-2">WIP + WIP Limits</div>
-                    <Form onChange={this.WIPChartTypeChangeHandler}>
-                      <Form.Check
-                        inline
-                        label="Graph"
-                        type="radio"
-                        id="bar"
-                        name="WIP"
-                        defaultChecked
-                      />
-                      <Form.Check
-                        inline
-                        label="Circle Chart"
-                        type="radio"
-                        id="bubble"
-                        name="WIP"
-                      />
-                    </Form>
-                  </div>
-                  {this.renderMinMaxIcon(showWIPSection)}
-                </Card.Header>
-                <Collapse in={showWIPSection} className="wip">
-                  <Card.Body>{WIPChart}</Card.Body>
-                </Collapse>
-              </Card>
-            </Col>
-          </Row>
-          <Row className="pt-4">
-            <Col xs={12}>
-              <Card>
-                <Card.Header
-                  className="d-flex justify-content-between align-items-center"
-                  onClick={() =>
-                    this.minMaxHandler('showGaugeSection', showGaugeSection)
-                  }
-                >
-                  <span>Status Gauges</span>
-                  {this.renderMinMaxIcon(showGaugeSection)}
-                </Card.Header>
-                <Collapse in={showGaugeSection}>
-                  <Card.Body>
-                    <Row>
-                      <Col xs={4}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title className="text-center">
-                              Backlog
-                            </Card.Title>
-                            <div className="d-flex align-items-center">
-                              <div className="legend left-legend" />
-                              <div>Backlog</div>
-                              <div className="ml-auto">Remaining</div>
-                              <div className="legend right-legend" />
-                            </div>
-                            <GaugeChart
-                              className="gas-gauge"
-                              id="gauge_chart_dev"
-                              nrOfLevels={2}
-                              arcsLength={devArcLength}
-                              colors={['#e5e5e5', '#009cf0']}
-                              cornerRadius={0}
-                              arcWidth={0.1}
-                              arcPadding={0.02}
-                              hideText
-                            />
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                      <Col xs={4}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title className="text-center">
-                              Development/QA/Test
-                            </Card.Title>
-                            <div className="d-flex align-items-center">
-                              <div className="legend left-legend" />
-                              <div>In Progress</div>
-                              <div className="ml-auto">Remaining</div>
-                              <div className="legend right-legend" />
-                            </div>
-                            <GaugeChart
-                              className="gas-gauge"
-                              id="gauge_chart_qa"
-                              nrOfLevels={2}
-                              arcsLength={testArcLength}
-                              colors={['#e5e5e5', '#009cf0']}
-                              cornerRadius={0}
-                              arcWidth={0.1}
-                              arcPadding={0.02}
-                              hideText
-                            />
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                      <Col xs={4}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title className="text-center">
-                              Deployment
-                            </Card.Title>
-                            <div className="d-flex align-items-center">
-                              <div className="legend left-legend" />
-                              <div>Done</div>
-                              <div className="ml-auto">Remaining</div>
-                              <div className="legend right-legend" />
-                            </div>
-                            <GaugeChart
-                              className="gas-gauge"
-                              id="gauge_chart_deploy"
-                              nrOfLevels={2}
-                              arcsLength={deployArcLength}
-                              colors={['#e5e5e5', '#009cf0']}
-                              cornerRadius={0}
-                              arcWidth={0.1}
-                              arcPadding={0.02}
-                              hideText
-                            />
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    </Row>
-                  </Card.Body>
-                </Collapse>
-              </Card>
-            </Col>
-          </Row>
+          <SortableList
+            items={sortableItems}
+            onSortEnd={this.onSortEnd}
+            useDragHandle
+          />
           {/* <Row className="pt-4"> */}
           {/*  <Col xs={3}> */}
           {/*    <Card> */}
@@ -1320,221 +1623,6 @@ export default class Dashboard extends Component {
           {/*    </Card> */}
           {/*  </Col> */}
           {/* </Row> */}
-          <Row className="pt-4">
-            <Col xs={12}>
-              <Card>
-                <Card.Header
-                  className="d-flex justify-content-between align-items-center"
-                  onClick={() =>
-                    this.minMaxHandler('showFocusSection', showFocusSection)
-                  }
-                >
-                  <span>Focus & Risk Commit</span>
-                  {this.renderMinMaxIcon(showFocusSection)}
-                </Card.Header>
-                <Collapse in={showFocusSection}>
-                  <Card.Body>
-                    <Row>
-                      <Col xs={4}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title>Focus</Card.Title>
-                            <div className="focus">{listEpics}</div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                      <Col xs={8}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title>Commit Breakdown</Card.Title>
-                            <div className="d-flex justify-content-around align-items-center">
-                              <div className="commit-risk-chart-holder">
-                                <Doughnut
-                                  data={{
-                                    datasets: [
-                                      {
-                                        data: [60, 35, 5],
-                                        backgroundColor: [
-                                          'rgb(94,196,182)',
-                                          'rgb(241,203,73)',
-                                          'rgb(254,139,169)',
-                                        ],
-                                      },
-                                    ],
-                                    labels: ['Low', 'Medium', 'High'],
-                                  }}
-                                  width={224}
-                                  height={224}
-                                  options={{
-                                    cutoutPercentage: 80,
-                                    legend: {
-                                      display: false,
-                                    },
-                                    tooltips: {
-                                      enabled: true,
-                                    },
-                                  }}
-                                />
-                                <div className="total-commit">
-                                  <div className="number">18</div>
-                                  <div className="text">Total</div>
-                                  <div className="text">Commits</div>
-                                </div>
-                              </div>
-                              <div className="risk-commit">
-                                <div className="mb-4">
-                                  <div className="mb-2">Low Risk</div>
-                                  <div className="d-flex align-items-center">
-                                    <div className="risk-commit-value low mr-2">
-                                      11 (61%)
-                                    </div>
-                                    <div className="mr-1 up text-success">
-                                      <i className="fa fa-arrow-up mr-1" />
-                                      83%
-                                    </div>
-                                    <div className="text-secondary">
-                                      since last PI
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="mb-4">
-                                  <div className="mb-2">Medium Risk</div>
-                                  <div className="d-flex align-items-center">
-                                    <div className="risk-commit-value medium mr-2">
-                                      7 (39%)
-                                    </div>
-                                    <div className="mr-1 down text-danger">
-                                      <i className="fa fa-arrow-down mr-1" />
-                                      82%
-                                    </div>
-                                    <div className="text-secondary">
-                                      since last PI
-                                    </div>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="mb-2">High Risk</div>
-                                  <div className="d-flex align-items-center">
-                                    <div className="risk-commit-value high mr-2">
-                                      1 (0%)
-                                    </div>
-                                    <div className="mr-1 down text-danger">
-                                      <i className="fa fa-arrow-down mr-1" />
-                                      100%
-                                    </div>
-                                    <div className="text-secondary">
-                                      since last PI
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    </Row>
-                  </Card.Body>
-                </Collapse>
-              </Card>
-            </Col>
-          </Row>
-          <Row className="pt-4">
-            <Col xs={12}>
-              <Card>
-                <Card.Header
-                  className="d-flex justify-content-between align-items-center"
-                  onClick={() =>
-                    this.minMaxHandler('showVPISection', showVPISection)
-                  }
-                >
-                  <span>Project Flow Health</span>
-                  {this.renderMinMaxIcon(showVPISection)}
-                </Card.Header>
-                <Collapse in={showVPISection}>
-                  <Card.Body className="text-center">
-                    <Card.Text className="text-info">
-                      {healthRecommendation}
-                    </Card.Text>
-                    <div className="d-flex align-items-center justify-content-around">
-                      <div className="pt-2">
-                        <div style={{ fontSize: '32px' }}>
-                          {remaining_days === null ? '--' : remaining_days}
-                        </div>
-                        <div className="mt-1">Remaining Period (Days)</div>
-                      </div>
-                      <div className="pt-2">
-                        <div style={{ fontSize: '32px' }}>
-                          {remaining_issues}
-                        </div>
-                        <div className="mt-1">Remaining Issues</div>
-                      </div>
-                      <div className="pt-2">
-                        <div style={{ fontSize: '32px' }}>
-                          {average_time_to_close === null
-                            ? '--'
-                            : average_time_to_close}
-                        </div>
-                        <div className="mt-1">
-                          Average Completion Rate (Days)
-                        </div>
-                      </div>
-                      <div className="pt-2">
-                        <div style={{ fontSize: '32px' }}>{VPI}</div>
-                        <div className="mt-1">VPI</div>
-                      </div>
-                    </div>
-                  </Card.Body>
-                </Collapse>
-              </Card>
-            </Col>
-          </Row>
-          <Row className="py-4">
-            <Col xs={12}>
-              <Card>
-                <Card.Header
-                  className="d-flex justify-content-between align-items-center"
-                  onClick={() =>
-                    this.minMaxHandler(
-                      'showActivitiesSection',
-                      showActivitiesSection,
-                    )
-                  }
-                >
-                  <span>Activities & Time Spent</span>
-                  {this.renderMinMaxIcon(showActivitiesSection)}
-                </Card.Header>
-                <Collapse in={showActivitiesSection}>
-                  <Card.Body>
-                    <Row>
-                      <Col xs={8}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title>Activities</Card.Title>
-                            <ListGroup
-                              variant="flush"
-                              style={style}
-                              id="jiraActivity"
-                            >
-                              <InfiniteScroll
-                                dataLength={issues.length}
-                                next={this.fetchMoreData}
-                                hasMore={jiraActivityHasMore}
-                                loader={<Skeleton count={10} />}
-                                scrollableTarget="jiraActivity"
-                              >
-                                {listIssues}
-                              </InfiniteScroll>
-                            </ListGroup>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                      <Col xs={4}>{this.renderAverageTimes()}</Col>
-                    </Row>
-                  </Card.Body>
-                </Collapse>
-              </Card>
-            </Col>
-          </Row>
         </Container>
 
         <hr />
