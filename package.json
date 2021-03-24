@@ -22,6 +22,7 @@
   "private": true,
   "dependencies": {
     "@babel/polyfill": "^7.10.1",
+    "array-move": "^3.0.1",
     "axios": "^0.19.2",
     "bootstrap": "^4.5.3",
     "chart.js": "^2.9.3",
@@ -45,6 +46,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-router-guards": "^1.0.2",
+    "react-sortable-hoc": "^2.0.0",
     "sass": "^1.26.8"
   },
   "devDependencies": {

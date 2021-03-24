@@ -28,3 +28,5 @@ json.boards @boards do |board|
   json.name board.name
   json.column_config board.column_config
 end
+json.min_max @min_max
+json.sortable_items @sortable_items
