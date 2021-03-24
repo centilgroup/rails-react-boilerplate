@@ -75,7 +75,7 @@ export default class Dashboard extends Component {
       showFocusSection: true,
       showVPISection: true,
       showActivitiesSection: true,
-      sortableItems: ['wip', 'gauge', 'focus', 'vpi', 'activities'],
+      sortableItems: ['vpi', 'wip', 'gauge', 'focus', 'activities'],
     };
   }
 
@@ -705,6 +705,8 @@ export default class Dashboard extends Component {
     let VPI;
     let healthRecommendation;
     let WIPChart;
+    let VPIChart;
+    let VPIPercent;
 
     if (jiraActivityLoading) {
       listIssues = <Skeleton count={10} />;
@@ -804,8 +806,15 @@ export default class Dashboard extends Component {
     } else if (average_time_to_close === 0) {
       healthRecommendation =
         'Average completion rate should be greater than zero to view the VPI score.';
+    } else if (VPI > 1) {
+      healthRecommendation = 'VPI indicates early delivery.';
+      VPIPercent = 1;
+    } else if (VPI < 1) {
+      healthRecommendation = 'VPI indicates late delivery.';
+      VPIPercent = 0;
     } else {
-      healthRecommendation = '';
+      healthRecommendation = 'VPI indicates on-schedule delivery.';
+      VPIPercent = 0.5;
     }
 
     if (WIPChartType === 'bar') {
@@ -1033,6 +1042,22 @@ export default class Dashboard extends Component {
       );
     }
 
+    if (VPI !== '--') {
+      VPIChart = (
+        <GaugeChart
+          id="gauge_chart_vpi"
+          colors={['#ff736f', '#ffce00', '#49d1c5']}
+          cornerRadius={0}
+          arcWidth={0.1}
+          arcPadding={0.02}
+          percent={VPIPercent}
+          animate={false}
+          hideText
+          style={{ width: '75%' }}
+        />
+      );
+    }
+
     const DragHandle = SortableHandle(() => (
       <i className="fa fa-bars" style={{ cursor: 'move' }} />
     ));
@@ -1117,7 +1142,6 @@ export default class Dashboard extends Component {
                               <div className="legend right-legend" />
                             </div>
                             <GaugeChart
-                              className="gas-gauge"
                               id="gauge_chart_dev"
                               nrOfLevels={2}
                               arcsLength={devArcLength}
@@ -1126,6 +1150,8 @@ export default class Dashboard extends Component {
                               arcWidth={0.1}
                               arcPadding={0.02}
                               hideText
+                              needleColor="#FFFFFF"
+                              needleBaseColor="#FFFFFF"
                             />
                           </Card.Body>
                         </Card>
@@ -1143,7 +1169,6 @@ export default class Dashboard extends Component {
                               <div className="legend right-legend" />
                             </div>
                             <GaugeChart
-                              className="gas-gauge"
                               id="gauge_chart_qa"
                               nrOfLevels={2}
                               arcsLength={testArcLength}
@@ -1152,6 +1177,8 @@ export default class Dashboard extends Component {
                               arcWidth={0.1}
                               arcPadding={0.02}
                               hideText
+                              needleColor="#FFFFFF"
+                              needleBaseColor="#FFFFFF"
                             />
                           </Card.Body>
                         </Card>
@@ -1169,7 +1196,6 @@ export default class Dashboard extends Component {
                               <div className="legend right-legend" />
                             </div>
                             <GaugeChart
-                              className="gas-gauge"
                               id="gauge_chart_deploy"
                               nrOfLevels={2}
                               arcsLength={deployArcLength}
@@ -1178,6 +1204,8 @@ export default class Dashboard extends Component {
                               arcWidth={0.1}
                               arcPadding={0.02}
                               hideText
+                              needleColor="#FFFFFF"
+                              needleBaseColor="#FFFFFF"
                             />
                           </Card.Body>
                         </Card>
@@ -1361,6 +1389,7 @@ export default class Dashboard extends Component {
                         </div>
                       </div>
                       <div className="pt-2">
+                        {VPIChart}
                         <div style={{ fontSize: '32px' }}>{VPI}</div>
                         <div className="mt-1">VPI</div>
                       </div>
