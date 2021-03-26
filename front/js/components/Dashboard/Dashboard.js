@@ -20,6 +20,8 @@ import {
   Spinner,
   Modal,
   Collapse,
+  Dropdown,
+  Figure,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -76,11 +78,14 @@ export default class Dashboard extends Component {
       showVPISection: true,
       showActivitiesSection: true,
       sortableItems: ['vpi', 'wip', 'gauge', 'focus', 'activities'],
+      user: {},
     };
   }
 
   componentDidMount = () => {
     this.fetchInitData();
+    const user = JSON.parse(localStorage.getItem('user'));
+    this.setState({ user });
   };
 
   fetchInitData = (project_id = '') => {
@@ -689,6 +694,7 @@ export default class Dashboard extends Component {
       showVPISection,
       showActivitiesSection,
       sortableItems,
+      user,
     } = this.state;
     const style = {
       height: 300,
@@ -1475,66 +1481,84 @@ export default class Dashboard extends Component {
 
         <nav>
           <span>
-            <NavLink to="/profile" className="mr-2">
-              <Button variant="primary" size="sm">
-                Profile
-              </Button>
-            </NavLink>
-            <Button
-              className="mr-2"
-              variant="primary"
-              size="sm"
-              onClick={this.handleVPIShow}
-            >
-              VPI
-            </Button>
-            <NavLink to="/" onClick={this.logoutUser}>
-              <Button variant="primary" size="sm">
-                Logout
-              </Button>
-            </NavLink>
+            <Figure className="m-0">
+              <Figure.Image
+                src="https://user-images.githubusercontent.com/38546045/87486176-f1a5f280-c5f7-11ea-90de-1e80393d15a0.png"
+                width={50}
+                height={30}
+                alt="Logo"
+                className="m-0"
+              />
+            </Figure>
           </span>
 
           <span>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={this.syncProjects}
-              disabled={projectsSync}
-              className="mr-2"
-            >
-              Sync Projects{' '}
-              {projectsSync ? (
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-              ) : (
-                ''
-              )}
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={this.syncIssues}
-              disabled={issuesSync}
-            >
-              Sync Issues{' '}
-              {issuesSync ? (
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-              ) : (
-                ''
-              )}
-            </Button>
+            <Dropdown>
+              <Dropdown.Toggle variant="primary" id="navDropdown">
+                <i className="fa fa-bars" />
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <Figure className="m-0 d-flex justify-content-center">
+                  <Figure.Image
+                    src="/avatar.jpg"
+                    width={50}
+                    height={30}
+                    alt="Avatar"
+                    className="m-0"
+                  />
+                </Figure>
+                <Figure.Caption className="text-center">
+                  {user.email}
+                </Figure.Caption>
+                <Dropdown.Divider />
+                <Dropdown.Item href="#" onClick={this.handleVPIShow}>
+                  VPI Calculator
+                </Dropdown.Item>
+                <Dropdown.Item
+                  href="#"
+                  onClick={this.syncProjects}
+                  disabled={projectsSync}
+                >
+                  Sync Projects{' '}
+                  {projectsSync ? (
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    ''
+                  )}
+                </Dropdown.Item>
+                <Dropdown.Item
+                  href="#"
+                  onClick={this.syncIssues}
+                  disabled={issuesSync}
+                >
+                  Sync Issues{' '}
+                  {issuesSync ? (
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    ''
+                  )}
+                </Dropdown.Item>
+                <NavLink to="/profile">
+                  <Dropdown.Item as="span">Profile</Dropdown.Item>
+                </NavLink>
+                <NavLink to="/" onClick={this.logoutUser}>
+                  <Dropdown.Item as="span">Logout</Dropdown.Item>
+                </NavLink>
+              </Dropdown.Menu>
+            </Dropdown>
           </span>
         </nav>
 
