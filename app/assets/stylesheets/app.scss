@@ -25,3 +25,14 @@
     width: 20rem !important;
   }
 }
+
+#navDropdown {
+  &::after {
+    display: none;
+  }
+}
+
+nav {
+  border-bottom: solid 1px #ced4da;
+  background-color: #fff;
+}

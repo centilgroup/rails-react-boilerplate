@@ -4,7 +4,15 @@
 
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Form, Button, Figure } from 'react-bootstrap';
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  Button,
+  Figure,
+  Dropdown,
+} from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import { Redirect } from 'react-router';
 
@@ -114,21 +122,31 @@ export default class Profile extends Component {
       <section>
         <nav>
           <span>
-            <NavLink to="/" className="mr-2">
-              <Button variant="primary" size="sm">
-                Dashboard
-              </Button>
-            </NavLink>
-            <a href="/vpi-demo" className="mr-2">
-              <Button variant="primary" size="sm">
-                VPI
-              </Button>
-            </a>
-            <NavLink to="/" onClick={this.logoutUser}>
-              <Button variant="primary" size="sm">
-                Logout
-              </Button>
-            </NavLink>
+            <Figure className="m-0">
+              <Figure.Image
+                src="https://user-images.githubusercontent.com/38546045/87486176-f1a5f280-c5f7-11ea-90de-1e80393d15a0.png"
+                width={50}
+                height={30}
+                alt="Logo"
+                className="m-0"
+              />
+            </Figure>
+          </span>
+          <span>
+            <Dropdown>
+              <Dropdown.Toggle variant="primary" id="navDropdown">
+                <i className="fa fa-bars" />
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <NavLink to="/">
+                  <Dropdown.Item as="span">Dashboard</Dropdown.Item>
+                </NavLink>
+                <NavLink to="/" onClick={this.logoutUser}>
+                  <Dropdown.Item as="span">Logout</Dropdown.Item>
+                </NavLink>
+              </Dropdown.Menu>
+            </Dropdown>
           </span>
         </nav>
 
