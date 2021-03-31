@@ -30,3 +30,4 @@ json.boards @boards do |board|
 end
 json.min_max @min_max
 json.sortable_items @sortable_items
+json.vpi_by_project @vpi_by_project

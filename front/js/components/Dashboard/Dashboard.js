@@ -10,7 +10,6 @@ import {
   Card,
   ListGroup,
   Badge,
-  Button,
   Image,
   OverlayTrigger,
   Tooltip,
@@ -22,6 +21,7 @@ import {
   Collapse,
   Dropdown,
   Figure,
+  Table,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -79,6 +79,8 @@ export default class Dashboard extends Component {
       showActivitiesSection: true,
       sortableItems: ['vpi', 'wip', 'gauge', 'focus', 'activities'],
       user: {},
+      showProjectVPIs: false,
+      projectVPIs: [],
     };
   }
 
@@ -129,6 +131,7 @@ export default class Dashboard extends Component {
         boards,
         min_max,
         sortable_items,
+        vpi_by_project,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -206,6 +209,7 @@ export default class Dashboard extends Component {
         showVPISection,
         showActivitiesSection,
         sortableItems,
+        projectVPIs: vpi_by_project,
       });
     });
   };
@@ -258,6 +262,10 @@ export default class Dashboard extends Component {
   handleVPIClose = () => this.setState({ showVPI: false });
 
   handleVPIShow = () => this.setState({ showVPI: true });
+
+  handleProjectVPIsClose = () => this.setState({ showProjectVPIs: false });
+
+  handleProjectVPIsShow = () => this.setState({ showProjectVPIs: true });
 
   handleRD = (event) => {
     const { value } = event.target;
@@ -658,6 +666,23 @@ export default class Dashboard extends Component {
     });
   };
 
+  calculateVPI = (days, issues, rate) => {
+    if (days === null || issues === 0 || [0, null].includes(rate)) {
+      return '--';
+    }
+
+    return (days / (issues * rate)).toFixed(2);
+  };
+
+  projectName = (project_id) => {
+    const { projects } = this.state;
+    const filteredProject = projects.filter(
+      (project) => project.project_id === project_id,
+    );
+
+    return filteredProject[0].name;
+  };
+
   render() {
     const {
       issues,
@@ -695,6 +720,8 @@ export default class Dashboard extends Component {
       showActivitiesSection,
       sortableItems,
       user,
+      showProjectVPIs,
+      projectVPIs,
     } = this.state;
     const style = {
       height: 300,
@@ -1515,6 +1542,9 @@ export default class Dashboard extends Component {
                 <Dropdown.Item href="#" onClick={this.handleVPIShow}>
                   VPI Calculator
                 </Dropdown.Item>
+                <Dropdown.Item href="#" onClick={this.handleProjectVPIsShow}>
+                  VPI By Project
+                </Dropdown.Item>
                 <Dropdown.Item
                   href="#"
                   onClick={this.syncProjects}
@@ -1602,6 +1632,54 @@ export default class Dashboard extends Component {
                 {testVPI}
               </div>
             </Form.Group>
+          </Modal.Body>
+        </Modal>
+
+        <Modal
+          show={showProjectVPIs}
+          onHide={this.handleProjectVPIsClose}
+          backdrop="static"
+          keyboard={false}
+          size="lg"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>VPI By Project</Modal.Title>
+          </Modal.Header>
+          <Modal.Body style={{ maxHeight: '500px', overflowY: 'scroll' }}>
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Remaining Period (Days)</th>
+                  <th>Remaining Issues</th>
+                  <th>Average Completion Rate (Days)</th>
+                  <th>VPI</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectVPIs.map((vpi) => (
+                  <tr key={vpi.project_id}>
+                    <td>{this.projectName(vpi.project_id)}</td>
+                    <td>
+                      {vpi.remaining_days === null ? '--' : vpi.remaining_days}
+                    </td>
+                    <td>{vpi.remaining_issues}</td>
+                    <td>
+                      {vpi.average_time_to_close === null
+                        ? '--'
+                        : vpi.average_time_to_close}
+                    </td>
+                    <td>
+                      {this.calculateVPI(
+                        vpi.remaining_days,
+                        vpi.remaining_issues,
+                        vpi.average_time_to_close,
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
           </Modal.Body>
         </Modal>
 

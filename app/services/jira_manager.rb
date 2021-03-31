@@ -64,8 +64,8 @@ class JiraManager
     Board.where(project_id: @project.project_id, user_id: @user.id)
   end
 
-  def fetch_vpi_data
-    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
+  def fetch_vpi_data(project_id = @project.project_id)
+    issues = Issue.where(project_id: project_id, user_id: @user.id)
     done = %w[done closed]
     remaining_issues = issues.where.not("lower(status->>'name') IN (?)", done)
     done_issues = issues.where("lower(status->>'name') IN (?)", done)
@@ -83,10 +83,20 @@ class JiraManager
       end
 
     {
+      project_id: project_id,
       remaining_days: remaining_days,
       remaining_issues: remaining_issues.length,
       average_time_to_close: average_time_to_close
     }
+  end
+
+  def fetch_vpi_by_project
+    projects = Project.where(user_id: @user.id).order(id: :asc)
+    vpi_by_project = []
+    projects.each do |project|
+      vpi_by_project << fetch_vpi_data(project.project_id)
+    end
+    vpi_by_project
   end
 
   def fetch_epics
