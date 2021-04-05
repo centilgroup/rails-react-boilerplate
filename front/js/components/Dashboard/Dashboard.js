@@ -1096,6 +1096,15 @@ export default class Dashboard extends Component {
     ));
 
     const SortableItem = SortableElement(({ value }) => {
+      const sectionStyle = { position: 'relative' };
+      const helperStyle = {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        fontSize: '24px',
+        opacity: 0.5,
+      };
+
       if (value === 'wip') {
         return (
           <Row className="pt-4">
@@ -1135,7 +1144,23 @@ export default class Dashboard extends Component {
                   {this.renderMinMaxIcon(showWIPSection)}
                 </Card.Header>
                 <Collapse in={showWIPSection} className="wip">
-                  <Card.Body>{WIPChart}</Card.Body>
+                  <div style={sectionStyle}>
+                    <Card.Body>{WIPChart}</Card.Body>
+                    <OverlayTrigger
+                      key="wipHelper"
+                      placement="top"
+                      overlay={
+                        <Tooltip id="wipHelper">
+                          Work in Progress with limits
+                        </Tooltip>
+                      }
+                    >
+                      <i
+                        className="fa fa-question-circle m-3"
+                        style={helperStyle}
+                      />
+                    </OverlayTrigger>
+                  </div>
                 </Collapse>
               </Card>
             </Col>
@@ -1160,91 +1185,105 @@ export default class Dashboard extends Component {
                   {this.renderMinMaxIcon(showGaugeSection)}
                 </Card.Header>
                 <Collapse in={showGaugeSection}>
-                  <Card.Body>
-                    <Row>
-                      <Col xs={4}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title className="text-center">
-                              Backlog
-                            </Card.Title>
-                            <div className="d-flex align-items-center">
-                              <div className="legend left-legend" />
-                              <div>Backlog</div>
-                              <div className="ml-auto">Remaining</div>
-                              <div className="legend right-legend" />
-                            </div>
-                            <GaugeChart
-                              id="gauge_chart_dev"
-                              nrOfLevels={2}
-                              arcsLength={devArcLength}
-                              colors={['#e5e5e5', '#009cf0']}
-                              cornerRadius={0}
-                              arcWidth={0.1}
-                              arcPadding={0.02}
-                              hideText
-                              needleColor="#FFFFFF"
-                              needleBaseColor="#FFFFFF"
-                            />
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                      <Col xs={4}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title className="text-center">
-                              Development/QA/Test
-                            </Card.Title>
-                            <div className="d-flex align-items-center">
-                              <div className="legend left-legend" />
-                              <div>In Progress</div>
-                              <div className="ml-auto">Remaining</div>
-                              <div className="legend right-legend" />
-                            </div>
-                            <GaugeChart
-                              id="gauge_chart_qa"
-                              nrOfLevels={2}
-                              arcsLength={testArcLength}
-                              colors={['#e5e5e5', '#009cf0']}
-                              cornerRadius={0}
-                              arcWidth={0.1}
-                              arcPadding={0.02}
-                              hideText
-                              needleColor="#FFFFFF"
-                              needleBaseColor="#FFFFFF"
-                            />
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                      <Col xs={4}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title className="text-center">
-                              Deployment
-                            </Card.Title>
-                            <div className="d-flex align-items-center">
-                              <div className="legend left-legend" />
-                              <div>Done</div>
-                              <div className="ml-auto">Remaining</div>
-                              <div className="legend right-legend" />
-                            </div>
-                            <GaugeChart
-                              id="gauge_chart_deploy"
-                              nrOfLevels={2}
-                              arcsLength={deployArcLength}
-                              colors={['#e5e5e5', '#009cf0']}
-                              cornerRadius={0}
-                              arcWidth={0.1}
-                              arcPadding={0.02}
-                              hideText
-                              needleColor="#FFFFFF"
-                              needleBaseColor="#FFFFFF"
-                            />
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    </Row>
-                  </Card.Body>
+                  <div style={sectionStyle}>
+                    <Card.Body>
+                      <Row>
+                        <Col xs={4}>
+                          <Card>
+                            <Card.Body>
+                              <Card.Title className="text-center">
+                                Backlog
+                              </Card.Title>
+                              <div className="d-flex align-items-center">
+                                <div className="legend left-legend" />
+                                <div>Backlog</div>
+                                <div className="ml-auto">Remaining</div>
+                                <div className="legend right-legend" />
+                              </div>
+                              <GaugeChart
+                                id="gauge_chart_dev"
+                                nrOfLevels={2}
+                                arcsLength={devArcLength}
+                                colors={['#e5e5e5', '#009cf0']}
+                                cornerRadius={0}
+                                arcWidth={0.1}
+                                arcPadding={0.02}
+                                hideText
+                                needleColor="#FFFFFF"
+                                needleBaseColor="#FFFFFF"
+                              />
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                        <Col xs={4}>
+                          <Card>
+                            <Card.Body>
+                              <Card.Title className="text-center">
+                                Development/QA/Test
+                              </Card.Title>
+                              <div className="d-flex align-items-center">
+                                <div className="legend left-legend" />
+                                <div>In Progress</div>
+                                <div className="ml-auto">Remaining</div>
+                                <div className="legend right-legend" />
+                              </div>
+                              <GaugeChart
+                                id="gauge_chart_qa"
+                                nrOfLevels={2}
+                                arcsLength={testArcLength}
+                                colors={['#e5e5e5', '#009cf0']}
+                                cornerRadius={0}
+                                arcWidth={0.1}
+                                arcPadding={0.02}
+                                hideText
+                                needleColor="#FFFFFF"
+                                needleBaseColor="#FFFFFF"
+                              />
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                        <Col xs={4}>
+                          <Card>
+                            <Card.Body>
+                              <Card.Title className="text-center">
+                                Deployment
+                              </Card.Title>
+                              <div className="d-flex align-items-center">
+                                <div className="legend left-legend" />
+                                <div>Done</div>
+                                <div className="ml-auto">Remaining</div>
+                                <div className="legend right-legend" />
+                              </div>
+                              <GaugeChart
+                                id="gauge_chart_deploy"
+                                nrOfLevels={2}
+                                arcsLength={deployArcLength}
+                                colors={['#e5e5e5', '#009cf0']}
+                                cornerRadius={0}
+                                arcWidth={0.1}
+                                arcPadding={0.02}
+                                hideText
+                                needleColor="#FFFFFF"
+                                needleBaseColor="#FFFFFF"
+                              />
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                    <OverlayTrigger
+                      key="gaugeHelper"
+                      placement="top"
+                      overlay={
+                        <Tooltip id="gaugeHelper">Status Gauges</Tooltip>
+                      }
+                    >
+                      <i
+                        className="fa fa-question-circle m-3"
+                        style={helperStyle}
+                      />
+                    </OverlayTrigger>
+                  </div>
                 </Collapse>
               </Card>
             </Col>
@@ -1269,107 +1308,121 @@ export default class Dashboard extends Component {
                   {this.renderMinMaxIcon(showFocusSection)}
                 </Card.Header>
                 <Collapse in={showFocusSection}>
-                  <Card.Body>
-                    <Row>
-                      <Col xs={4}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title>Focus</Card.Title>
-                            <div className="focus">{listEpics}</div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                      <Col xs={8}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title>Commit Breakdown</Card.Title>
-                            <div className="d-flex justify-content-around align-items-center">
-                              <div className="commit-risk-chart-holder">
-                                <Doughnut
-                                  data={{
-                                    datasets: [
-                                      {
-                                        data: [60, 35, 5],
-                                        backgroundColor: [
-                                          'rgb(94,196,182)',
-                                          'rgb(241,203,73)',
-                                          'rgb(254,139,169)',
-                                        ],
+                  <div style={sectionStyle}>
+                    <Card.Body>
+                      <Row>
+                        <Col xs={4}>
+                          <Card>
+                            <Card.Body>
+                              <Card.Title>Focus</Card.Title>
+                              <div className="focus">{listEpics}</div>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                        <Col xs={8}>
+                          <Card>
+                            <Card.Body>
+                              <Card.Title>Commit Breakdown</Card.Title>
+                              <div className="d-flex justify-content-around align-items-center">
+                                <div className="commit-risk-chart-holder">
+                                  <Doughnut
+                                    data={{
+                                      datasets: [
+                                        {
+                                          data: [60, 35, 5],
+                                          backgroundColor: [
+                                            'rgb(94,196,182)',
+                                            'rgb(241,203,73)',
+                                            'rgb(254,139,169)',
+                                          ],
+                                        },
+                                      ],
+                                      labels: ['Low', 'Medium', 'High'],
+                                    }}
+                                    width={224}
+                                    height={224}
+                                    options={{
+                                      cutoutPercentage: 80,
+                                      legend: {
+                                        display: false,
                                       },
-                                    ],
-                                    labels: ['Low', 'Medium', 'High'],
-                                  }}
-                                  width={224}
-                                  height={224}
-                                  options={{
-                                    cutoutPercentage: 80,
-                                    legend: {
-                                      display: false,
-                                    },
-                                    tooltips: {
-                                      enabled: true,
-                                    },
-                                  }}
-                                />
-                                <div className="total-commit">
-                                  <div className="number">18</div>
-                                  <div className="text">Total</div>
-                                  <div className="text">Commits</div>
-                                </div>
-                              </div>
-                              <div className="risk-commit">
-                                <div className="mb-4">
-                                  <div className="mb-2">Low Risk</div>
-                                  <div className="d-flex align-items-center">
-                                    <div className="risk-commit-value low mr-2">
-                                      11 (61%)
-                                    </div>
-                                    <div className="mr-1 up text-success">
-                                      <i className="fa fa-arrow-up mr-1" />
-                                      83%
-                                    </div>
-                                    <div className="text-secondary">
-                                      since last PI
-                                    </div>
+                                      tooltips: {
+                                        enabled: true,
+                                      },
+                                    }}
+                                  />
+                                  <div className="total-commit">
+                                    <div className="number">18</div>
+                                    <div className="text">Total</div>
+                                    <div className="text">Commits</div>
                                   </div>
                                 </div>
-                                <div className="mb-4">
-                                  <div className="mb-2">Medium Risk</div>
-                                  <div className="d-flex align-items-center">
-                                    <div className="risk-commit-value medium mr-2">
-                                      7 (39%)
-                                    </div>
-                                    <div className="mr-1 down text-danger">
-                                      <i className="fa fa-arrow-down mr-1" />
-                                      82%
-                                    </div>
-                                    <div className="text-secondary">
-                                      since last PI
+                                <div className="risk-commit">
+                                  <div className="mb-4">
+                                    <div className="mb-2">Low Risk</div>
+                                    <div className="d-flex align-items-center">
+                                      <div className="risk-commit-value low mr-2">
+                                        11 (61%)
+                                      </div>
+                                      <div className="mr-1 up text-success">
+                                        <i className="fa fa-arrow-up mr-1" />
+                                        83%
+                                      </div>
+                                      <div className="text-secondary">
+                                        since last PI
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                                <div>
-                                  <div className="mb-2">High Risk</div>
-                                  <div className="d-flex align-items-center">
-                                    <div className="risk-commit-value high mr-2">
-                                      1 (0%)
+                                  <div className="mb-4">
+                                    <div className="mb-2">Medium Risk</div>
+                                    <div className="d-flex align-items-center">
+                                      <div className="risk-commit-value medium mr-2">
+                                        7 (39%)
+                                      </div>
+                                      <div className="mr-1 down text-danger">
+                                        <i className="fa fa-arrow-down mr-1" />
+                                        82%
+                                      </div>
+                                      <div className="text-secondary">
+                                        since last PI
+                                      </div>
                                     </div>
-                                    <div className="mr-1 down text-danger">
-                                      <i className="fa fa-arrow-down mr-1" />
-                                      100%
-                                    </div>
-                                    <div className="text-secondary">
-                                      since last PI
+                                  </div>
+                                  <div>
+                                    <div className="mb-2">High Risk</div>
+                                    <div className="d-flex align-items-center">
+                                      <div className="risk-commit-value high mr-2">
+                                        1 (0%)
+                                      </div>
+                                      <div className="mr-1 down text-danger">
+                                        <i className="fa fa-arrow-down mr-1" />
+                                        100%
+                                      </div>
+                                      <div className="text-secondary">
+                                        since last PI
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    </Row>
-                  </Card.Body>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                    <OverlayTrigger
+                      key="focusHelper"
+                      placement="top"
+                      overlay={
+                        <Tooltip id="focusHelper">Focus & Risk Commit</Tooltip>
+                      }
+                    >
+                      <i
+                        className="fa fa-question-circle m-3"
+                        style={helperStyle}
+                      />
+                    </OverlayTrigger>
+                  </div>
                 </Collapse>
               </Card>
             </Col>
@@ -1394,40 +1447,54 @@ export default class Dashboard extends Component {
                   {this.renderMinMaxIcon(showVPISection)}
                 </Card.Header>
                 <Collapse in={showVPISection}>
-                  <Card.Body className="text-center">
-                    <Card.Text className="text-info">
-                      {healthRecommendation}
-                    </Card.Text>
-                    <div className="d-flex align-items-center justify-content-around">
-                      <div className="pt-2">
-                        <div style={{ fontSize: '32px' }}>
-                          {remaining_days === null ? '--' : remaining_days}
+                  <div style={sectionStyle}>
+                    <Card.Body className="text-center">
+                      <Card.Text className="text-info">
+                        {healthRecommendation}
+                      </Card.Text>
+                      <div className="d-flex align-items-center justify-content-around">
+                        <div className="pt-2">
+                          <div style={{ fontSize: '32px' }}>
+                            {remaining_days === null ? '--' : remaining_days}
+                          </div>
+                          <div className="mt-1">Remaining Period (Days)</div>
                         </div>
-                        <div className="mt-1">Remaining Period (Days)</div>
-                      </div>
-                      <div className="pt-2">
-                        <div style={{ fontSize: '32px' }}>
-                          {remaining_issues}
+                        <div className="pt-2">
+                          <div style={{ fontSize: '32px' }}>
+                            {remaining_issues}
+                          </div>
+                          <div className="mt-1">Remaining Issues</div>
                         </div>
-                        <div className="mt-1">Remaining Issues</div>
-                      </div>
-                      <div className="pt-2">
-                        <div style={{ fontSize: '32px' }}>
-                          {average_time_to_close === null
-                            ? '--'
-                            : average_time_to_close}
+                        <div className="pt-2">
+                          <div style={{ fontSize: '32px' }}>
+                            {average_time_to_close === null
+                              ? '--'
+                              : average_time_to_close}
+                          </div>
+                          <div className="mt-1">
+                            Average Completion Rate (Days)
+                          </div>
                         </div>
-                        <div className="mt-1">
-                          Average Completion Rate (Days)
+                        <div className="pt-2">
+                          {VPIChart}
+                          <div style={{ fontSize: '32px' }}>{VPI}</div>
+                          <div className="mt-1">VPI</div>
                         </div>
                       </div>
-                      <div className="pt-2">
-                        {VPIChart}
-                        <div style={{ fontSize: '32px' }}>{VPI}</div>
-                        <div className="mt-1">VPI</div>
-                      </div>
-                    </div>
-                  </Card.Body>
+                    </Card.Body>
+                    <OverlayTrigger
+                      key="vpiHelper"
+                      placement="top"
+                      overlay={
+                        <Tooltip id="vpiHelper">Project Flow Health</Tooltip>
+                      }
+                    >
+                      <i
+                        className="fa fa-question-circle m-3"
+                        style={helperStyle}
+                      />
+                    </OverlayTrigger>
+                  </div>
                 </Collapse>
               </Card>
             </Col>
@@ -1455,33 +1522,49 @@ export default class Dashboard extends Component {
                   {this.renderMinMaxIcon(showActivitiesSection)}
                 </Card.Header>
                 <Collapse in={showActivitiesSection}>
-                  <Card.Body>
-                    <Row>
-                      <Col xs={8}>
-                        <Card>
-                          <Card.Body>
-                            <Card.Title>Activities</Card.Title>
-                            <ListGroup
-                              variant="flush"
-                              style={style}
-                              id="jiraActivity"
-                            >
-                              <InfiniteScroll
-                                dataLength={issues.length}
-                                next={this.fetchMoreData}
-                                hasMore={jiraActivityHasMore}
-                                loader={<Skeleton count={10} />}
-                                scrollableTarget="jiraActivity"
+                  <div style={sectionStyle}>
+                    <Card.Body>
+                      <Row>
+                        <Col xs={8}>
+                          <Card>
+                            <Card.Body>
+                              <Card.Title>Activities</Card.Title>
+                              <ListGroup
+                                variant="flush"
+                                style={style}
+                                id="jiraActivity"
                               >
-                                {listIssues}
-                              </InfiniteScroll>
-                            </ListGroup>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                      <Col xs={4}>{this.renderAverageTimes()}</Col>
-                    </Row>
-                  </Card.Body>
+                                <InfiniteScroll
+                                  dataLength={issues.length}
+                                  next={this.fetchMoreData}
+                                  hasMore={jiraActivityHasMore}
+                                  loader={<Skeleton count={10} />}
+                                  scrollableTarget="jiraActivity"
+                                >
+                                  {listIssues}
+                                </InfiniteScroll>
+                              </ListGroup>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                        <Col xs={4}>{this.renderAverageTimes()}</Col>
+                      </Row>
+                    </Card.Body>
+                    <OverlayTrigger
+                      key="activitiesHelper"
+                      placement="top"
+                      overlay={
+                        <Tooltip id="activitiesHelper">
+                          Activities & Time Spent
+                        </Tooltip>
+                      }
+                    >
+                      <i
+                        className="fa fa-question-circle m-3"
+                        style={helperStyle}
+                      />
+                    </OverlayTrigger>
+                  </div>
                 </Collapse>
               </Card>
             </Col>
