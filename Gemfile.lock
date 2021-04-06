@@ -157,7 +157,6 @@ GEM
     marcel (1.0.1)
     method_source (1.0.0)
     mini_mime (1.1.0)
-    mini_portile2 (2.5.0)
     minitest (5.14.4)
     multipart-post (2.1.1)
     mustermann (1.1.1)
@@ -168,8 +167,7 @@ GEM
       net-ssh (>= 2.6.5, < 7.0.0)
     net-ssh (6.1.0)
     nio4r (2.5.7)
-    nokogiri (1.11.2)
-      mini_portile2 (~> 2.5.0)
+    nokogiri (1.11.2-x86_64-darwin)
       racc (~> 1.4)
     oauth (0.5.6)
     orm_adapter (0.5.0)
@@ -287,7 +285,7 @@ GEM
     zeitwerk (2.4.2)
 
 PLATFORMS
-  ruby
+  x86_64-darwin-20
 
 DEPENDENCIES
   active_model_otp
@@ -323,4 +321,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.1.4
+   2.2.6
