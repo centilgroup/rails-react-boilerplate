@@ -67,13 +67,13 @@ after 'deploy:updated', 'deploy:run_migrations'
 # after 'deploy:starting', 'sidekiq:quiet'
 # after 'deploy:published', 'sidekiq:restart'
 after 'deploy:published', 'assets:deploy'
-after 'deploy:published', 'deploy:restart_server'
+# after 'deploy:published', 'deploy:restart_server'
 
 namespace :assets do
   desc 'Prepares static assets'
   task :deploy do
     on roles(:app) do
-      execute "cd #{current_path} && rm -rf node_modules && ~/.rvm/bin/rvm default do bundle exec rails assets:clobber RAILS_ENV=#{fetch(:rails_env)} && yarn && ~/.rvm/bin/rvm default do bundle exec rake assets:precompile RAILS_ENV=#{fetch(:rails_env)}"
+      execute "cd #{current_path} && rm -rf node_modules && ~/.rvm/bin/rvm default do bundle exec rails assets:clobber RAILS_ENV=#{fetch(:rails_env)} && npm install && ~/.rvm/bin/rvm default do bundle exec rake assets:precompile RAILS_ENV=#{fetch(:rails_env)}"
     end
   end
 end
