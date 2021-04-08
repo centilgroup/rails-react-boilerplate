@@ -24,13 +24,13 @@ default: &default
 
 development:
   <<: *default
-  database: idb
+  # database: idb
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
   # When left blank, postgres will use the default role. This is
   # the same name as the operating system user that initialized the database.
-  username: postgres
+  # username: postgres
 
   # The password associated with the postgres role (username).
   # password: intern123
@@ -38,7 +38,10 @@ development:
   # Connect on a TCP socket. Omitted by default since the client uses a
   # domain socket that doesn't need configuration. Windows does not have
   # domain sockets, so uncomment these lines.
-  host: localhost
+  # host: localhost
+  database: rails-react-bp-prod
+  username: dbmasteruser
+  password: DeltaAir90!
 
   # The TCP port the server listens on. Defaults to 5432.
   # If your server runs on a different port number, change accordingly.
@@ -56,9 +59,9 @@ development:
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
-test:
-  <<: *default
-  database: rails-react-bp-test
+# test:
+#   <<: *default
+#   database: rails-react-bp-test
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -83,6 +86,6 @@ production:
   <<: *default
   database: rails-react-bp-prod
   username: dbmasteruser
-  password: 0P63W94Fp}He#B66d~JBLa~G%Xpxu{ME
+  password: DeltaAir90!
 
 
