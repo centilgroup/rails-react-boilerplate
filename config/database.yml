@@ -82,5 +82,7 @@ test:
 production:
   <<: *default
   database: rails-react-bp-prod
-  username: rails-react-boilerplate
-  password: <%= ENV['RAILS-REACT-BOILERPLATE_DATABASE_PASSWORD'] %>
+  username: dbmasteruser
+  password: 0P63W94Fp}He#B66d~JBLa~G%Xpxu{ME
+
+
