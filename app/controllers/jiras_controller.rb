@@ -18,6 +18,7 @@ class JirasController < ApplicationController
     @boards = @jira_manager.fetch_board_data
     @min_max = current_user.min_max
     @sortable_items = current_user.sortable_items
+    @vpi_by_project = @jira_manager.fetch_vpi_by_project
   end
 
   # GET /jiras/1
