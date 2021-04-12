@@ -35,6 +35,7 @@ import {
 } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
 import formattedTime from '../../utils/timeFormatter';
+import Footer from '../Shared/Footer';
 
 export default class Dashboard extends Component {
   constructor(props) {
@@ -1766,7 +1767,7 @@ export default class Dashboard extends Component {
           </Modal.Body>
         </Modal>
 
-        <Container className="pt-5">
+        <Container className="pt-5 mb-5">
           <Row className="pt-4">
             <Col xs={12}>
               <Form>
@@ -1839,9 +1840,7 @@ export default class Dashboard extends Component {
           {/* </Row> */}
         </Container>
 
-        <hr />
-
-        <div className="m-3">Centil, LLC 2021.</div>
+        <Footer />
       </section>
     );
   }

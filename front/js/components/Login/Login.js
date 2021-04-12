@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
+import Footer from '../Shared/Footer';
 
 export default class Login extends Component {
   constructor(props) {
@@ -15,6 +16,7 @@ export default class Login extends Component {
       email: '',
       password: '',
       redirect: '',
+      initialConfig: false,
     };
   }
 
@@ -30,9 +32,10 @@ export default class Login extends Component {
     axios.post('/users/pre_otp.json', data).then((response) => {
       const { auth_token, user } = response.data;
       if (auth_token) {
+        const initialConfig = user.initial_config;
         localStorage.setItem('auth_token', auth_token);
         localStorage.setItem('user', JSON.stringify(user));
-        this.setState({ redirect: 'no_otp' });
+        this.setState({ redirect: 'no_otp', initialConfig });
       } else {
         this.setState({ redirect: 'otp' });
       }
@@ -54,15 +57,19 @@ export default class Login extends Component {
   };
 
   render() {
-    const { email, password, redirect } = this.state;
+    const { email, password, redirect, initialConfig } = this.state;
 
     if (redirect === 'otp') {
       const url = `/otp?email=${email}`;
       return <Redirect to={url} />;
     }
 
-    if (redirect === 'no_otp') {
+    if (redirect === 'no_otp' && initialConfig === true) {
       return <Redirect to="/" />;
+    }
+
+    if (redirect === 'no_otp' && initialConfig !== true) {
+      return <Redirect to="/initial-config-step-1" />;
     }
 
     return (
@@ -101,16 +108,13 @@ export default class Login extends Component {
             <Link to="/register">
               <span className="nav-link">New user registration</span>
             </Link>
-            <span className="nav-link"> | </span>
             <Link to="/password">
               <span className="nav-link">Forgot password?</span>
             </Link>
           </div>
-
-          <hr />
-
-          <div className="m-3">Centil, LLC 2021.</div>
         </fieldset>
+
+        <Footer />
       </article>
     );
   }

@@ -83,7 +83,7 @@ class Users::SessionsController < Devise::SessionsController
     params.require(:user).permit(
       :email, :password, :first_name, :last_name, :username,
       :company_name, :jira_url, :api_version, :jira_username,
-      :jira_password, :two_factor_auth, :avatar
+      :jira_password, :two_factor_auth, :avatar, :initial_config
     )
   end
 

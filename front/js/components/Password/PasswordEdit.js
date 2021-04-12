@@ -5,6 +5,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router';
 import axios from 'axios';
+import Footer from '../Shared/Footer';
 
 export default class PasswordEdit extends Component {
   constructor(props) {
@@ -97,11 +98,9 @@ export default class PasswordEdit extends Component {
               change my password
             </button>
           </div>
-
-          <hr />
-
-          <div className="m-3">Centil, LLC 2021.</div>
         </fieldset>
+
+        <Footer />
       </article>
     );
   }

@@ -15,6 +15,9 @@ import PasswordEdit from '../Password/PasswordEdit';
 import OneTimePassword from '../Login/OneTimePassword';
 import Profile from '../Profile/Profile';
 import Dashboard from '../Dashboard/Dashboard';
+import LinkJira from '../Settings/LinkJira';
+import SyncProjects from '../Settings/SyncProjects';
+import SyncIssues from '../Settings/SyncIssues';
 
 export default class App extends Component {
   constructor(props) {
@@ -63,6 +66,24 @@ export default class App extends Component {
                 path="/profile"
                 exact
                 component={Profile}
+                meta={{ auth: true }}
+              />
+              <GuardedRoute
+                path="/initial-config-step-1"
+                exact
+                component={LinkJira}
+                meta={{ auth: true }}
+              />
+              <GuardedRoute
+                path="/initial-config-step-2"
+                exact
+                component={SyncProjects}
+                meta={{ auth: true }}
+              />
+              <GuardedRoute
+                path="/initial-config-step-3"
+                exact
+                component={SyncIssues}
                 meta={{ auth: true }}
               />
               <GuardedRoute
