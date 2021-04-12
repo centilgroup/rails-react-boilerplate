@@ -45,6 +45,8 @@ export default class Dashboard extends Component {
       selectedIssueId: '',
       epics: [],
       epicIssues: [],
+      bugs: [],
+      tasks: [],
       projects: [],
       devArcLength: [0.7, 0.3],
       testArcLength: [0.2, 0.8],
@@ -56,8 +58,8 @@ export default class Dashboard extends Component {
       showAlert: false,
       projectsSync: false,
       issuesSync: false,
-      epicLeadTime: '',
-      hoveredEpic: '',
+      leadTime: '',
+      hoveredFocus: '',
       remaining_days: null,
       remaining_issues: 0,
       average_time_to_close: null,
@@ -123,6 +125,8 @@ export default class Dashboard extends Component {
         grand_total,
         epics,
         epic_issues,
+        bugs,
+        tasks,
         projects,
         remaining_days,
         remaining_issues,
@@ -194,6 +198,8 @@ export default class Dashboard extends Component {
         deployArcLength: [deployPercent, deployPendingPercent],
         epics,
         epicIssues: epic_issues,
+        bugs,
+        tasks,
         projects,
         remaining_days,
         remaining_issues,
@@ -255,9 +261,9 @@ export default class Dashboard extends Component {
     this.setState({ selectedIssueId: issueId });
   };
 
-  clearEpicLeadTime = (event) => {
+  clearLeadTime = (event) => {
     event.stopPropagation();
-    this.setState({ hoveredEpic: '', epicLeadTime: '' });
+    this.setState({ hoveredFocus: '', leadTime: '' });
   };
 
   handleVPIClose = () => this.setState({ showVPI: false });
@@ -344,7 +350,7 @@ export default class Dashboard extends Component {
   };
 
   displayLeadTime = (epicId) => {
-    this.setState({ hoveredEpic: epicId, epicLeadTime: 'Loading...' });
+    this.setState({ hoveredFocus: epicId, leadTime: 'Loading...' });
 
     axios
       .get(`/jiras/${epicId}.json`)
@@ -405,21 +411,21 @@ export default class Dashboard extends Component {
         }
 
         this.setState({
-          hoveredEpic: epicId,
-          epicLeadTime: formattedTime(leadTime),
+          hoveredFocus: epicId,
+          leadTime: formattedTime(leadTime),
         });
       })
       .finally(() => {});
   };
 
-  renderFocus = (epic, index) => {
+  renderFocus = (focus, index) => {
     const colors = ['new-work', 'legacy-refactor', 'help-others', 'churn'];
-    const { epicIssues, epicLeadTime, hoveredEpic } = this.state;
+    const { epicIssues, leadTime, hoveredFocus } = this.state;
     const filteredEpicIssues = epicIssues.filter(
-      (epicIssue) => epicIssue.epic_link === epic.key,
+      (epicIssue) => epicIssue.epic_link === focus.key,
     );
     let percentage;
-    if (epic.status.name === 'Done') {
+    if (focus.status.name === 'Done') {
       percentage = 100;
     } else if (filteredEpicIssues.length > 0) {
       const doneEpicIssues = filteredEpicIssues.filter(
@@ -435,22 +441,22 @@ export default class Dashboard extends Component {
     return (
       <div
         className="mb-4"
-        key={epic.key}
-        onClick={() => this.displayLeadTime(epic.issue_id)}
+        key={focus.key}
+        onClick={() => this.displayLeadTime(focus.issue_id)}
         style={{ cursor: 'pointer' }}
         aria-hidden="true"
       >
         <div className="mb-2 d-flex justify-content-between">
-          <div>{epic.epic_name}</div>
-          <div className={`${hoveredEpic === epic.issue_id ? '' : 'd-none'}`}>
-            [Lead Time: {epicLeadTime}]
+          <div>{focus.epic_name || focus.key}</div>
+          <div className={`${hoveredFocus === focus.issue_id ? '' : 'd-none'}`}>
+            [Lead Time: {leadTime}]
             <i
               className="fa fa-times ml-1"
-              onClick={this.clearEpicLeadTime}
+              onClick={this.clearLeadTime}
               aria-hidden="true"
             />
           </div>
-          <div className={`${hoveredEpic === epic.issue_id ? 'd-none' : ''}`}>
+          <div className={`${hoveredFocus === focus.issue_id ? 'd-none' : ''}`}>
             {percentage}%
           </div>
         </div>
@@ -688,6 +694,8 @@ export default class Dashboard extends Component {
     const {
       issues,
       epics,
+      bugs,
+      tasks,
       projects,
       redirect,
       devArcLength,
@@ -735,6 +743,8 @@ export default class Dashboard extends Component {
     };
     let listIssues;
     let listEpics;
+    let listBugs;
+    let listTasks;
     let alert;
     let VPI;
     let healthRecommendation;
@@ -799,6 +809,18 @@ export default class Dashboard extends Component {
       listEpics = epics.map((epic, index) => this.renderFocus(epic, index));
     } else {
       listEpics = <div>No epics found.</div>;
+    }
+
+    if (bugs.length > 0) {
+      listBugs = bugs.map((bug, index) => this.renderFocus(bug, index));
+    } else {
+      listBugs = <div>No bugs found.</div>;
+    }
+
+    if (tasks.length > 0) {
+      listTasks = tasks.map((task, index) => this.renderFocus(task, index));
+    } else {
+      listTasks = <div>No tasks found.</div>;
     }
 
     if (redirect) {
@@ -1304,7 +1326,7 @@ export default class Dashboard extends Component {
                   }
                 >
                   <span>
-                    <DragHandle /> Focus & Risk Commit
+                    <DragHandle /> Focus
                   </span>
                   {this.renderMinMaxIcon(showFocusSection)}
                 </Card.Header>
@@ -1315,107 +1337,125 @@ export default class Dashboard extends Component {
                         <Col xs={4}>
                           <Card>
                             <Card.Body>
-                              <Card.Title>Focus</Card.Title>
+                              <Card.Title>Epics</Card.Title>
                               <div className="focus">{listEpics}</div>
                             </Card.Body>
                           </Card>
                         </Col>
-                        <Col xs={8}>
+                        <Col xs={4}>
                           <Card>
                             <Card.Body>
-                              <Card.Title>Commit Breakdown</Card.Title>
-                              <div className="d-flex justify-content-around align-items-center">
-                                <div className="commit-risk-chart-holder">
-                                  <Doughnut
-                                    data={{
-                                      datasets: [
-                                        {
-                                          data: [60, 35, 5],
-                                          backgroundColor: [
-                                            'rgb(94,196,182)',
-                                            'rgb(241,203,73)',
-                                            'rgb(254,139,169)',
-                                          ],
-                                        },
-                                      ],
-                                      labels: ['Low', 'Medium', 'High'],
-                                    }}
-                                    width={224}
-                                    height={224}
-                                    options={{
-                                      cutoutPercentage: 80,
-                                      legend: {
-                                        display: false,
-                                      },
-                                      tooltips: {
-                                        enabled: true,
-                                      },
-                                    }}
-                                  />
-                                  <div className="total-commit">
-                                    <div className="number">18</div>
-                                    <div className="text">Total</div>
-                                    <div className="text">Commits</div>
-                                  </div>
-                                </div>
-                                <div className="risk-commit">
-                                  <div className="mb-4">
-                                    <div className="mb-2">Low Risk</div>
-                                    <div className="d-flex align-items-center">
-                                      <div className="risk-commit-value low mr-2">
-                                        11 (61%)
-                                      </div>
-                                      <div className="mr-1 up text-success">
-                                        <i className="fa fa-arrow-up mr-1" />
-                                        83%
-                                      </div>
-                                      <div className="text-secondary">
-                                        since last PI
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="mb-4">
-                                    <div className="mb-2">Medium Risk</div>
-                                    <div className="d-flex align-items-center">
-                                      <div className="risk-commit-value medium mr-2">
-                                        7 (39%)
-                                      </div>
-                                      <div className="mr-1 down text-danger">
-                                        <i className="fa fa-arrow-down mr-1" />
-                                        82%
-                                      </div>
-                                      <div className="text-secondary">
-                                        since last PI
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <div className="mb-2">High Risk</div>
-                                    <div className="d-flex align-items-center">
-                                      <div className="risk-commit-value high mr-2">
-                                        1 (0%)
-                                      </div>
-                                      <div className="mr-1 down text-danger">
-                                        <i className="fa fa-arrow-down mr-1" />
-                                        100%
-                                      </div>
-                                      <div className="text-secondary">
-                                        since last PI
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
+                              <Card.Title>Bugs</Card.Title>
+                              <div className="focus">{listBugs}</div>
                             </Card.Body>
                           </Card>
                         </Col>
+                        <Col xs={4}>
+                          <Card>
+                            <Card.Body>
+                              <Card.Title>Tasks</Card.Title>
+                              <div className="focus">{listTasks}</div>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                        {/* <Col xs={8}> */}
+                        {/*  <Card> */}
+                        {/*    <Card.Body> */}
+                        {/*      <Card.Title>Commit Breakdown</Card.Title> */}
+                        {/*      <div className="d-flex justify-content-around align-items-center"> */}
+                        {/*        <div className="commit-risk-chart-holder"> */}
+                        {/*          <Doughnut */}
+                        {/*            data={{ */}
+                        {/*              datasets: [ */}
+                        {/*                { */}
+                        {/*                  data: [60, 35, 5], */}
+                        {/*                  backgroundColor: [ */}
+                        {/*                    'rgb(94,196,182)', */}
+                        {/*                    'rgb(241,203,73)', */}
+                        {/*                    'rgb(254,139,169)', */}
+                        {/*                  ], */}
+                        {/*                }, */}
+                        {/*              ], */}
+                        {/*              labels: ['Low', 'Medium', 'High'], */}
+                        {/*            }} */}
+                        {/*            width={224} */}
+                        {/*            height={224} */}
+                        {/*            options={{ */}
+                        {/*              cutoutPercentage: 80, */}
+                        {/*              legend: { */}
+                        {/*                display: false, */}
+                        {/*              }, */}
+                        {/*              tooltips: { */}
+                        {/*                enabled: true, */}
+                        {/*              }, */}
+                        {/*            }} */}
+                        {/*          /> */}
+                        {/*          <div className="total-commit"> */}
+                        {/*            <div className="number">18</div> */}
+                        {/*            <div className="text">Total</div> */}
+                        {/*            <div className="text">Commits</div> */}
+                        {/*          </div> */}
+                        {/*        </div> */}
+                        {/*        <div className="risk-commit"> */}
+                        {/*          <div className="mb-4"> */}
+                        {/*            <div className="mb-2">Low Risk</div> */}
+                        {/*            <div className="d-flex align-items-center"> */}
+                        {/*              <div className="risk-commit-value low mr-2"> */}
+                        {/*                11 (61%) */}
+                        {/*              </div> */}
+                        {/*              <div className="mr-1 up text-success"> */}
+                        {/*                <i className="fa fa-arrow-up mr-1" /> */}
+                        {/*                83% */}
+                        {/*              </div> */}
+                        {/*              <div className="text-secondary"> */}
+                        {/*                since last PI */}
+                        {/*              </div> */}
+                        {/*            </div> */}
+                        {/*          </div> */}
+                        {/*          <div className="mb-4"> */}
+                        {/*            <div className="mb-2">Medium Risk</div> */}
+                        {/*            <div className="d-flex align-items-center"> */}
+                        {/*              <div className="risk-commit-value medium mr-2"> */}
+                        {/*                7 (39%) */}
+                        {/*              </div> */}
+                        {/*              <div className="mr-1 down text-danger"> */}
+                        {/*                <i className="fa fa-arrow-down mr-1" /> */}
+                        {/*                82% */}
+                        {/*              </div> */}
+                        {/*              <div className="text-secondary"> */}
+                        {/*                since last PI */}
+                        {/*              </div> */}
+                        {/*            </div> */}
+                        {/*          </div> */}
+                        {/*          <div> */}
+                        {/*            <div className="mb-2">High Risk</div> */}
+                        {/*            <div className="d-flex align-items-center"> */}
+                        {/*              <div className="risk-commit-value high mr-2"> */}
+                        {/*                1 (0%) */}
+                        {/*              </div> */}
+                        {/*              <div className="mr-1 down text-danger"> */}
+                        {/*                <i className="fa fa-arrow-down mr-1" /> */}
+                        {/*                100% */}
+                        {/*              </div> */}
+                        {/*              <div className="text-secondary"> */}
+                        {/*                since last PI */}
+                        {/*              </div> */}
+                        {/*            </div> */}
+                        {/*          </div> */}
+                        {/*        </div> */}
+                        {/*      </div> */}
+                        {/*    </Card.Body> */}
+                        {/*  </Card> */}
+                        {/* </Col> */}
                       </Row>
                     </Card.Body>
                     <OverlayTrigger
                       key="focusHelper"
                       placement="top"
                       overlay={
-                        <Tooltip id="focusHelper">Focus & Risk Commit</Tooltip>
+                        <Tooltip id="focusHelper">
+                          Focus - Epics, Bugs & Tasks
+                        </Tooltip>
                       }
                     >
                       <i

@@ -14,6 +14,8 @@ class JirasController < ApplicationController
   def stat
     @stat = @jira_manager.fetch_gas_gauge_data
     @epics, @epic_issues = @jira_manager.fetch_epics
+    @bugs = @jira_manager.fetch_bugs
+    @tasks = @jira_manager.fetch_tasks
     @vpi = @jira_manager.fetch_vpi_data
     @boards = @jira_manager.fetch_board_data
     @min_max = current_user.min_max

@@ -107,6 +107,16 @@ class JiraManager
     [epics, epic_issues]
   end
 
+  def fetch_bugs
+    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
+    issues.where("issue_type->>'name' = 'Bug'")
+  end
+
+  def fetch_tasks
+    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
+    issues.where("issue_type->>'name' = 'Task'")
+  end
+
   def sync_projects
     jira_projects = @client.Project.all
     jira_boards = @client.Board.all
