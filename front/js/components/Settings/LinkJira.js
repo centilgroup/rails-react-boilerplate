@@ -109,9 +109,9 @@ export default class LinkJira extends Component {
               </Dropdown.Toggle>
 
               <Dropdown.Menu>
-                <NavLink to="/login" onClick={this.logoutUser}>
-                  <Dropdown.Item as="span">Logout</Dropdown.Item>
-                </NavLink>
+                <Dropdown.Item href="#" onClick={this.logoutUser}>
+                  Logout
+                </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </span>

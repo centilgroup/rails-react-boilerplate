@@ -143,9 +143,9 @@ export default class Profile extends Component {
                 <NavLink to="/">
                   <Dropdown.Item as="span">Dashboard</Dropdown.Item>
                 </NavLink>
-                <NavLink to="/" onClick={this.logoutUser}>
-                  <Dropdown.Item as="span">Logout</Dropdown.Item>
-                </NavLink>
+                <Dropdown.Item href="#" onClick={this.logoutUser}>
+                  Logout
+                </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </span>

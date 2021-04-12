@@ -1668,9 +1668,9 @@ export default class Dashboard extends Component {
                 <NavLink to="/profile">
                   <Dropdown.Item as="span">Profile</Dropdown.Item>
                 </NavLink>
-                <NavLink to="/" onClick={this.logoutUser}>
-                  <Dropdown.Item as="span">Logout</Dropdown.Item>
-                </NavLink>
+                <Dropdown.Item href="#" onClick={this.logoutUser}>
+                  Logout
+                </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </span>
