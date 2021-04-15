@@ -117,6 +117,42 @@ class JiraManager
     issues.where("issue_type->>'name' = 'Task'")
   end
 
+  def fetch_lead_time
+    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
+    to_do = ["backlog", "to do", "open", "selected for development"]
+    wip = ["in progress"]
+    qa = ["review", "qa", "ready for review", "in review"]
+    done = %w[done closed]
+    to_do_lt = []
+    wip_lt = []
+    qa_lt = []
+    done_lt = []
+
+    issues.each do |issue|
+      to_do_days = 0
+      wip_days = 0
+      qa_days = 0
+      done_days = 0
+      issue.status_transitions.each do |transition|
+        to_do_days += transition["lead_time"] if to_do.include? transition["from_string"].downcase
+        wip_days += transition["lead_time"] if wip.include? transition["from_string"].downcase
+        qa_days += transition["lead_time"] if qa.include? transition["from_string"].downcase
+        done_days += transition["lead_time"] if done.include? transition["from_string"].downcase
+      end
+      to_do_lt << to_do_days if to_do_days.positive?
+      wip_lt << wip_days if wip_days.positive?
+      qa_lt << qa_days if qa_days.positive?
+      done_lt << done_days if done_days.positive?
+    end
+
+    {
+      to_do: median(to_do_lt).round(1),
+      wip: median(wip_lt).round(1),
+      qa: median(qa_lt).round(1),
+      done: median(done_lt).round(1)
+    }
+  end
+
   def sync_projects
     jira_projects = @client.Project.all
     jira_boards = @client.Board.all
@@ -161,14 +197,16 @@ class JiraManager
       break if jira_issues.length.zero?
 
       jira_issues.each do |jira_issue|
+        status = {name: jira_issue.status.name, id: jira_issue.status.id}
         project = {
           user_issue_id: "#{@user.id}_#{jira_issue.id}",
           project_id: jira_issue.project.id, issue_id: jira_issue.id,
           summary: jira_issue.summary, user_id: @user.id, key: jira_issue.key,
-          status: {name: jira_issue.status.name}, issue_type: jira_issue.fields["issuetype"],
+          status: status, issue_type: jira_issue.fields["issuetype"],
           epic_link: jira_issue.try(:customfield_10014), epic_name: jira_issue.try(:customfield_10011),
           due_date: jira_issue.try(:duedate), change_log: jira_issue.try(:changelog),
-          created: jira_issue.try(:created), time_to_close_in_days: time_to_close_in_days(jira_issue)
+          created: jira_issue.try(:created), time_to_close_in_days: time_to_close_in_days(jira_issue),
+          status_transitions: status_transitions(jira_issue)
         }
         Issue.upsert(project, unique_by: :user_issue_id)
       end
@@ -191,7 +229,7 @@ class JiraManager
     current_status = issue.status.name.downcase
     return unless %w[done closed].include? current_status
 
-    histories.reverse.each do |history|
+    histories.reverse_each do |history|
       item = history["items"].first
       if %w[status resolution].include?(item["field"]) && item["fieldtype"] == "jira"
         status = history["items"].last["toString"].downcase
@@ -201,5 +239,40 @@ class JiraManager
         end
       end
     end
+  end
+
+  def status_transitions(issue)
+    transitions = []
+    change_log = issue.try(:changelog)
+    histories = change_log["histories"]
+    offset_time = Time.parse issue.try(:created)
+
+    histories.reverse_each do |history|
+      item = history["items"].last
+      if item["field"] == "status" && item["fieldtype"] == "jira"
+        created_at = Time.parse history["created"]
+        transitions << {
+          from_status: history["items"].last["from"],
+          from_string: history["items"].last["fromString"],
+          to_status: history["items"].last["to"],
+          to_string: history["items"].last["toString"],
+          lead_time: (created_at - offset_time) / 1.day
+        }
+        offset_time = Time.parse history["created"]
+      end
+    end
+
+    transitions
+  end
+
+  def median(array, already_sorted = false)
+    return 0 if array.empty?
+    array = array.sort unless already_sorted
+    m_pos = array.size / 2
+    array.size % 2 == 1 ? array[m_pos] : mean(array[m_pos - 1..m_pos])
+  end
+
+  def mean(array)
+    array.sum / array.size.to_f
   end
 end

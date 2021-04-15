@@ -21,6 +21,7 @@ class JirasController < ApplicationController
     @min_max = current_user.min_max
     @sortable_items = current_user.sortable_items
     @vpi_by_project = @jira_manager.fetch_vpi_by_project
+    @lead_time = @jira_manager.fetch_lead_time
   end
 
   # GET /jiras/1

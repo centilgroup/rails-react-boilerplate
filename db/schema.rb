@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_12_054647) do
+ActiveRecord::Schema.define(version: 2021_04_15_123537) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -65,6 +65,7 @@ ActiveRecord::Schema.define(version: 2021_04_12_054647) do
     t.json "change_log"
     t.date "created"
     t.integer "time_to_close_in_days"
+    t.json "status_transitions"
     t.index ["issue_id"], name: "index_issues_on_issue_id"
     t.index ["project_id"], name: "index_issues_on_project_id"
     t.index ["user_id"], name: "index_issues_on_user_id"

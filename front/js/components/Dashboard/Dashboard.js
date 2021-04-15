@@ -80,10 +80,12 @@ export default class Dashboard extends Component {
       showFocusSection: true,
       showVPISection: true,
       showActivitiesSection: true,
-      sortableItems: ['vpi', 'wip', 'gauge', 'focus', 'activities'],
+      showVSMSection: true,
+      sortableItems: ['vpi', 'wip', 'gauge', 'focus', 'activities', 'vsm'],
       user: {},
       showProjectVPIs: false,
       projectVPIs: [],
+      statusLeadTimes: {},
     };
   }
 
@@ -137,6 +139,7 @@ export default class Dashboard extends Component {
         min_max,
         sortable_items,
         vpi_by_project,
+        lead_time,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -152,6 +155,7 @@ export default class Dashboard extends Component {
       let showFocusSection = true;
       let showVPISection = true;
       let showActivitiesSection = true;
+      let showVSMSection = true;
       let sortableItems = ['wip', 'gauge', 'focus', 'vpi', 'activities'];
       const leadStatus = ['backlog', 'to do', 'open'];
       const devStatus = ['selected for development', 'in progress'];
@@ -186,6 +190,7 @@ export default class Dashboard extends Component {
         showFocusSection = min_max.showFocusSection;
         showVPISection = min_max.showVPISection;
         showActivitiesSection = min_max.showActivitiesSection;
+        showVSMSection = min_max.showVSMSection;
       }
 
       if (sortable_items !== null) {
@@ -215,8 +220,10 @@ export default class Dashboard extends Component {
         showFocusSection,
         showVPISection,
         showActivitiesSection,
+        showVSMSection,
         sortableItems,
         projectVPIs: vpi_by_project,
+        statusLeadTimes: lead_time,
       });
     });
   };
@@ -644,6 +651,7 @@ export default class Dashboard extends Component {
       showFocusSection,
       showVPISection,
       showActivitiesSection,
+      showVSMSection,
     } = this.state;
     this.setState({ [sectionName]: !value });
 
@@ -654,6 +662,7 @@ export default class Dashboard extends Component {
         showFocusSection,
         showVPISection,
         showActivitiesSection,
+        showVSMSection,
         [sectionName]: !value,
       },
     };
@@ -727,10 +736,12 @@ export default class Dashboard extends Component {
       showFocusSection,
       showVPISection,
       showActivitiesSection,
+      showVSMSection,
       sortableItems,
       user,
       showProjectVPIs,
       projectVPIs,
+      statusLeadTimes,
     } = this.state;
     const style = {
       height: 300,
@@ -1598,6 +1609,80 @@ export default class Dashboard extends Component {
                         <Tooltip id="activitiesHelper">
                           Activities & Time Spent
                         </Tooltip>
+                      }
+                    >
+                      <i
+                        className="fa fa-question-circle m-3"
+                        style={helperStyle}
+                      />
+                    </OverlayTrigger>
+                  </div>
+                </Collapse>
+              </Card>
+            </Col>
+          </Row>
+        );
+      }
+
+      if (value === 'vsm') {
+        const VSMStyle = {
+          padding: '10px',
+          border: 'solid 3px rgba(0, 0, 0, 0.4)',
+          borderRadius: '5px',
+          minWidth: '120px',
+          textAlign: 'center',
+        };
+
+        return (
+          <Row className="py-4">
+            <Col xs={12}>
+              <Card>
+                <Card.Header
+                  className="d-flex justify-content-between align-items-center"
+                  onClick={() =>
+                    this.minMaxHandler('showVSMSection', showVSMSection)
+                  }
+                >
+                  <span>
+                    <DragHandle /> VSM
+                  </span>
+                  {this.renderMinMaxIcon(showVSMSection)}
+                </Card.Header>
+                <Collapse in={showVSMSection}>
+                  <div style={sectionStyle}>
+                    <Card.Body>
+                      <div className="d-flex justify-content-around">
+                        <div>
+                          <div style={VSMStyle}>To Do</div>
+                          <div className="text-center">
+                            LT = {statusLeadTimes.to_do} days
+                          </div>
+                        </div>
+                        <div>
+                          <div style={VSMStyle}>In Progress</div>
+                          <div className="text-center">
+                            LT = {statusLeadTimes.wip} days
+                          </div>
+                        </div>
+                        <div>
+                          <div style={VSMStyle}>In Review</div>
+                          <div className="text-center">
+                            LT = {statusLeadTimes.qa} days
+                          </div>
+                        </div>
+                        <div>
+                          <div style={VSMStyle}>Done</div>
+                          <div className="text-center">
+                            LT = {statusLeadTimes.done} days
+                          </div>
+                        </div>
+                      </div>
+                    </Card.Body>
+                    <OverlayTrigger
+                      key="vsmHelper"
+                      placement="top"
+                      overlay={
+                        <Tooltip id="vsmHelper">Value Stream Map</Tooltip>
                       }
                     >
                       <i
