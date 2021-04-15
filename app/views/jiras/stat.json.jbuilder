@@ -42,3 +42,4 @@ json.min_max @min_max
 json.sortable_items @sortable_items
 json.vpi_by_project @vpi_by_project
 json.lead_time @lead_time
+json.process_time @process_time

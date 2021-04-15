@@ -86,6 +86,7 @@ export default class Dashboard extends Component {
       showProjectVPIs: false,
       projectVPIs: [],
       statusLeadTimes: {},
+      statusProcessTimes: {},
     };
   }
 
@@ -140,6 +141,7 @@ export default class Dashboard extends Component {
         sortable_items,
         vpi_by_project,
         lead_time,
+        process_time,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -224,6 +226,7 @@ export default class Dashboard extends Component {
         sortableItems,
         projectVPIs: vpi_by_project,
         statusLeadTimes: lead_time,
+        statusProcessTimes: process_time,
       });
     });
   };
@@ -742,6 +745,7 @@ export default class Dashboard extends Component {
       showProjectVPIs,
       projectVPIs,
       statusLeadTimes,
+      statusProcessTimes,
     } = this.state;
     const style = {
       height: 300,
@@ -1657,11 +1661,15 @@ export default class Dashboard extends Component {
                           <div className="text-center">
                             LT = {statusLeadTimes.to_do} days
                           </div>
+                          <div className="text-center">PT = 0 days</div>
                         </div>
                         <div>
                           <div style={VSMStyle}>In Progress</div>
                           <div className="text-center">
                             LT = {statusLeadTimes.wip} days
+                          </div>
+                          <div className="text-center">
+                            PT = {statusProcessTimes.wip} days
                           </div>
                         </div>
                         <div>
@@ -1669,12 +1677,14 @@ export default class Dashboard extends Component {
                           <div className="text-center">
                             LT = {statusLeadTimes.qa} days
                           </div>
+                          <div className="text-center">
+                            PT = {statusProcessTimes.qa} days
+                          </div>
                         </div>
                         <div>
                           <div style={VSMStyle}>Done</div>
-                          <div className="text-center">
-                            LT = {statusLeadTimes.done} days
-                          </div>
+                          <div className="text-center">LT = 0 days</div>
+                          <div className="text-center">PT = 0 days</div>
                         </div>
                       </div>
                     </Card.Body>

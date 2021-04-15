@@ -117,7 +117,7 @@ class JiraManager
     issues.where("issue_type->>'name' = 'Task'")
   end
 
-  def fetch_lead_time
+  def fetch_vsm
     issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
     to_do = ["backlog", "to do", "open", "selected for development"]
     wip = ["in progress"]
@@ -127,30 +127,54 @@ class JiraManager
     wip_lt = []
     qa_lt = []
     done_lt = []
+    to_do_pt = []
+    wip_pt = []
+    qa_pt = []
+    done_pt = []
 
     issues.each do |issue|
-      to_do_days = 0
-      wip_days = 0
-      qa_days = 0
-      done_days = 0
+      to_do_lt_days = 0
+      wip_lt_days = 0
+      qa_lt_days = 0
+      done_lt_days = 0
+      to_do_pt_days = 0
+      wip_pt_days = 0
+      qa_pt_days = 0
+      done_pt_days = 0
       issue.status_transitions.each do |transition|
-        to_do_days += transition["lead_time"] if to_do.include? transition["from_string"].downcase
-        wip_days += transition["lead_time"] if wip.include? transition["from_string"].downcase
-        qa_days += transition["lead_time"] if qa.include? transition["from_string"].downcase
-        done_days += transition["lead_time"] if done.include? transition["from_string"].downcase
+        to_do_lt_days += transition["lead_time"] if to_do.include? transition["from_string"].downcase
+        wip_lt_days += transition["lead_time"] if wip.include? transition["from_string"].downcase
+        qa_lt_days += transition["lead_time"] if qa.include? transition["from_string"].downcase
+        done_lt_days += transition["lead_time"] if done.include? transition["from_string"].downcase
+        to_do_pt_days += transition["process_time"] if to_do.include? transition["from_string"].downcase
+        wip_pt_days += transition["process_time"] if wip.include? transition["from_string"].downcase
+        qa_pt_days += transition["process_time"] if qa.include? transition["from_string"].downcase
+        done_pt_days += transition["process_time"] if done.include? transition["from_string"].downcase
       end
-      to_do_lt << to_do_days if to_do_days.positive?
-      wip_lt << wip_days if wip_days.positive?
-      qa_lt << qa_days if qa_days.positive?
-      done_lt << done_days if done_days.positive?
+      to_do_lt << to_do_lt_days if to_do_lt_days.positive?
+      wip_lt << wip_lt_days if wip_lt_days.positive?
+      qa_lt << qa_lt_days if qa_lt_days.positive?
+      done_lt << done_lt_days if done_lt_days.positive?
+      to_do_pt << to_do_pt_days if to_do_pt_days.positive?
+      wip_pt << wip_pt_days if wip_pt_days.positive?
+      qa_pt << qa_pt_days if qa_pt_days.positive?
+      done_pt << done_pt_days if done_pt_days.positive?
     end
 
-    {
-      to_do: median(to_do_lt).round(1),
-      wip: median(wip_lt).round(1),
-      qa: median(qa_lt).round(1),
-      done: median(done_lt).round(1)
-    }
+    [
+      {
+        to_do: median(to_do_lt).round(1),
+        wip: median(wip_lt).round(1),
+        qa: median(qa_lt).round(1),
+        done: median(done_lt).round(1)
+      },
+      {
+        to_do: median(to_do_pt).round(1),
+        wip: median(wip_pt).round(1),
+        qa: median(qa_pt).round(1),
+        done: median(done_pt).round(1)
+      }
+    ]
   end
 
   def sync_projects
@@ -251,12 +275,14 @@ class JiraManager
       item = history["items"].last
       if item["field"] == "status" && item["fieldtype"] == "jira"
         created_at = Time.parse history["created"]
+        lead_time = (created_at - offset_time) / 1.day
         transitions << {
           from_status: history["items"].last["from"],
           from_string: history["items"].last["fromString"],
           to_status: history["items"].last["to"],
           to_string: history["items"].last["toString"],
-          lead_time: (created_at - offset_time) / 1.day
+          lead_time: lead_time,
+          process_time: (lead_time * 8) / 24.to_f
         }
         offset_time = Time.parse history["created"]
       end
