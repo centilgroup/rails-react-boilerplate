@@ -175,23 +175,65 @@ class JiraManager
       done_pt << done_pt_days if done_pt_days.positive?
     end
 
+    median_lt_to_do = median(to_do_lt)
+    median_lt_wip = median(wip_lt)
+    median_lt_qa = median(qa_lt)
+    median_lt_done = median(done_lt)
+
+    median_pt_to_do = median(to_do_pt)
+    median_pt_wip = median(wip_pt)
+    median_pt_qa = median(qa_pt)
+    median_pt_done = median(done_pt)
+
+    ca_to_do = percent(to_do_c, to_do_a).round(1)
+    ca_wip = percent(wip_c, wip_a).round(1)
+    ca_qa = percent(qa_c, qa_a).round(1)
+
+    total_lt = median_lt_to_do + median_lt_wip + median_lt_qa + median_lt_done
+    total_pt = median_pt_to_do + median_pt_wip + median_pt_qa + median_pt_done
+    activity_ratio = (total_pt / total_lt) * 100
+    rolled_ca =
+      if ca_to_do.positive? && ca_wip.positive? && ca_qa.positive?
+        (ca_to_do / 100) * (ca_wip / 100) * (ca_qa / 100) * 100
+      elsif ca_to_do.positive? && ca_wip.positive? && ca_qa.zero?
+        (ca_to_do / 100) * (ca_wip / 100) * 100
+      elsif ca_to_do.positive? && ca_wip.zero? && ca_qa.positive?
+        (ca_to_do / 100) * (ca_qa / 100) * 100
+      elsif ca_to_do.zero? && ca_wip.positive? && ca_qa.positive?
+        (ca_wip / 100) * (ca_qa / 100) * 100
+      elsif ca_to_do.zero? && ca_wip.zero? && ca_qa.positive?
+        ca_qa
+      elsif ca_to_do.zero? && ca_wip.positive? && ca_qa.zero?
+        ca_wip
+      elsif ca_to_do.positive? && ca_wip.zero? && ca_qa.zero?
+        ca_to_do
+      elsif ca_to_do.zero? && ca_wip.zero? && ca_qa.zero?
+        0
+      end
+
     [
       {
-        to_do: median(to_do_lt).round(1),
-        wip: median(wip_lt).round(1),
-        qa: median(qa_lt).round(1),
-        done: median(done_lt).round(1)
+        to_do: median_lt_to_do.round(1),
+        wip: median_lt_wip.round(1),
+        qa: median_lt_qa.round(1),
+        done: median_lt_done.round(1)
       },
       {
-        to_do: median(to_do_pt).round(1),
-        wip: median(wip_pt).round(1),
-        qa: median(qa_pt).round(1),
-        done: median(done_pt).round(1)
+        to_do: median_pt_to_do.round(1),
+        wip: median_pt_wip.round(1),
+        qa: median_pt_qa.round(1),
+        done: median_pt_done.round(1)
       },
       {
-        to_do: percent(to_do_c, to_do_a).round(1),
-        wip: percent(wip_c, wip_a).round(1),
-        qa: percent(qa_c, qa_a).round(1)
+        to_do: ca_to_do,
+        wip: ca_wip,
+        qa: ca_qa
+      },
+      {
+        total_lt: total_lt.round(1),
+        total_pt: total_pt.round(1),
+        activity_ratio: activity_ratio.round(1),
+        rolled_ca: rolled_ca.round(1)
       }
     ]
   end

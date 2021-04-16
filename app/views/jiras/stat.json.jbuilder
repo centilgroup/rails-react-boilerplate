@@ -44,3 +44,4 @@ json.vpi_by_project @vpi_by_project
 json.lead_time @lead_time
 json.process_time @process_time
 json.percent_c_a @percent_c_a
+json.total @total

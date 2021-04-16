@@ -88,6 +88,7 @@ export default class Dashboard extends Component {
       statusLeadTimes: {},
       statusProcessTimes: {},
       statusCA: {},
+      VSMTotal: {},
     };
   }
 
@@ -144,6 +145,7 @@ export default class Dashboard extends Component {
         lead_time,
         process_time,
         percent_c_a,
+        total,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -230,6 +232,7 @@ export default class Dashboard extends Component {
         statusLeadTimes: lead_time,
         statusProcessTimes: process_time,
         statusCA: percent_c_a,
+        VSMTotal: total,
       });
     });
   };
@@ -750,6 +753,7 @@ export default class Dashboard extends Component {
       statusLeadTimes,
       statusProcessTimes,
       statusCA,
+      VSMTotal,
     } = this.state;
     const style = {
       height: 300,
@@ -1655,6 +1659,11 @@ export default class Dashboard extends Component {
           fontSize: '42px',
           color: '#9c9ea0',
         };
+        const totalStyle = {
+          border: 'solid 1px #ccc',
+          borderRadius: '5px',
+          padding: '8px',
+        };
 
         return (
           <Row className="py-4">
@@ -1742,6 +1751,20 @@ export default class Dashboard extends Component {
                               %C/A = 0 %
                             </div>
                           </div>
+                        </div>
+                      </div>
+                      <div className="d-flex justify-content-around mt-3">
+                        <div style={totalStyle}>
+                          Total LT = {VSMTotal.total_lt} days
+                        </div>
+                        <div style={totalStyle}>
+                          Total PT = {VSMTotal.total_pt} days
+                        </div>
+                        <div style={totalStyle}>
+                          Activity Ratio = {VSMTotal.activity_ratio} %
+                        </div>
+                        <div style={totalStyle}>
+                          Rolled %C/A = {VSMTotal.rolled_ca} %
                         </div>
                       </div>
                     </Card.Body>
