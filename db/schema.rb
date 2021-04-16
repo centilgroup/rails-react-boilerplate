@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_06_163457) do
+ActiveRecord::Schema.define(version: 2021_04_15_123537) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -65,6 +65,7 @@ ActiveRecord::Schema.define(version: 2021_04_06_163457) do
     t.json "change_log"
     t.date "created"
     t.integer "time_to_close_in_days"
+    t.json "status_transitions"
     t.index ["issue_id"], name: "index_issues_on_issue_id"
     t.index ["project_id"], name: "index_issues_on_project_id"
     t.index ["user_id"], name: "index_issues_on_user_id"
@@ -107,6 +108,7 @@ ActiveRecord::Schema.define(version: 2021_04_06_163457) do
     t.string "jira_password"
     t.json "min_max"
     t.json "sortable_items"
+    t.boolean "initial_config"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

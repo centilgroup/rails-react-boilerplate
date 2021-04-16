@@ -15,6 +15,7 @@ import {
 } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import { Redirect } from 'react-router';
+import Footer from '../Shared/Footer';
 
 export default class Profile extends Component {
   constructor(props) {
@@ -142,9 +143,9 @@ export default class Profile extends Component {
                 <NavLink to="/">
                   <Dropdown.Item as="span">Dashboard</Dropdown.Item>
                 </NavLink>
-                <NavLink to="/" onClick={this.logoutUser}>
-                  <Dropdown.Item as="span">Logout</Dropdown.Item>
-                </NavLink>
+                <Dropdown.Item href="#" onClick={this.logoutUser}>
+                  Logout
+                </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </span>
@@ -275,9 +276,7 @@ export default class Profile extends Component {
           </Form>
         </Container>
 
-        <hr />
-
-        <div className="m-3">Centil, LLC 2021.</div>
+        <Footer />
       </section>
     );
   }

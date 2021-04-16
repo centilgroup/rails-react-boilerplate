@@ -18,6 +18,16 @@ json.epic_issues @epic_issues do |epic_issue|
   json.epic_link epic_issue.epic_link
   json.status epic_issue.status
 end
+json.bugs @bugs do |bug|
+  json.issue_id bug.issue_id
+  json.key bug.key
+  json.status bug.status
+end
+json.tasks @tasks do |task|
+  json.issue_id task.issue_id
+  json.key task.key
+  json.status task.status
+end
 json.projects @projects do |project|
   json.project_id project.project_id
   json.key project.key
@@ -31,3 +41,7 @@ end
 json.min_max @min_max
 json.sortable_items @sortable_items
 json.vpi_by_project @vpi_by_project
+json.lead_time @lead_time
+json.process_time @process_time
+json.percent_c_a @percent_c_a
+json.total @total

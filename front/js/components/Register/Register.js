@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router';
+import Footer from '../Shared/Footer';
 
 export default class Register extends Component {
   constructor(props) {
@@ -98,11 +99,9 @@ export default class Register extends Component {
               <p className="nav-link">Go to login</p>
             </Link>
           </div>
-
-          <hr />
-
-          <div className="m-3">Centil, LLC 2021.</div>
         </fieldset>
+
+        <Footer />
       </article>
     );
   }

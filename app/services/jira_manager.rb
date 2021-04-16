@@ -107,6 +107,137 @@ class JiraManager
     [epics, epic_issues]
   end
 
+  def fetch_bugs
+    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
+    issues.where("issue_type->>'name' = 'Bug'")
+  end
+
+  def fetch_tasks
+    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
+    issues.where("issue_type->>'name' = 'Task'")
+  end
+
+  def fetch_vsm
+    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
+    to_do = ["backlog", "to do", "open", "selected for development"]
+    wip = ["in progress"]
+    qa = ["review", "qa", "ready for review", "in review"]
+    done = %w[done closed]
+    to_do_lt = []
+    wip_lt = []
+    qa_lt = []
+    done_lt = []
+    to_do_pt = []
+    wip_pt = []
+    qa_pt = []
+    done_pt = []
+    to_do_c = 0
+    to_do_a = 0
+    wip_c = 0
+    wip_a = 0
+    qa_c = 0
+    qa_a = 0
+
+    issues.each do |issue|
+      to_do_lt_days = 0
+      wip_lt_days = 0
+      qa_lt_days = 0
+      done_lt_days = 0
+      to_do_pt_days = 0
+      wip_pt_days = 0
+      qa_pt_days = 0
+      done_pt_days = 0
+      issue.status_transitions.each do |transition|
+        from = transition["from_string"].downcase
+        to = transition["to_string"].downcase
+        to_do_lt_days += transition["lead_time"] if to_do.include? from
+        wip_lt_days += transition["lead_time"] if wip.include? from
+        qa_lt_days += transition["lead_time"] if qa.include? from
+        done_lt_days += transition["lead_time"] if done.include? from
+        to_do_pt_days += transition["process_time"] if to_do.include? from
+        wip_pt_days += transition["process_time"] if wip.include? from
+        qa_pt_days += transition["process_time"] if qa.include? from
+        done_pt_days += transition["process_time"] if done.include? from
+        to_do_c += 1 if to_do.include?(from) && wip.include?(to)
+        to_do_a += 1 if (done + qa + wip).include?(from) && to_do.include?(to)
+        wip_c += 1 if wip.include?(from) && qa.include?(to)
+        wip_a += 1 if (done + qa).include?(from) && wip.include?(to)
+        qa_c += 1 if qa.include?(from) && done.include?(to)
+        qa_a += 1 if done.include?(from) && qa.include?(to)
+      end
+      to_do_lt << to_do_lt_days if to_do_lt_days.positive?
+      wip_lt << wip_lt_days if wip_lt_days.positive?
+      qa_lt << qa_lt_days if qa_lt_days.positive?
+      done_lt << done_lt_days if done_lt_days.positive?
+      to_do_pt << to_do_pt_days if to_do_pt_days.positive?
+      wip_pt << wip_pt_days if wip_pt_days.positive?
+      qa_pt << qa_pt_days if qa_pt_days.positive?
+      done_pt << done_pt_days if done_pt_days.positive?
+    end
+
+    median_lt_to_do = median(to_do_lt)
+    median_lt_wip = median(wip_lt)
+    median_lt_qa = median(qa_lt)
+    median_lt_done = median(done_lt)
+
+    median_pt_to_do = median(to_do_pt)
+    median_pt_wip = median(wip_pt)
+    median_pt_qa = median(qa_pt)
+    median_pt_done = median(done_pt)
+
+    ca_to_do = percent(to_do_c, to_do_a).round(1)
+    ca_wip = percent(wip_c, wip_a).round(1)
+    ca_qa = percent(qa_c, qa_a).round(1)
+
+    total_lt = median_lt_to_do + median_lt_wip + median_lt_qa + median_lt_done
+    total_pt = median_pt_to_do + median_pt_wip + median_pt_qa + median_pt_done
+    activity_ratio = (total_pt / total_lt) * 100
+    rolled_ca =
+      if ca_to_do.positive? && ca_wip.positive? && ca_qa.positive?
+        (ca_to_do / 100) * (ca_wip / 100) * (ca_qa / 100) * 100
+      elsif ca_to_do.positive? && ca_wip.positive? && ca_qa.zero?
+        (ca_to_do / 100) * (ca_wip / 100) * 100
+      elsif ca_to_do.positive? && ca_wip.zero? && ca_qa.positive?
+        (ca_to_do / 100) * (ca_qa / 100) * 100
+      elsif ca_to_do.zero? && ca_wip.positive? && ca_qa.positive?
+        (ca_wip / 100) * (ca_qa / 100) * 100
+      elsif ca_to_do.zero? && ca_wip.zero? && ca_qa.positive?
+        ca_qa
+      elsif ca_to_do.zero? && ca_wip.positive? && ca_qa.zero?
+        ca_wip
+      elsif ca_to_do.positive? && ca_wip.zero? && ca_qa.zero?
+        ca_to_do
+      elsif ca_to_do.zero? && ca_wip.zero? && ca_qa.zero?
+        0
+      end
+
+    [
+      {
+        to_do: median_lt_to_do.round(1),
+        wip: median_lt_wip.round(1),
+        qa: median_lt_qa.round(1),
+        done: median_lt_done.round(1)
+      },
+      {
+        to_do: median_pt_to_do.round(1),
+        wip: median_pt_wip.round(1),
+        qa: median_pt_qa.round(1),
+        done: median_pt_done.round(1)
+      },
+      {
+        to_do: ca_to_do,
+        wip: ca_wip,
+        qa: ca_qa
+      },
+      {
+        total_lt: total_lt.round(1),
+        total_pt: total_pt.round(1),
+        activity_ratio: activity_ratio.round(1),
+        rolled_ca: rolled_ca.round(1)
+      }
+    ]
+  end
+
   def sync_projects
     jira_projects = @client.Project.all
     jira_boards = @client.Board.all
@@ -151,14 +282,16 @@ class JiraManager
       break if jira_issues.length.zero?
 
       jira_issues.each do |jira_issue|
+        status = {name: jira_issue.status.name, id: jira_issue.status.id}
         project = {
           user_issue_id: "#{@user.id}_#{jira_issue.id}",
           project_id: jira_issue.project.id, issue_id: jira_issue.id,
           summary: jira_issue.summary, user_id: @user.id, key: jira_issue.key,
-          status: {name: jira_issue.status.name}, issue_type: jira_issue.fields["issuetype"],
+          status: status, issue_type: jira_issue.fields["issuetype"],
           epic_link: jira_issue.try(:customfield_10014), epic_name: jira_issue.try(:customfield_10011),
           due_date: jira_issue.try(:duedate), change_log: jira_issue.try(:changelog),
-          created: jira_issue.try(:created), time_to_close_in_days: time_to_close_in_days(jira_issue)
+          created: jira_issue.try(:created), time_to_close_in_days: time_to_close_in_days(jira_issue),
+          status_transitions: status_transitions(jira_issue)
         }
         Issue.upsert(project, unique_by: :user_issue_id)
       end
@@ -181,7 +314,7 @@ class JiraManager
     current_status = issue.status.name.downcase
     return unless %w[done closed].include? current_status
 
-    histories.reverse.each do |history|
+    histories.reverse_each do |history|
       item = history["items"].first
       if %w[status resolution].include?(item["field"]) && item["fieldtype"] == "jira"
         status = history["items"].last["toString"].downcase
@@ -191,5 +324,48 @@ class JiraManager
         end
       end
     end
+  end
+
+  def status_transitions(issue)
+    transitions = []
+    change_log = issue.try(:changelog)
+    histories = change_log["histories"]
+    offset_time = Time.parse issue.try(:created)
+
+    histories.reverse_each do |history|
+      item = history["items"].last
+      if item["field"] == "status" && item["fieldtype"] == "jira"
+        created_at = Time.parse history["created"]
+        lead_time = (created_at - offset_time) / 1.day
+        transitions << {
+          from_status: history["items"].last["from"],
+          from_string: history["items"].last["fromString"],
+          to_status: history["items"].last["to"],
+          to_string: history["items"].last["toString"],
+          lead_time: lead_time,
+          process_time: (lead_time * 8) / 24.to_f
+        }
+        offset_time = Time.parse history["created"]
+      end
+    end
+
+    transitions
+  end
+
+  def median(array, already_sorted = false)
+    return 0 if array.empty?
+    array = array.sort unless already_sorted
+    m_pos = array.size / 2
+    array.size % 2 == 1 ? array[m_pos] : mean(array[m_pos - 1..m_pos])
+  end
+
+  def mean(array)
+    array.sum / array.size.to_f
+  end
+
+  def percent(c, a)
+    return 0 if c.zero?
+
+    ((c - a) / c.to_f) * 100
   end
 end

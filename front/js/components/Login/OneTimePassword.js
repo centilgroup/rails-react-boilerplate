@@ -5,6 +5,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
+import Footer from '../Shared/Footer';
 
 export default class Login extends Component {
   constructor(props) {
@@ -13,6 +14,7 @@ export default class Login extends Component {
       email: '',
       otp: '',
       redirect: false,
+      initialConfig: false,
     };
   }
 
@@ -34,9 +36,10 @@ export default class Login extends Component {
 
     axios.post('/users/sign_in.json', data).then((response) => {
       const { auth_token, user } = response.data;
+      const initialConfig = user.initial_config;
       localStorage.setItem('auth_token', auth_token);
       localStorage.setItem('user', JSON.stringify(user));
-      this.setState({ redirect: true });
+      this.setState({ redirect: true, initialConfig });
     });
   };
 
@@ -54,10 +57,14 @@ export default class Login extends Component {
   };
 
   render() {
-    const { otp, redirect } = this.state;
+    const { otp, redirect, initialConfig } = this.state;
 
-    if (redirect) {
+    if (redirect && initialConfig === true) {
       return <Redirect to="/" />;
+    }
+
+    if (redirect === 'no_otp' && initialConfig !== true) {
+      return <Redirect to="/initial-config-step-1" />;
     }
 
     return (
@@ -86,11 +93,9 @@ export default class Login extends Component {
               submit otp
             </button>
           </div>
-
-          <hr />
-
-          <div className="m-3">Centil, LLC 2021.</div>
         </fieldset>
+
+        <Footer />
       </article>
     );
   }
