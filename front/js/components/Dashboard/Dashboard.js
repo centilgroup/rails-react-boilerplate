@@ -1637,13 +1637,17 @@ export default class Dashboard extends Component {
       }
 
       if (value === 'vsm') {
-        const VSMStyle = {
+        const statusStyle = {
           padding: '10px',
           border: 'solid 3px rgba(0, 0, 0, 0.4)',
           borderRadius: '5px',
           minWidth: '160px',
           textAlign: 'center',
           backgroundColor: '#e3e6e9',
+        };
+        const nonStatusStyle = {
+          ...statusStyle,
+          backgroundColor: '#fff',
         };
         const statHolderStyle = {
           width: '130px',
@@ -1664,6 +1668,9 @@ export default class Dashboard extends Component {
           borderRadius: '5px',
           padding: '8px',
         };
+        const startEndStyle = {
+          margin: '0 22px',
+        };
 
         return (
           <Row className="py-4">
@@ -1683,9 +1690,28 @@ export default class Dashboard extends Component {
                 <Collapse in={showVSMSection}>
                   <div style={sectionStyle}>
                     <Card.Body>
+                      <div
+                        className="d-flex justify-content-between"
+                        style={startEndStyle}
+                      >
+                        <div className="text-center">
+                          <div style={nonStatusStyle}>Request</div>
+                          <i
+                            className="fa fa-long-arrow-down m-3"
+                            style={VSMArrow}
+                          />
+                        </div>
+                        <div className="text-center">
+                          <div style={nonStatusStyle}>User</div>
+                          <i
+                            className="fa fa-long-arrow-up m-3"
+                            style={VSMArrow}
+                          />
+                        </div>
+                      </div>
                       <div className="d-flex justify-content-around">
                         <div>
-                          <div style={VSMStyle}>To Do</div>
+                          <div style={statusStyle}>To Do</div>
                           <div style={statHolderStyle}>
                             <div className="text-center" style={statStyle}>
                               LT = {statusLeadTimes.to_do} days
@@ -1703,7 +1729,7 @@ export default class Dashboard extends Component {
                           style={VSMArrow}
                         />
                         <div>
-                          <div style={VSMStyle}>In Progress</div>
+                          <div style={statusStyle}>In Progress</div>
                           <div style={statHolderStyle}>
                             <div className="text-center" style={statStyle}>
                               LT = {statusLeadTimes.wip} days
@@ -1721,7 +1747,7 @@ export default class Dashboard extends Component {
                           style={VSMArrow}
                         />
                         <div>
-                          <div style={VSMStyle}>In Review</div>
+                          <div style={statusStyle}>In Review</div>
                           <div style={statHolderStyle}>
                             <div className="text-center" style={statStyle}>
                               LT = {statusLeadTimes.qa} days
@@ -1739,7 +1765,7 @@ export default class Dashboard extends Component {
                           style={VSMArrow}
                         />
                         <div>
-                          <div style={VSMStyle}>Done</div>
+                          <div style={statusStyle}>Done</div>
                           <div style={statHolderStyle}>
                             <div className="text-center" style={statStyle}>
                               LT = 0 days
