@@ -131,6 +131,12 @@ class JiraManager
     wip_pt = []
     qa_pt = []
     done_pt = []
+    to_do_c = 0
+    to_do_a = 0
+    wip_c = 0
+    wip_a = 0
+    qa_c = 0
+    qa_a = 0
 
     issues.each do |issue|
       to_do_lt_days = 0
@@ -142,14 +148,22 @@ class JiraManager
       qa_pt_days = 0
       done_pt_days = 0
       issue.status_transitions.each do |transition|
-        to_do_lt_days += transition["lead_time"] if to_do.include? transition["from_string"].downcase
-        wip_lt_days += transition["lead_time"] if wip.include? transition["from_string"].downcase
-        qa_lt_days += transition["lead_time"] if qa.include? transition["from_string"].downcase
-        done_lt_days += transition["lead_time"] if done.include? transition["from_string"].downcase
-        to_do_pt_days += transition["process_time"] if to_do.include? transition["from_string"].downcase
-        wip_pt_days += transition["process_time"] if wip.include? transition["from_string"].downcase
-        qa_pt_days += transition["process_time"] if qa.include? transition["from_string"].downcase
-        done_pt_days += transition["process_time"] if done.include? transition["from_string"].downcase
+        from = transition["from_string"].downcase
+        to = transition["to_string"].downcase
+        to_do_lt_days += transition["lead_time"] if to_do.include? from
+        wip_lt_days += transition["lead_time"] if wip.include? from
+        qa_lt_days += transition["lead_time"] if qa.include? from
+        done_lt_days += transition["lead_time"] if done.include? from
+        to_do_pt_days += transition["process_time"] if to_do.include? from
+        wip_pt_days += transition["process_time"] if wip.include? from
+        qa_pt_days += transition["process_time"] if qa.include? from
+        done_pt_days += transition["process_time"] if done.include? from
+        to_do_c += 1 if to_do.include?(from) && wip.include?(to)
+        to_do_a += 1 if (done + qa + wip).include?(from) && to_do.include?(to)
+        wip_c += 1 if wip.include?(from) && qa.include?(to)
+        wip_a += 1 if (done + qa).include?(from) && wip.include?(to)
+        qa_c += 1 if qa.include?(from) && done.include?(to)
+        qa_a += 1 if done.include?(from) && qa.include?(to)
       end
       to_do_lt << to_do_lt_days if to_do_lt_days.positive?
       wip_lt << wip_lt_days if wip_lt_days.positive?
@@ -173,6 +187,11 @@ class JiraManager
         wip: median(wip_pt).round(1),
         qa: median(qa_pt).round(1),
         done: median(done_pt).round(1)
+      },
+      {
+        to_do: percent(to_do_c, to_do_a).round(1),
+        wip: percent(wip_c, wip_a).round(1),
+        qa: percent(qa_c, qa_a).round(1)
       }
     ]
   end
@@ -300,5 +319,11 @@ class JiraManager
 
   def mean(array)
     array.sum / array.size.to_f
+  end
+
+  def percent(c, a)
+    return 0 if c.zero?
+
+    ((c - a) / c.to_f) * 100
   end
 end

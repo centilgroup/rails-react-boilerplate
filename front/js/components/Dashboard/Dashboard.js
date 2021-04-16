@@ -87,6 +87,7 @@ export default class Dashboard extends Component {
       projectVPIs: [],
       statusLeadTimes: {},
       statusProcessTimes: {},
+      statusCA: {},
     };
   }
 
@@ -142,6 +143,7 @@ export default class Dashboard extends Component {
         vpi_by_project,
         lead_time,
         process_time,
+        percent_c_a,
       } = data;
       let devPercent;
       let devPendingPercent;
@@ -227,6 +229,7 @@ export default class Dashboard extends Component {
         projectVPIs: vpi_by_project,
         statusLeadTimes: lead_time,
         statusProcessTimes: process_time,
+        statusCA: percent_c_a,
       });
     });
   };
@@ -746,6 +749,7 @@ export default class Dashboard extends Component {
       projectVPIs,
       statusLeadTimes,
       statusProcessTimes,
+      statusCA,
     } = this.state;
     const style = {
       height: 300,
@@ -1633,8 +1637,23 @@ export default class Dashboard extends Component {
           padding: '10px',
           border: 'solid 3px rgba(0, 0, 0, 0.4)',
           borderRadius: '5px',
-          minWidth: '120px',
+          minWidth: '160px',
           textAlign: 'center',
+          backgroundColor: '#e3e6e9',
+        };
+        const statHolderStyle = {
+          width: '130px',
+          margin: '0 15px',
+        };
+        const statStyle = {
+          border: 'solid 1px #ccc',
+          borderTop: 'none',
+          borderRadius: '5px',
+          padding: '8px',
+        };
+        const VSMArrow = {
+          fontSize: '42px',
+          color: '#9c9ea0',
         };
 
         return (
@@ -1658,33 +1677,71 @@ export default class Dashboard extends Component {
                       <div className="d-flex justify-content-around">
                         <div>
                           <div style={VSMStyle}>To Do</div>
-                          <div className="text-center">
-                            LT = {statusLeadTimes.to_do} days
+                          <div style={statHolderStyle}>
+                            <div className="text-center" style={statStyle}>
+                              LT = {statusLeadTimes.to_do} days
+                            </div>
+                            <div className="text-center" style={statStyle}>
+                              PT = 0 days
+                            </div>
+                            <div className="text-center" style={statStyle}>
+                              %C/A = {statusCA.to_do} %
+                            </div>
                           </div>
-                          <div className="text-center">PT = 0 days</div>
                         </div>
+                        <i
+                          className="fa fa-long-arrow-right"
+                          style={VSMArrow}
+                        />
                         <div>
                           <div style={VSMStyle}>In Progress</div>
-                          <div className="text-center">
-                            LT = {statusLeadTimes.wip} days
-                          </div>
-                          <div className="text-center">
-                            PT = {statusProcessTimes.wip} days
+                          <div style={statHolderStyle}>
+                            <div className="text-center" style={statStyle}>
+                              LT = {statusLeadTimes.wip} days
+                            </div>
+                            <div className="text-center" style={statStyle}>
+                              PT = {statusProcessTimes.wip} days
+                            </div>
+                            <div className="text-center" style={statStyle}>
+                              %C/A = {statusCA.wip} %
+                            </div>
                           </div>
                         </div>
+                        <i
+                          className="fa fa-long-arrow-right"
+                          style={VSMArrow}
+                        />
                         <div>
                           <div style={VSMStyle}>In Review</div>
-                          <div className="text-center">
-                            LT = {statusLeadTimes.qa} days
-                          </div>
-                          <div className="text-center">
-                            PT = {statusProcessTimes.qa} days
+                          <div style={statHolderStyle}>
+                            <div className="text-center" style={statStyle}>
+                              LT = {statusLeadTimes.qa} days
+                            </div>
+                            <div className="text-center" style={statStyle}>
+                              PT = {statusProcessTimes.qa} days
+                            </div>
+                            <div className="text-center" style={statStyle}>
+                              %C/A = {statusCA.qa} %
+                            </div>
                           </div>
                         </div>
+                        <i
+                          className="fa fa-long-arrow-right"
+                          style={VSMArrow}
+                        />
                         <div>
                           <div style={VSMStyle}>Done</div>
-                          <div className="text-center">LT = 0 days</div>
-                          <div className="text-center">PT = 0 days</div>
+                          <div style={statHolderStyle}>
+                            <div className="text-center" style={statStyle}>
+                              LT = 0 days
+                            </div>
+                            <div className="text-center" style={statStyle}>
+                              PT = 0 days
+                            </div>
+                            <div className="text-center" style={statStyle}>
+                              %C/A = 0 %
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </Card.Body>
