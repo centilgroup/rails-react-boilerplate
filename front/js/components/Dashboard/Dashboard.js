@@ -22,6 +22,7 @@ import {
   Dropdown,
   Figure,
   Table,
+  Button,
 } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -84,11 +85,17 @@ export default class Dashboard extends Component {
       sortableItems: ['vpi', 'wip', 'gauge', 'focus', 'activities', 'vsm'],
       user: {},
       showProjectVPIs: false,
+      showIngest: false,
       projectVPIs: [],
       statusLeadTimes: {},
       statusProcessTimes: {},
       statusCA: {},
       VSMTotal: {},
+      ingest: null,
+      ingestType: 'projects',
+      showIngestAlert: false,
+      ingestErrorMessage: '',
+      disableIngest: false,
     };
   }
 
@@ -102,7 +109,7 @@ export default class Dashboard extends Component {
     this.setState({ jiraActivityLoading: true, jiraActivityHasMore: true });
 
     axios
-      .get(`/jiras.json?project_id=${project_id}`)
+      .get(`/jiras.json?start_at=0&project_id=${project_id}`)
       .then((response) => {
         this.setState({ issues: response.data, jiraActivityLoading: false });
       })
@@ -273,6 +280,38 @@ export default class Dashboard extends Component {
     this.fetchInitData(value);
   };
 
+  handleIngestTypeChange = (event) => {
+    this.setState({ ingestType: event.target.value });
+  };
+
+  handleIngestChange = (event) => {
+    this.setState({ ingest: event.target.files[0] });
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    const { ingest, ingestType } = this.state;
+    const data = new FormData();
+    data.append(`user[${ingestType}_ingest]`, ingest);
+    this.setState({ disableIngest: true });
+
+    axios
+      .put('/users/ingest.json', data)
+      .then((response) => {
+        window.location.href = '/';
+      })
+      .catch((error) => {
+        const message = error.response.data.error;
+        this.setState({ showIngestAlert: true, ingestErrorMessage: message });
+      })
+      .finally(() => {
+        this.setState({ disableIngest: false });
+        setTimeout(() => {
+          this.setState({ showIngestAlert: false });
+        }, 3000);
+      });
+  };
+
   selectIssue = (issueId) => {
     this.setState({ selectedIssueId: issueId });
   };
@@ -289,6 +328,11 @@ export default class Dashboard extends Component {
   handleProjectVPIsClose = () => this.setState({ showProjectVPIs: false });
 
   handleProjectVPIsShow = () => this.setState({ showProjectVPIs: true });
+
+  handleIngestClose = () =>
+    this.setState({ showIngest: false, ingestType: 'projects', ingest: null });
+
+  handleIngestShow = () => this.setState({ showIngest: true });
 
   handleRD = (event) => {
     const { value } = event.target;
@@ -749,11 +793,15 @@ export default class Dashboard extends Component {
       sortableItems,
       user,
       showProjectVPIs,
+      showIngest,
       projectVPIs,
       statusLeadTimes,
       statusProcessTimes,
       statusCA,
       VSMTotal,
+      showIngestAlert,
+      ingestErrorMessage,
+      disableIngest,
     } = this.state;
     const style = {
       height: 300,
@@ -774,6 +822,7 @@ export default class Dashboard extends Component {
     let WIPChart;
     let VPIChart;
     let VPIPercent;
+    let ingestAlert;
 
     if (jiraActivityLoading) {
       listIssues = <Skeleton count={10} />;
@@ -856,6 +905,14 @@ export default class Dashboard extends Component {
           <span>
             An unexpected error occurred while fetching Jira issues!!!
           </span>
+        </Alert>
+      );
+    }
+
+    if (showIngestAlert) {
+      ingestAlert = (
+        <Alert variant="danger">
+          <span>{ingestErrorMessage}</span>
         </Alert>
       );
     }
@@ -1864,6 +1921,9 @@ export default class Dashboard extends Component {
                   {user.email}
                 </Figure.Caption>
                 <Dropdown.Divider />
+                <Dropdown.Item href="#" onClick={this.handleIngestShow}>
+                  Ingest .csv
+                </Dropdown.Item>
                 <Dropdown.Item href="#" onClick={this.handleVPIShow}>
                   VPI Calculator
                 </Dropdown.Item>
@@ -2005,6 +2065,47 @@ export default class Dashboard extends Component {
                 ))}
               </tbody>
             </Table>
+          </Modal.Body>
+        </Modal>
+
+        <Modal
+          show={showIngest}
+          onHide={this.handleIngestClose}
+          backdrop="static"
+          keyboard={false}
+          size="md"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Ingest .csv</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              {ingestAlert}
+              <Form.Control
+                as="select"
+                size="md"
+                onChange={this.handleIngestTypeChange}
+              >
+                <option value="projects">Projects</option>
+                <option value="issues">Issues</option>
+                <option value="boards">Boards</option>
+              </Form.Control>
+              <Form.File
+                name="ingest"
+                onChange={this.handleIngestChange}
+                accept=".csv"
+                className="mt-3"
+              />
+              <Button
+                variant="outline-primary"
+                type="submit"
+                onClick={this.handleSubmit}
+                disabled={disableIngest}
+                className="mt-3"
+              >
+                Ingest
+              </Button>
+            </Form>
           </Modal.Body>
         </Modal>
 

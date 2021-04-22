@@ -11,6 +11,7 @@ Rails.application.routes.draw do
     put "users/sync_issues", to: "users/sessions#sync_issues"
     put "users/min_max_config", to: "users/sessions#min_max_config"
     put "users/sortable_items_config", to: "users/sessions#sortable_items_config"
+    put "users/ingest", to: "users/sessions#ingest"
   end
 
   resources :jiras do
