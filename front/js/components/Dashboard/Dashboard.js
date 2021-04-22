@@ -802,6 +802,7 @@ export default class Dashboard extends Component {
       showIngestAlert,
       ingestErrorMessage,
       disableIngest,
+      ingestType,
     } = this.state;
     const style = {
       height: 300,
@@ -823,6 +824,17 @@ export default class Dashboard extends Component {
     let VPIChart;
     let VPIPercent;
     let ingestAlert;
+    let ingestInfoMessage;
+
+    if (ingestType === 'issues') {
+      ingestInfoMessage =
+        'issue_id, project_id, status, issue_type, issue_key, change_log, summary, due_date & created';
+    } else if (ingestType === 'projects') {
+      ingestInfoMessage =
+        'board_id, name, board_type, project_id, column_config';
+    } else if (ingestType === 'boards') {
+      ingestInfoMessage = 'project_id, key & name';
+    }
 
     if (jiraActivityLoading) {
       listIssues = <Skeleton count={10} />;
@@ -2105,6 +2117,9 @@ export default class Dashboard extends Component {
               >
                 Ingest
               </Button>
+              <Alert variant="info" className="mt-3">
+                For {ingestType}, we expect headers - {ingestInfoMessage}.
+              </Alert>
             </Form>
           </Modal.Body>
         </Modal>
