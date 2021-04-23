@@ -31,10 +31,12 @@ class JiraManager
       max_results: 10,
       expand: "changelog"
     }
+
+    @start_at = params[:start_at]
   end
 
   def fetch_issues
-    @client.Issue.jql("project = #{@project.key}", @query_options)
+    Issue.where(project_id: @project.project_id, user_id: @user.id).limit(10).offset(@start_at)
   end
 
   def fetch_gas_gauge_data

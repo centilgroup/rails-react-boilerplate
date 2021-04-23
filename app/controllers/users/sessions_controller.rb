@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "csv"
+
 class Users::SessionsController < Devise::SessionsController
   respond_to :json
 
@@ -41,6 +43,19 @@ class Users::SessionsController < Devise::SessionsController
     current_user.avatar.attach(params[:user][:avatar]) if params[:user][:avatar].present?
   end
 
+  # PUT /resource/ingest
+  def ingest
+    csv_text = File.read(ingest_data)
+    converter = lambda { |header| header.downcase.split.join("_") }
+    csv = CSV.parse(csv_text, headers: true, header_converters: converter)
+    csv.each(&method(:upsert_issue)) if params[:user][:issues_ingest].present?
+    csv.each(&method(:upsert_board)) if params[:user][:boards_ingest].present?
+    csv.each(&method(:upsert_project)) if params[:user][:projects_ingest].present?
+  rescue => e
+    p e.message
+    render json: {error: e.message}, status: :unprocessable_entity
+  end
+
   # PUT /resource/min_max_config
   def min_max_config
     current_user.update(min_max: params[:min_max])
@@ -78,6 +93,69 @@ class Users::SessionsController < Devise::SessionsController
   # end
 
   private
+
+  def ingest_data
+    if params[:user][:issues_ingest].present?
+      params[:user][:issues_ingest]
+    elsif params[:user][:boards_ingest].present?
+      params[:user][:boards_ingest]
+    elsif params[:user][:projects_ingest].present?
+      params[:user][:projects_ingest]
+    end
+  end
+
+  def upsert_issue(row)
+    required_keys = %i[issue_id project_id status issue_type issue_key change_log summary due_date created]
+    unless required_keys.all? { |required_key| row.to_hash.key? required_key }
+      missing_keys = required_keys - row.to_hash.keys.map(&:to_sym)
+      message = "Missing #{missing_keys.map(&:to_s).join(", ")}"
+      raise ArgumentError, message
+    end
+
+    issue = {
+      user_issue_id: "#{current_user.id}_#{row["issue_id"]}",
+      project_id: row["project_id"], status: {name: row["status"]},
+      user_id: current_user.id, issue_type: {name: row["issue_type"]},
+      key: row["issue_key"], change_log: row["change_log"]
+    }.merge(row.to_hash.slice("issue_id", "summary", "due_date", "created"))
+
+    Issue.upsert(issue, unique_by: :user_issue_id)
+  end
+
+  def upsert_board(row)
+    required_keys = %i[board_id name board_type project_id column_config]
+    unless required_keys.all? { |required_key| row.to_hash.key? required_key }
+      missing_keys = required_keys - row.to_hash.keys.map(&:to_sym)
+      message = "Missing #{missing_keys.map(&:to_s).join(", ")}"
+      raise ArgumentError, message
+    end
+
+    board = {
+      user_board_id: "#{current_user.id}_#{row["board_id"]}",
+      name: row["name"], board_type: row["board_type"],
+      user_id: current_user.id, project_id: row["project_id"],
+      column_config: row["column_config"]
+    }
+
+    Board.upsert(board, unique_by: :user_board_id)
+  end
+
+  def upsert_project(row)
+    required_keys = %i[project_id key name]
+    unless required_keys.all? { |required_key| row.to_hash.key? required_key }
+      missing_keys = required_keys - row.to_hash.keys.map(&:to_sym)
+      message = "Missing #{missing_keys.map(&:to_s).join(", ")}"
+      raise ArgumentError, message
+    end
+
+    board = {
+      user_project_id: "#{current_user.id}_#{row["project_id"]}",
+      name: row["name"], key: row["key"],
+      user_id: current_user.id, project_id: row["project_id"]
+    }
+
+    Project.upsert(board, unique_by: :user_project_id)
+  end
 
   def user_params
     params.require(:user).permit(
