@@ -999,7 +999,11 @@ export default class Dashboard extends Component {
       WIPChart = (
         <Bar
           data={{
-            labels: ['To Do', 'In Progress', 'In Review'],
+            labels: [
+              `To Do ( WIP = ${totalBacklog} )`,
+              `In Progress ( WIP = ${totalWorkInProgress} )`,
+              `In Review ( WIP = ${totalWorkInReview} )`,
+            ],
             datasets: [
               {
                 data: [totalBacklog, totalWorkInProgress, totalWorkInReview],
@@ -1037,7 +1041,7 @@ export default class Dashboard extends Component {
               callbacks: {
                 label(tooltipItem, data) {
                   const value = data.datasets[0].data[tooltipItem.index];
-                  let label = ` WIP: ${value}`;
+                  let label = ` Work in progress: ${value}`;
                   if (
                     tooltipItem.label.toLowerCase() === 'to do' &&
                     backlogLimit > 0
