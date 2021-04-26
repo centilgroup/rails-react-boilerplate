@@ -954,12 +954,12 @@ export default class Dashboard extends Component {
     } else if (average_time_to_close === 0) {
       healthRecommendation =
         'Average completion rate should be greater than zero to view the VPI score.';
-    } else if (VPI > 1) {
+    } else if (VPI >= 0.67) {
       healthRecommendation = 'VPI indicates early delivery.';
-      VPIPercent = 1;
-    } else if (VPI < 1) {
+      VPIPercent = 0.85;
+    } else if (VPI <= 0.33) {
       healthRecommendation = 'VPI indicates late delivery.';
-      VPIPercent = 0;
+      VPIPercent = 0.15;
     } else {
       healthRecommendation = 'VPI indicates on-schedule delivery.';
       VPIPercent = 0.5;
