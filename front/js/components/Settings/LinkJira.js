@@ -31,6 +31,16 @@ export default class LinkJira extends Component {
 
   componentDidMount() {
     const user = JSON.parse(localStorage.getItem('user'));
+    if (user.jira_url === null) {
+      user.jira_url = '';
+    }
+    if (user.jira_username === null) {
+      user.jira_username = '';
+    }
+    if (user.jira_password === null) {
+      user.jira_password = '';
+    }
+
     this.setState(user);
   }
 
