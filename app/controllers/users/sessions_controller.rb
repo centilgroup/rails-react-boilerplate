@@ -53,7 +53,7 @@ class Users::SessionsController < Devise::SessionsController
     csv.each(&method(:upsert_project)) if params[:user][:projects_ingest].present?
   rescue => e
     p e.message
-    render json: {error: e.message}, status: :unprocessable_entity
+    render json: {message: e.message}, status: :unprocessable_entity
   end
 
   # PUT /resource/min_max_config
@@ -73,7 +73,7 @@ class Users::SessionsController < Devise::SessionsController
     @projects = current_user.projects
   rescue => e
     p e.message
-    render json: {error: e.message}, status: :internal_server_error
+    render json: {message: e.message}, status: :internal_server_error
   end
 
   # PUT /resource/sync_issues
@@ -82,7 +82,7 @@ class Users::SessionsController < Devise::SessionsController
     jira.sync_issues
   rescue => e
     p e.message
-    render json: {error: e.message}, status: :internal_server_error
+    render json: {message: e.message}, status: :internal_server_error
   end
 
   # protected

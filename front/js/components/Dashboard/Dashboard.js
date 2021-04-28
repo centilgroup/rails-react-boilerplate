@@ -57,6 +57,7 @@ export default class Dashboard extends Component {
       jiraActivityLoading: false,
       jiraActivityHasMore: true,
       showAlert: false,
+      alertMessage: '',
       projectsSync: false,
       issuesSync: false,
       leadTime: '',
@@ -113,8 +114,13 @@ export default class Dashboard extends Component {
       .then((response) => {
         this.setState({ issues: response.data, jiraActivityLoading: false });
       })
-      .catch(() => {
-        this.setState({ jiraActivityLoading: false, showAlert: true });
+      .catch((error) => {
+        const { message } = error.response.data;
+        this.setState({
+          jiraActivityLoading: false,
+          showAlert: true,
+          alertMessage: message,
+        });
       })
       .finally(() => {
         const { issues } = this.state;
@@ -256,8 +262,9 @@ export default class Dashboard extends Component {
           this.setState({ jiraActivityHasMore: false });
         }
       })
-      .catch(() => {
-        this.setState({ showAlert: true });
+      .catch((error) => {
+        const { message } = error.response.data;
+        this.setState({ showAlert: true, alertMessage: message });
       })
       .finally(() => {
         setTimeout(() => {
@@ -301,7 +308,7 @@ export default class Dashboard extends Component {
         window.location.href = '/';
       })
       .catch((error) => {
-        const message = error.response.data.error;
+        const { message } = error.response.data;
         this.setState({ showIngestAlert: true, ingestErrorMessage: message });
       })
       .finally(() => {
@@ -766,6 +773,7 @@ export default class Dashboard extends Component {
       jiraActivityLoading,
       jiraActivityHasMore,
       showAlert,
+      alertMessage,
       selectedIssueId,
       projectsSync,
       issuesSync,
@@ -804,15 +812,7 @@ export default class Dashboard extends Component {
       disableIngest,
       ingestType,
     } = this.state;
-    const style = {
-      height: 300,
-      overflow: 'auto',
-    };
-    const alertStyle = {
-      position: 'fixed',
-      zIndex: 2,
-      width: '100%',
-    };
+
     let listIssues;
     let listEpics;
     let listBugs;
@@ -912,11 +912,17 @@ export default class Dashboard extends Component {
     }
 
     if (showAlert) {
+      const alertStyle = {
+        position: 'absolute',
+        top: 5,
+        right: 5,
+        zIndex: 2,
+        width: '25%',
+      };
+
       alert = (
         <Alert variant="danger" style={alertStyle}>
-          <span>
-            An unexpected error occurred while fetching Jira issues!!!
-          </span>
+          <span>{alertMessage}</span>
         </Alert>
       );
     }
@@ -1640,6 +1646,11 @@ export default class Dashboard extends Component {
       }
 
       if (value === 'activities') {
+        const activitiesStyle = {
+          height: 300,
+          overflow: 'auto',
+        };
+
         return (
           <Row className="py-4">
             <Col xs={12}>
@@ -1668,7 +1679,7 @@ export default class Dashboard extends Component {
                               <Card.Title>Activities</Card.Title>
                               <ListGroup
                                 variant="flush"
-                                style={style}
+                                style={activitiesStyle}
                                 id="jiraActivity"
                               >
                                 <InfiniteScroll
