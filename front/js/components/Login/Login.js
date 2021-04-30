@@ -5,14 +5,14 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { Button, Col, Form, Row } from 'react-bootstrap';
 import Footer from '../Shared/Footer';
 
 export default class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
       email: '',
       password: '',
       redirect: '',
@@ -25,7 +25,8 @@ export default class Login extends Component {
     this.setState({ [e.target.name]: e.target.value });
   };
 
-  handleSubmit = () => {
+  handleSubmit = (e) => {
+    e.preventDefault();
     const { email, password } = this.state;
     const data = { email, password };
 
@@ -42,22 +43,18 @@ export default class Login extends Component {
     });
   };
 
-  clearInputs = () => {
-    this.setState({ username: '', email: '' });
-  };
-
-  determineEnabled = () => {
-    const { username } = this.state;
-    const { email } = this.state;
-    if (username === '' || email === '') {
-      return false;
-    }
-
-    return false;
-  };
-
   render() {
     const { email, password, redirect, initialConfig } = this.state;
+    const formStyle = {
+      width: '30%',
+      margin: 'auto',
+      marginTop: '200px',
+      backgroundColor: '#07165e',
+      borderRadius: '5px',
+    };
+    const inputStyle = {
+      border: 'none',
+    };
 
     if (redirect === 'otp') {
       const url = `/otp?email=${email}`;
@@ -73,49 +70,65 @@ export default class Login extends Component {
     }
 
     return (
-      <article className="article-login">
-        <fieldset>
-          <div className="div-login">
-            <img
-              className="logo-login"
-              alt="logo-login"
-              src="https://user-images.githubusercontent.com/38546045/87486176-f1a5f280-c5f7-11ea-90de-1e80393d15a0.png"
-            />
-            <input
-              className="input-login"
-              onChange={this.handleChange}
-              value={email}
-              name="email"
-              type="text"
-              placeholder="email"
-            />
-            <input
-              className="input-login"
-              onChange={this.handleChange}
-              value={password}
-              name="password"
-              type="password"
-              placeholder="password"
-            />
-            <button
-              className="button-login"
-              type="submit"
-              disabled={this.determineEnabled()}
-              onClick={this.handleSubmit}
-            >
-              login
-            </button>
-            <Link to="/register">
-              <span className="nav-link">New user registration</span>
-            </Link>
-            <Link to="/password">
-              <span className="nav-link">Forgot password?</span>
-            </Link>
+      <section>
+        <Form className="p-4" style={formStyle}>
+          <Row>
+            <Col xs={12}>
+              <div className="mb-3 d-flex justify-content-center">
+                <img
+                  alt="login"
+                  src="https://user-images.githubusercontent.com/38546045/87486176-f1a5f280-c5f7-11ea-90de-1e80393d15a0.png"
+                  width="75px"
+                  height="75px"
+                />
+              </div>
+              <Form.Group controlId="email">
+                <Form.Control
+                  onChange={this.handleChange}
+                  value={email}
+                  name="email"
+                  type="email"
+                  placeholder="Enter Email"
+                  required
+                  style={inputStyle}
+                />
+              </Form.Group>
+              <Form.Group controlId="password">
+                <Form.Control
+                  onChange={this.handleChange}
+                  value={password}
+                  name="password"
+                  type="password"
+                  placeholder="Enter Password"
+                  required
+                  style={inputStyle}
+                  minLength="6"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Button
+            variant="primary"
+            type="submit"
+            onClick={this.handleSubmit}
+            style={{ width: '100%' }}
+          >
+            Login
+          </Button>
+          <div className="mt-2 text-center">
+            <NavLink to="/register" className="text-light">
+              New User Registration
+            </NavLink>
           </div>
-        </fieldset>
+          <div className="mt-2 text-center">
+            <NavLink to="/password" className="text-light">
+              Forgot Password?
+            </NavLink>
+          </div>
+        </Form>
 
         <Footer />
-      </article>
+      </section>
     );
   }
 }
