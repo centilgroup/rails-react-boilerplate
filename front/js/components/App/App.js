@@ -16,8 +16,10 @@ import OneTimePassword from '../Login/OneTimePassword';
 import Profile from '../Profile/Profile';
 import Dashboard from '../Dashboard/Dashboard';
 import LinkJira from '../Settings/LinkJira';
-import SyncProjects from '../Settings/SyncProjects';
-import SyncIssues from '../Settings/SyncIssues';
+import ProfileSection from '../Settings/ProfileSection';
+import IngestProjects from '../Settings/IngestProjects';
+import IngestBoards from '../Settings/IngestBoards';
+import IngestIssues from '../Settings/IngestIssues';
 
 export default class App extends Component {
   constructor(props) {
@@ -71,19 +73,31 @@ export default class App extends Component {
               <GuardedRoute
                 path="/initial-config-step-1"
                 exact
-                component={LinkJira}
+                component={ProfileSection}
                 meta={{ auth: true }}
               />
               <GuardedRoute
                 path="/initial-config-step-2"
                 exact
-                component={SyncProjects}
+                component={LinkJira}
                 meta={{ auth: true }}
               />
               <GuardedRoute
                 path="/initial-config-step-3"
                 exact
-                component={SyncIssues}
+                component={IngestProjects}
+                meta={{ auth: true }}
+              />
+              <GuardedRoute
+                path="/initial-config-step-4"
+                exact
+                component={IngestBoards}
+                meta={{ auth: true }}
+              />
+              <GuardedRoute
+                path="/initial-config-step-5"
+                exact
+                component={IngestIssues}
                 meta={{ auth: true }}
               />
               <GuardedRoute

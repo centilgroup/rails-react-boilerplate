@@ -1,5 +1,5 @@
 /**
- * @file LinkJira component.
+ * @file ProfileSection component.
  */
 
 import React, { Component } from 'react';
@@ -16,13 +16,14 @@ import {
 import { Redirect } from 'react-router';
 import Footer from '../Shared/Footer';
 
-export default class LinkJira extends Component {
+export default class ProfileSection extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      jira_url: '',
-      jira_username: '',
-      jira_password: '',
+      firstName: '',
+      lastName: '',
+      username: '',
+      companyName: '',
       redirect: false,
       redirectTo: '',
     };
@@ -30,17 +31,25 @@ export default class LinkJira extends Component {
 
   componentDidMount() {
     const user = JSON.parse(localStorage.getItem('user'));
-    if (user.jira_url === null) {
-      user.jira_url = '';
+    if (user.first_name === null) {
+      user.first_name = '';
     }
-    if (user.jira_username === null) {
-      user.jira_username = '';
+    if (user.last_name === null) {
+      user.last_name = '';
     }
-    if (user.jira_password === null) {
-      user.jira_password = '';
+    if (user.username === null) {
+      user.username = '';
+    }
+    if (user.company_name === null) {
+      user.company_name = '';
     }
 
-    this.setState(user);
+    this.setState({
+      firstName: user.first_name,
+      lastName: user.last_name,
+      username: user.username,
+      companyName: user.company_name,
+    });
   }
 
   handleChange = (e) => {
@@ -49,28 +58,30 @@ export default class LinkJira extends Component {
   };
 
   determineEnabled = () => {
-    const { jira_url, jira_username, jira_password } = this.state;
+    const { firstName, lastName, username, companyName } = this.state;
     return (
-      jira_url.trim() === '' ||
-      jira_username.trim() === '' ||
-      jira_password === ''
+      firstName.trim() === '' ||
+      lastName.trim() === '' ||
+      username.trim() === '' ||
+      companyName.trim() === ''
     );
   };
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const { jira_url, jira_username, jira_password } = this.state;
+    const { firstName, lastName, username, companyName } = this.state;
     const data = new FormData();
-    data.append('user[jira_url]', jira_url);
-    data.append('user[jira_username]', jira_username);
-    data.append('user[jira_password]', jira_password);
+    data.append('user[first_name]', firstName);
+    data.append('user[last_name]', lastName);
+    data.append('user[username]', username);
+    data.append('user[company_name]', companyName);
 
     axios
       .put('/users/profile.json', data)
       .then((response) => {
         const profile_data = response.data;
         localStorage.setItem('user', JSON.stringify(profile_data));
-        this.setState({ redirect: true, redirectTo: 'initial-config-step-3' });
+        this.setState({ redirect: true, redirectTo: 'initial-config-step-2' });
       })
       .catch(() => {});
   };
@@ -85,13 +96,13 @@ export default class LinkJira extends Component {
 
   render() {
     const {
-      jira_url,
-      jira_username,
-      jira_password,
+      firstName,
+      lastName,
+      username,
+      companyName,
       redirect,
       redirectTo,
     } = this.state;
-    const helperTextStyle = { fontSize: 'initial' };
 
     if (redirect) {
       return <Redirect to={`/${redirectTo}`} />;
@@ -128,70 +139,52 @@ export default class LinkJira extends Component {
 
         <Container className="pt-5">
           <Form className="pt-4">
-            <h4>Jira Link</h4>
+            <h4>Profile Section</h4>
             <Row>
               <Col xs={6}>
                 <Form.Group>
-                  <Form.Label>Jira URL</Form.Label>
+                  <Form.Label>First Name</Form.Label>
                   <Form.Control
                     onChange={this.handleChange}
-                    value={jira_url}
-                    name="jira_url"
+                    value={firstName}
+                    name="firstName"
                     type="text"
-                    placeholder="Jira URL"
-                    aria-describedby="jiraURLHelpBlock"
+                    placeholder="Enter First Name"
                     required
                   />
-                  <Form.Text
-                    id="jiraURLHelpBlock"
-                    muted
-                    style={helperTextStyle}
-                  >
-                    Input your Jira URL (ex. https://company.atlassian.net/)
-                  </Form.Text>
                 </Form.Group>
                 <Form.Group>
-                  <Form.Label>Jira Username</Form.Label>
+                  <Form.Label>Last Name</Form.Label>
                   <Form.Control
                     onChange={this.handleChange}
-                    value={jira_username}
-                    name="jira_username"
+                    value={lastName}
+                    name="lastName"
                     type="text"
-                    placeholder="Jira Username"
-                    aria-describedby="jiraUsernameHelpBlock"
+                    placeholder="Enter Last Name"
                     required
                   />
-                  <Form.Text
-                    id="jiraUsernameHelpBlock"
-                    muted
-                    style={helperTextStyle}
-                  >
-                    Input the email address associated with your Jira instance.
-                  </Form.Text>
                 </Form.Group>
                 <Form.Group>
-                  <Form.Label>Jira Password</Form.Label>
+                  <Form.Label>Username</Form.Label>
                   <Form.Control
                     onChange={this.handleChange}
-                    value={jira_password}
-                    name="jira_password"
-                    type="password"
-                    placeholder="Jira Password"
-                    aria-describedby="jiraPasswordHelpBlock"
+                    value={username}
+                    name="username"
+                    type="text"
+                    placeholder="Enter Username"
                     required
                   />
-                  <Form.Text
-                    id="jiraPasswordHelpBlock"
-                    muted
-                    style={helperTextStyle}
-                  >
-                    Visit the Jira instance that you want to connect to FlowLab.
-                    Click Account Settings &gt; Security &gt; Create and manage
-                    API tokens &gt; Create API token. Add a Label (suggested
-                    “FlowLab Dashboard”) and click Create. Once the token is
-                    generated Copy and Paste the API key into the FlowLab Jira
-                    Password field.
-                  </Form.Text>
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Company Name</Form.Label>
+                  <Form.Control
+                    onChange={this.handleChange}
+                    value={companyName}
+                    name="companyName"
+                    type="text"
+                    placeholder="Enter Company Name"
+                    required
+                  />
                 </Form.Group>
               </Col>
             </Row>
