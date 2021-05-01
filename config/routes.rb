@@ -7,11 +7,23 @@ Rails.application.routes.draw do
   devise_scope :user do
     post "users/pre_otp", to: "users/sessions#pre_otp"
     put "users/profile", to: "users/sessions#profile"
+    put "users/update", to: "users/sessions#update"
     put "users/sync_projects", to: "users/sessions#sync_projects"
     put "users/sync_issues", to: "users/sessions#sync_issues"
-    put "users/min_max_config", to: "users/sessions#min_max_config"
-    put "users/sortable_items_config", to: "users/sessions#sortable_items_config"
     put "users/ingest", to: "users/sessions#ingest"
+  end
+
+  resources :dashboard do
+    collection do
+      get :project_flow_health
+      get :work_in_progress
+      get :status_gauge
+      get :activities
+      get :focus
+      get :value_stream_map
+      get :projects_vpi
+      get :projects
+    end
   end
 
   resources :jiras do

@@ -1,3 +1,4 @@
+# This is replaced by Dashboard controller
 class JirasController < ApplicationController
   before_action :set_jira, only: [:edit, :update, :destroy]
   before_action :init_jira, only: [:index, :stat]

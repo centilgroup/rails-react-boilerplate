@@ -75,12 +75,7 @@ export default class Login extends Component {
           <Row>
             <Col xs={12}>
               <div className="mb-3 d-flex justify-content-center">
-                <img
-                  alt="login"
-                  src="https://user-images.githubusercontent.com/38546045/87486176-f1a5f280-c5f7-11ea-90de-1e80393d15a0.png"
-                  width="75px"
-                  height="75px"
-                />
+                <img alt="login" src="/logo.png" width="75px" height="75px" />
               </div>
               <Form.Group controlId="email">
                 <Form.Control

@@ -68,11 +68,7 @@ export default class PasswordEdit extends Component {
       <article className="article-login">
         <fieldset>
           <div className="div-login">
-            <img
-              className="logo-login"
-              alt="logo-login"
-              src="https://user-images.githubusercontent.com/38546045/87486176-f1a5f280-c5f7-11ea-90de-1e80393d15a0.png"
-            />
+            <img className="logo-login" alt="logo-login" src="/logo.png" />
             <input
               className="input-login"
               onChange={this.handleChange}

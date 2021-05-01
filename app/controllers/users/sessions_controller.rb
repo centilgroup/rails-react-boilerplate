@@ -32,6 +32,11 @@ class Users::SessionsController < Devise::SessionsController
     sign_in_user
   end
 
+  # PUT /resource/update
+  def update
+    current_user.update(user_params)
+  end
+
   # DELETE /resource/sign_out
   # def destroy
   #   super
@@ -54,16 +59,6 @@ class Users::SessionsController < Devise::SessionsController
   rescue => e
     p e.message
     render json: {message: e.message}, status: :unprocessable_entity
-  end
-
-  # PUT /resource/min_max_config
-  def min_max_config
-    current_user.update(min_max: params[:min_max])
-  end
-
-  # PUT /resource/sortable_items_config
-  def sortable_items_config
-    current_user.update(sortable_items: params[:sortable_items])
   end
 
   # PUT /resource/sync_projects
@@ -161,7 +156,8 @@ class Users::SessionsController < Devise::SessionsController
     params.require(:user).permit(
       :email, :password, :first_name, :last_name, :username,
       :company_name, :jira_url, :api_version, :jira_username,
-      :jira_password, :two_factor_auth, :avatar, :initial_config
+      :jira_password, :two_factor_auth, :avatar, :initial_config,
+      :wip, :gauge, :focus, :vpi, :activities, :vsm, sortable_items: []
     )
   end
 
