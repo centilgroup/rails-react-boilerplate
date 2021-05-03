@@ -177,7 +177,10 @@ class DashboardManager
 
     total_lt = median_lt_to_do + median_lt_wip + median_lt_qa + median_lt_done
     total_pt = median_pt_to_do + median_pt_wip + median_pt_qa + median_pt_done
-    activity_ratio = (total_pt / total_lt) * 100
+    activity_ratio =
+      if total_lt.positive?
+        ((total_pt / total_lt) * 100).round(1)
+      end
     rolled_ca =
       if ca_to_do.positive? && ca_wip.positive? && ca_qa.positive?
         (ca_to_do / 100) * (ca_wip / 100) * (ca_qa / 100) * 100
@@ -218,7 +221,7 @@ class DashboardManager
       {
         total_lt: total_lt.round(1),
         total_pt: total_pt.round(1),
-        activity_ratio: activity_ratio.round(1),
+        activity_ratio: activity_ratio,
         rolled_ca: rolled_ca.round(1)
       }
     ]
@@ -241,50 +244,5 @@ class DashboardManager
     return 0 if c.zero?
 
     ((c - a) / c.to_f) * 100
-  end
-
-  def time_to_close_in_days(issue)
-    change_log = issue.try(:changelog)
-    histories = change_log["histories"]
-    issue_created_at = Date.parse issue.try(:created)
-    current_status = issue.status.name.downcase
-    return unless %w[done closed].include? current_status
-
-    histories.reverse_each do |history|
-      item = history["items"].first
-      if %w[status resolution].include?(item["field"]) && item["fieldtype"] == "jira"
-        status = history["items"].last["toString"].downcase
-        if %w[done closed].include? status
-          history_created_at = Date.parse history["created"]
-          return (history_created_at - issue_created_at).to_i
-        end
-      end
-    end
-  end
-
-  def status_transitions(issue)
-    transitions = []
-    change_log = issue.try(:changelog)
-    histories = change_log["histories"]
-    offset_time = Time.parse issue.try(:created)
-
-    histories.reverse_each do |history|
-      item = history["items"].last
-      if item["field"] == "status" && item["fieldtype"] == "jira"
-        created_at = Time.parse history["created"]
-        lead_time = (created_at - offset_time) / 1.day
-        transitions << {
-          from_status: history["items"].last["from"],
-          from_string: history["items"].last["fromString"],
-          to_status: history["items"].last["to"],
-          to_string: history["items"].last["toString"],
-          lead_time: lead_time,
-          process_time: (lead_time * 8) / 24.to_f
-        }
-        offset_time = Time.parse history["created"]
-      end
-    end
-
-    transitions
   end
 end

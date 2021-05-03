@@ -43,8 +43,11 @@ export default class IngestIssues extends Component {
 
     axios
       .put('/users/ingest.json', data)
-      .then((response) => {
-        this.setState({ redirect: true, redirectTo: '/' });
+      .then(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        user.initial_config = true;
+        localStorage.setItem('user', JSON.stringify(user));
+        this.setState({ redirect: true });
       })
       .catch((error) => {
         const { message } = error.response.data;
