@@ -226,10 +226,10 @@ export default class Navbar extends Component {
     if (ingestType === 'issues') {
       ingestInfoMessage =
         'issue_id, project_id, status, issue_type, issue_key, change_log, summary, due_date & created';
-    } else if (ingestType === 'projects') {
+    } else if (ingestType === 'boards') {
       ingestInfoMessage =
         'board_id, name, board_type, project_id, column_config';
-    } else if (ingestType === 'boards') {
+    } else if (ingestType === 'projects') {
       ingestInfoMessage = 'project_id, key & name';
     }
 
