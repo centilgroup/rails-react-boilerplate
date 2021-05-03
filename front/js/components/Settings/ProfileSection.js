@@ -75,12 +75,12 @@ export default class ProfileSection extends Component {
     data.append('user[last_name]', lastName);
     data.append('user[username]', username);
     data.append('user[company_name]', companyName);
+    data.append('user[initial_config_step]', '2');
 
     axios
-      .put('/users/profile.json', data)
+      .put('/users/update.json', data)
       .then((response) => {
-        const profile_data = response.data;
-        localStorage.setItem('user', JSON.stringify(profile_data));
+        localStorage.setItem('user', JSON.stringify(response.data));
         this.setState({ redirect: true, redirectTo: 'initial-config-step-2' });
       })
       .catch(() => {});

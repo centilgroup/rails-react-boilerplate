@@ -16,7 +16,6 @@ export default class Login extends Component {
       email: '',
       password: '',
       redirect: '',
-      initialConfig: false,
     };
   }
 
@@ -33,10 +32,9 @@ export default class Login extends Component {
     axios.post('/users/pre_otp.json', data).then((response) => {
       const { auth_token, user } = response.data;
       if (auth_token) {
-        const initialConfig = user.initial_config;
         localStorage.setItem('auth_token', auth_token);
         localStorage.setItem('user', JSON.stringify(user));
-        this.setState({ redirect: 'no_otp', initialConfig });
+        this.setState({ redirect: 'no_otp' });
       } else {
         this.setState({ redirect: 'otp' });
       }
@@ -44,7 +42,7 @@ export default class Login extends Component {
   };
 
   render() {
-    const { email, password, redirect, initialConfig } = this.state;
+    const { email, password, redirect } = this.state;
     const formStyle = {
       width: '30%',
       margin: 'auto',
@@ -61,12 +59,8 @@ export default class Login extends Component {
       return <Redirect to={url} />;
     }
 
-    if (redirect === 'no_otp' && initialConfig === true) {
+    if (redirect === 'no_otp') {
       return <Redirect to="/" />;
-    }
-
-    if (redirect === 'no_otp' && initialConfig !== true) {
-      return <Redirect to="/initial-config-step-1" />;
     }
 
     return (

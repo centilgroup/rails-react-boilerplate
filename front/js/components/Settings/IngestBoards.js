@@ -39,11 +39,15 @@ export default class IngestBoards extends Component {
     const { ingest } = this.state;
     const data = new FormData();
     data.append(`user[boards_ingest]`, ingest);
+    data.append('user[initial_config_step]', '5');
     this.setState({ disableIngest: true });
 
     axios
       .put('/users/ingest.json', data)
-      .then((response) => {
+      .then(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        user.initial_config_step = 5;
+        localStorage.setItem('user', JSON.stringify(user));
         this.setState({ redirect: true, redirectTo: 'initial-config-step-5' });
       })
       .catch((error) => {

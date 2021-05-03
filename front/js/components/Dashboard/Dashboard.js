@@ -20,6 +20,8 @@ export default class Dashboard extends Component {
     const user = JSON.parse(localStorage.getItem('user'));
     const sortableItems = user.sortable_items;
     const initialConfig = user.initial_config;
+    const initialConfigStep = user.initial_config_step;
+    const validStep = [1, 2, 3, 4, 5].includes(initialConfigStep);
     this.state = {
       projects: [],
       projectId: '',
@@ -27,6 +29,7 @@ export default class Dashboard extends Component {
       alertMessage: '',
       sortableItems: sortableItems === null ? defaultItems : sortableItems,
       initialConfig: initialConfig === true,
+      initialConfigStep: validStep ? initialConfigStep : 1,
     };
   }
 
@@ -76,6 +79,7 @@ export default class Dashboard extends Component {
       sortableItems,
       projectId,
       initialConfig,
+      initialConfigStep,
     } = this.state;
 
     let alert;
@@ -120,7 +124,7 @@ export default class Dashboard extends Component {
     });
 
     if (!initialConfig) {
-      return <Redirect to="/initial-config-step-1" />;
+      return <Redirect to={`/initial-config-step-${initialConfigStep}`} />;
     }
 
     if (projects.length <= 0) {

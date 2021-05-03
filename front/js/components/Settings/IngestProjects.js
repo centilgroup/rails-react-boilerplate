@@ -39,11 +39,15 @@ export default class IngestProjects extends Component {
     const { ingest } = this.state;
     const data = new FormData();
     data.append(`user[projects_ingest]`, ingest);
+    data.append('user[initial_config_step]', '4');
     this.setState({ disableIngest: true });
 
     axios
       .put('/users/ingest.json', data)
-      .then((response) => {
+      .then(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        user.initial_config_step = 4;
+        localStorage.setItem('user', JSON.stringify(user));
         this.setState({ redirect: true, redirectTo: 'initial-config-step-4' });
       })
       .catch((error) => {

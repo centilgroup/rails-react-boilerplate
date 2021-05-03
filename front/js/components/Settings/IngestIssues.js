@@ -39,6 +39,7 @@ export default class IngestIssues extends Component {
     const { ingest } = this.state;
     const data = new FormData();
     data.append(`user[issues_ingest]`, ingest);
+    data.append('user[initial_config]', 'true');
     this.setState({ disableIngest: true });
 
     axios

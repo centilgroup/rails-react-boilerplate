@@ -35,6 +35,7 @@ class Users::SessionsController < Devise::SessionsController
   # PUT /resource/update
   def update
     current_user.update(user_params)
+    current_user.avatar.attach(params[:user][:avatar]) if params[:user][:avatar].present?
   end
 
   # DELETE /resource/sign_out
@@ -60,7 +61,7 @@ class Users::SessionsController < Devise::SessionsController
 
     raise StandardError, "File can't be blank" if csv.length.zero?
 
-    current_user.update(initial_config: true) if params[:user][:issues_ingest].present?
+    current_user.update(user_params)
   rescue => e
     p e.message
     render json: {message: e.message}, status: :unprocessable_entity
@@ -167,7 +168,8 @@ class Users::SessionsController < Devise::SessionsController
       :email, :password, :first_name, :last_name, :username,
       :company_name, :jira_url, :api_version, :jira_username,
       :jira_password, :two_factor_auth, :avatar, :initial_config,
-      :wip, :gauge, :focus, :vpi, :activities, :vsm, sortable_items: []
+      :wip, :gauge, :focus, :vpi, :activities, :vsm, :initial_config_step,
+      sortable_items: []
     )
   end
 

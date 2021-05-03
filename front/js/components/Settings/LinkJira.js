@@ -64,12 +64,12 @@ export default class LinkJira extends Component {
     data.append('user[jira_url]', jira_url);
     data.append('user[jira_username]', jira_username);
     data.append('user[jira_password]', jira_password);
+    data.append('user[initial_config_step]', '3');
 
     axios
-      .put('/users/profile.json', data)
+      .put('/users/update.json', data)
       .then((response) => {
-        const profile_data = response.data;
-        localStorage.setItem('user', JSON.stringify(profile_data));
+        localStorage.setItem('user', JSON.stringify(response.data));
         this.setState({ redirect: true, redirectTo: 'initial-config-step-3' });
       })
       .catch(() => {});
