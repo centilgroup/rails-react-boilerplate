@@ -21,6 +21,7 @@ export default class Register extends Component {
       emailErrorMessage: '',
       passwordErrorMessage: '',
       passwordConfirmationErrorMessage: '',
+      isEmailInValid: false,
     };
   }
 
@@ -28,6 +29,7 @@ export default class Register extends Component {
     e.preventDefault();
     this.setState({
       [e.target.name]: e.target.value,
+      isEmailInValid: false,
       emailErrorMessage: '',
       passwordErrorMessage: '',
       passwordConfirmationErrorMessage: '',
@@ -72,6 +74,10 @@ export default class Register extends Component {
           passwordErrorMessage,
           passwordConfirmationErrorMessage,
         });
+
+        if (emailErrorMessage !== '') {
+          this.setState({ validated: false, isEmailInValid: true });
+        }
       });
   };
 
@@ -85,6 +91,7 @@ export default class Register extends Component {
       emailErrorMessage,
       passwordErrorMessage,
       passwordConfirmationErrorMessage,
+      isEmailInValid,
     } = this.state;
     const formStyle = {
       width: '30%',
@@ -128,7 +135,7 @@ export default class Register extends Component {
                   placeholder="Enter Email"
                   required
                   style={inputStyle}
-                  isInvalid={emailErrorMessage === 'has already been taken'}
+                  isInvalid={isEmailInValid}
                 />
                 <Form.Control.Feedback type="invalid">
                   {emailErrorMessage}
