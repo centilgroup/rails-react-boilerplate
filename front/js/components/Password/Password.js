@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { NavLink } from 'react-router-dom';
 import { Button, Col, Form, Row } from 'react-bootstrap';
+import { Redirect } from 'react-router';
 import Footer from '../Shared/Footer';
 
 export default class Password extends Component {
@@ -16,6 +17,9 @@ export default class Password extends Component {
       validated: false,
       emailErrorMessage: '',
       emailSuccessMessage: '',
+      disableResetPassword: false,
+      redirect: false,
+      isEmailInValid: false,
     };
   }
 
@@ -23,6 +27,7 @@ export default class Password extends Component {
     e.preventDefault();
     this.setState({
       [e.target.name]: e.target.value,
+      isEmailInValid: false,
       emailErrorMessage: '',
       emailSuccessMessage: '',
     });
@@ -39,15 +44,12 @@ export default class Password extends Component {
         this.setState({
           validated: true,
           emailSuccessMessage: 'Reset password link sent to your email.',
+          disableResetPassword: true,
         });
 
         setTimeout(() => {
-          this.setState({
-            validated: false,
-            emailSuccessMessage: '',
-            email: '',
-          });
-        }, 5000);
+          this.setState({ redirect: true });
+        }, 3000);
       })
       .catch((error) => {
         const { errors } = error.response.data;
@@ -59,9 +61,12 @@ export default class Password extends Component {
 
         this.setState({
           validated: true,
-          email: '',
           emailErrorMessage,
         });
+
+        if (emailErrorMessage !== '') {
+          this.setState({ validated: false, isEmailInValid: true });
+        }
       });
   };
 
@@ -71,6 +76,9 @@ export default class Password extends Component {
       validated,
       emailErrorMessage,
       emailSuccessMessage,
+      disableResetPassword,
+      redirect,
+      isEmailInValid,
     } = this.state;
     const formStyle = {
       width: '30%',
@@ -82,6 +90,10 @@ export default class Password extends Component {
     const inputStyle = {
       border: 'none',
     };
+
+    if (redirect) {
+      return <Redirect to="/" />;
+    }
 
     return (
       <section>
@@ -110,7 +122,7 @@ export default class Password extends Component {
                   placeholder="Enter Email"
                   required
                   style={inputStyle}
-                  isInvalid={emailErrorMessage === 'not found'}
+                  isInvalid={isEmailInValid}
                 />
                 <Form.Control.Feedback>
                   {emailSuccessMessage}
@@ -126,8 +138,9 @@ export default class Password extends Component {
             type="submit"
             onClick={this.handleSubmit}
             style={{ width: '100%' }}
+            disabled={disableResetPassword}
           >
-            Reset Your Password
+            Reset My Password
           </Button>
           <div className="mt-2 text-center">
             <NavLink to="/" className="text-light">
