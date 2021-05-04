@@ -41,6 +41,8 @@ class JiraManager
 
     jira_boards.each do |jira_board|
       config = jira_board.configuration
+      next if config.try(:location).nil?
+
       board = {
         user_board_id: "#{@user.id}_#{config.id}",
         board_id: config.id, name: config.name,
