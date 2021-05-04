@@ -32,6 +32,12 @@ class Users::SessionsController < Devise::SessionsController
     sign_in_user
   end
 
+  # PUT /resource/update
+  def update
+    current_user.update(user_params)
+    current_user.avatar.attach(params[:user][:avatar]) if params[:user][:avatar].present?
+  end
+
   # DELETE /resource/sign_out
   # def destroy
   #   super
@@ -48,22 +54,17 @@ class Users::SessionsController < Devise::SessionsController
     csv_text = File.read(ingest_data)
     converter = lambda { |header| header.downcase.split.join("_") }
     csv = CSV.parse(csv_text, headers: true, header_converters: converter)
+
     csv.each(&method(:upsert_issue)) if params[:user][:issues_ingest].present?
     csv.each(&method(:upsert_board)) if params[:user][:boards_ingest].present?
     csv.each(&method(:upsert_project)) if params[:user][:projects_ingest].present?
+
+    raise StandardError, "File can't be blank" if csv.length.zero?
+
+    current_user.update(user_params)
   rescue => e
     p e.message
-    render json: {error: e.message}, status: :unprocessable_entity
-  end
-
-  # PUT /resource/min_max_config
-  def min_max_config
-    current_user.update(min_max: params[:min_max])
-  end
-
-  # PUT /resource/sortable_items_config
-  def sortable_items_config
-    current_user.update(sortable_items: params[:sortable_items])
+    render json: {message: e.message}, status: :unprocessable_entity
   end
 
   # PUT /resource/sync_projects
@@ -73,7 +74,7 @@ class Users::SessionsController < Devise::SessionsController
     @projects = current_user.projects
   rescue => e
     p e.message
-    render json: {error: e.message}, status: :internal_server_error
+    render json: {message: e.message}, status: :internal_server_error
   end
 
   # PUT /resource/sync_issues
@@ -82,7 +83,7 @@ class Users::SessionsController < Devise::SessionsController
     jira.sync_issues
   rescue => e
     p e.message
-    render json: {error: e.message}, status: :internal_server_error
+    render json: {message: e.message}, status: :internal_server_error
   end
 
   # protected
@@ -105,28 +106,33 @@ class Users::SessionsController < Devise::SessionsController
   end
 
   def upsert_issue(row)
-    required_keys = %i[issue_id project_id status issue_type issue_key change_log summary due_date created]
+    required_keys = %w[issue_id project_id status issue_type issue_key change_log summary due_date created]
     unless required_keys.all? { |required_key| row.to_hash.key? required_key }
-      missing_keys = required_keys - row.to_hash.keys.map(&:to_sym)
-      message = "Missing #{missing_keys.map(&:to_s).join(", ")}"
+      missing_keys = required_keys - row.to_hash.keys
+      message = "Missing #{missing_keys.join(", ")}"
       raise ArgumentError, message
     end
 
     issue = {
       user_issue_id: "#{current_user.id}_#{row["issue_id"]}",
-      project_id: row["project_id"], status: {name: row["status"]},
-      user_id: current_user.id, issue_type: {name: row["issue_type"]},
-      key: row["issue_key"], change_log: row["change_log"]
+      project_id: row["project_id"], status: JSON.parse(row["status"]),
+      user_id: current_user.id, issue_type: JSON.parse(row["issue_type"]),
+      key: row["issue_key"], change_log: JSON.parse(row["change_log"])
     }.merge(row.to_hash.slice("issue_id", "summary", "due_date", "created"))
+
+    issue = issue.merge(
+      time_to_close_in_days: time_to_close_in_days(issue),
+      status_transitions: status_transitions(issue)
+    )
 
     Issue.upsert(issue, unique_by: :user_issue_id)
   end
 
   def upsert_board(row)
-    required_keys = %i[board_id name board_type project_id column_config]
+    required_keys = %w[board_id name board_type project_id column_config]
     unless required_keys.all? { |required_key| row.to_hash.key? required_key }
-      missing_keys = required_keys - row.to_hash.keys.map(&:to_sym)
-      message = "Missing #{missing_keys.map(&:to_s).join(", ")}"
+      missing_keys = required_keys - row.to_hash.keys
+      message = "Missing #{missing_keys.join(", ")}"
       raise ArgumentError, message
     end
 
@@ -134,34 +140,36 @@ class Users::SessionsController < Devise::SessionsController
       user_board_id: "#{current_user.id}_#{row["board_id"]}",
       name: row["name"], board_type: row["board_type"],
       user_id: current_user.id, project_id: row["project_id"],
-      column_config: row["column_config"]
+      column_config: JSON.parse(row["column_config"]), board_id: row["board_id"]
     }
 
     Board.upsert(board, unique_by: :user_board_id)
   end
 
   def upsert_project(row)
-    required_keys = %i[project_id key name]
+    required_keys = %w[project_id key name]
     unless required_keys.all? { |required_key| row.to_hash.key? required_key }
-      missing_keys = required_keys - row.to_hash.keys.map(&:to_sym)
-      message = "Missing #{missing_keys.map(&:to_s).join(", ")}"
+      missing_keys = required_keys - row.to_hash.keys
+      message = "Missing #{missing_keys.join(", ")}"
       raise ArgumentError, message
     end
 
-    board = {
+    project = {
       user_project_id: "#{current_user.id}_#{row["project_id"]}",
       name: row["name"], key: row["key"],
       user_id: current_user.id, project_id: row["project_id"]
     }
 
-    Project.upsert(board, unique_by: :user_project_id)
+    Project.upsert(project, unique_by: :user_project_id)
   end
 
   def user_params
     params.require(:user).permit(
       :email, :password, :first_name, :last_name, :username,
       :company_name, :jira_url, :api_version, :jira_username,
-      :jira_password, :two_factor_auth, :avatar, :initial_config
+      :jira_password, :two_factor_auth, :avatar, :initial_config,
+      :wip, :gauge, :focus, :vpi, :activities, :vsm, :initial_config_step,
+      sortable_items: []
     )
   end
 
@@ -189,5 +197,50 @@ class Users::SessionsController < Devise::SessionsController
       start_at: 0,
       project_id: ""
     )
+  end
+
+  def time_to_close_in_days(issue)
+    change_log = issue[:change_log]
+    histories = change_log["histories"]
+    issue_created_at = Date.parse issue["created"]
+    current_status = issue[:status]["name"].downcase
+    return unless %w[done closed].include? current_status
+
+    histories.reverse_each do |history|
+      item = history["items"].first
+      if %w[status resolution].include?(item["field"]) && item["fieldtype"] == "jira"
+        status = history["items"].last["toString"].downcase
+        if %w[done closed].include? status
+          history_created_at = Date.parse history["created"]
+          return (history_created_at - issue_created_at).to_i
+        end
+      end
+    end
+  end
+
+  def status_transitions(issue)
+    transitions = []
+    change_log = issue[:change_log]
+    histories = change_log["histories"]
+    offset_time = Time.parse issue["created"]
+
+    histories.reverse_each do |history|
+      item = history["items"].last
+      if item["field"] == "status" && item["fieldtype"] == "jira"
+        created_at = Time.parse history["created"]
+        lead_time = (created_at - offset_time) / 1.day
+        transitions << {
+          from_status: history["items"].last["from"],
+          from_string: history["items"].last["fromString"],
+          to_status: history["items"].last["to"],
+          to_string: history["items"].last["toString"],
+          lead_time: lead_time,
+          process_time: (lead_time * 8) / 24.to_f
+        }
+        offset_time = Time.parse history["created"]
+      end
+    end
+
+    transitions
   end
 end
