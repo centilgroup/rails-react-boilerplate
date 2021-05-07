@@ -6,8 +6,7 @@ class DashboardController < ApplicationController
   end
 
   def work_in_progress
-    @boards = @manager.fetch_board_data
-    @wip = @manager.fetch_gas_gauge_data
+    @columns, @wip = @manager.fetch_wip_data
   end
 
   def status_gauge

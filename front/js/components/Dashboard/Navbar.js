@@ -197,6 +197,10 @@ export default class Navbar extends Component {
       (project) => project.project_id === projectId,
     );
 
+    if (filteredProject.length <= 0) {
+      return projectId;
+    }
+
     return filteredProject[0].name;
   };
 
