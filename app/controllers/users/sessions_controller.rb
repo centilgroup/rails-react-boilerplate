@@ -22,6 +22,8 @@ class Users::SessionsController < Devise::SessionsController
 
     otp_code = @user.otp_code
     UserMailer.send_otp_email(params, otp_code).deliver
+  rescue => error
+    render json: {message: error.message}, status: :unprocessable_entity
   end
 
   # POST /resource/sign_in

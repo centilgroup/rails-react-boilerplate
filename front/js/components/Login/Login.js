@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import { Button, Col, Form, Row } from 'react-bootstrap';
+import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
 import Footer from '../Shared/Footer';
 
 export default class Login extends Component {
@@ -15,6 +15,8 @@ export default class Login extends Component {
     this.state = {
       email: '',
       password: '',
+      showAlert: false,
+      errorMessage: 'Wrong Email / Password. Please try again.',
       redirect: '',
     };
   }
@@ -29,20 +31,30 @@ export default class Login extends Component {
     const { email, password } = this.state;
     const data = { email, password };
 
-    axios.post('/users/pre_otp.json', data).then((response) => {
-      const { auth_token, user } = response.data;
-      if (auth_token) {
-        localStorage.setItem('auth_token', auth_token);
-        localStorage.setItem('user', JSON.stringify(user));
-        this.setState({ redirect: 'no_otp' });
-      } else {
-        this.setState({ redirect: 'otp' });
-      }
-    });
+    axios
+      .post('/users/pre_otp.json', data)
+      .then((response) => {
+        const { auth_token, user } = response.data;
+        if (auth_token) {
+          localStorage.setItem('auth_token', auth_token);
+          localStorage.setItem('user', JSON.stringify(user));
+          this.setState({ redirect: 'no_otp' });
+        } else {
+          this.setState({ redirect: 'otp' });
+        }
+      })
+      .catch(() => {
+        this.setState({ showAlert: true });
+      })
+      .finally(() => {
+        setTimeout(() => {
+          this.setState({ showAlert: false });
+        }, 3000);
+      });
   };
 
   render() {
-    const { email, password, redirect } = this.state;
+    const { email, password, showAlert, errorMessage, redirect } = this.state;
     const formStyle = {
       width: '30%',
       margin: 'auto',
@@ -54,6 +66,8 @@ export default class Login extends Component {
       border: 'none',
     };
 
+    let alert;
+
     if (redirect === 'otp') {
       const url = `/otp?email=${email}`;
       return <Redirect to={url} />;
@@ -61,6 +75,14 @@ export default class Login extends Component {
 
     if (redirect === 'no_otp') {
       return <Redirect to="/" />;
+    }
+
+    if (showAlert) {
+      alert = (
+        <Alert variant="danger">
+          <span>{errorMessage}</span>
+        </Alert>
+      );
     }
 
     return (
@@ -71,6 +93,7 @@ export default class Login extends Component {
               <div className="mb-3 d-flex justify-content-center">
                 <img alt="login" src="/logo.png" width="75px" height="75px" />
               </div>
+              {alert}
               <Form.Group controlId="email">
                 <Form.Control
                   onChange={this.handleChange}
