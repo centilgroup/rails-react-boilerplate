@@ -14,7 +14,9 @@ import {
   Tooltip,
 } from 'react-bootstrap';
 import { SortableHandle } from 'react-sortable-hoc';
+import * as ChartJs from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import moment from 'moment';
 
 export default class WIP extends Component {
@@ -99,6 +101,18 @@ export default class WIP extends Component {
         legend: {
           display: false,
         },
+        annotation: {
+          annotations: [
+            {
+              type: 'line',
+              mode: 'horizontal',
+              scaleID: 'y-axis-1',
+              borderWidth: 3,
+              borderColor: 'black',
+              value: 10,
+            },
+          ],
+        },
       },
     };
     const labels = [...new Array(30)].map((i, labelIndex) =>
@@ -136,6 +150,7 @@ export default class WIP extends Component {
               height={150}
               type="bar"
               options={options}
+              plugins={ChartAnnotation}
             />
           </div>
         </div>
