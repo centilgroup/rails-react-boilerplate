@@ -30,6 +30,7 @@ export default class Dashboard extends Component {
       sortableItems: sortableItems === null ? defaultItems : sortableItems,
       initialConfig: initialConfig === true,
       initialConfigStep: validStep ? initialConfigStep : 1,
+      loading: true,
     };
   }
 
@@ -50,7 +51,10 @@ export default class Dashboard extends Component {
             data.sortable_items === null ? sortableItems : data.sortable_items,
         });
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        this.setState({ loading: false });
+      });
   };
 
   handleProjectChange = (event) => {
@@ -80,6 +84,7 @@ export default class Dashboard extends Component {
       projectId,
       initialConfig,
       initialConfigStep,
+      loading,
     } = this.state;
 
     let alert;
@@ -127,8 +132,22 @@ export default class Dashboard extends Component {
       return <Redirect to={`/initial-config-step-${initialConfigStep}`} />;
     }
 
-    if (projects.length <= 0) {
+    if (loading) {
       return 'Loading...';
+    }
+
+    if (projects.length <= 0) {
+      return (
+        <section className="pb-4">
+          <Navbar projects={[]} />
+          <Container className="pt-5 mb-5">
+            <div style={{ marginTop: '200px', textAlign: 'center' }}>
+              No projects found! Sync projects to view the dashboard sections.
+            </div>
+          </Container>
+          <Footer />
+        </section>
+      );
     }
 
     return (
