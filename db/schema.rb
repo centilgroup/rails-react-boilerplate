@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_03_134308) do
+ActiveRecord::Schema.define(version: 2021_05_06_124305) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -48,6 +48,15 @@ ActiveRecord::Schema.define(version: 2021_05_03_134308) do
     t.index ["project_id"], name: "index_boards_on_project_id"
     t.index ["user_board_id"], name: "index_boards_on_user_board_id", unique: true
     t.index ["user_id"], name: "index_boards_on_user_id"
+  end
+
+  create_table "column_configurations", force: :cascade do |t|
+    t.json "column_config"
+    t.bigint "board_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.json "column_issues_count"
+    t.index ["board_id"], name: "index_column_configurations_on_board_id"
   end
 
   create_table "issues", force: :cascade do |t|
@@ -122,6 +131,7 @@ ActiveRecord::Schema.define(version: 2021_05_03_134308) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "boards", "users"
+  add_foreign_key "column_configurations", "boards"
   add_foreign_key "issues", "users"
   add_foreign_key "projects", "users"
 end

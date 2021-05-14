@@ -46,8 +46,14 @@ class DashboardManager
     }
   end
 
-  def fetch_board_data
-    Board.where(project_id: @project.project_id, user_id: @user.id)
+  def fetch_wip_data
+    board = Board.where(project_id: @project.project_id, user_id: @user.id).first
+    columns = []
+    board.column_config&.each do |config|
+      columns << config["name"]
+    end
+
+    [columns.uniq, board.column_configurations.order(created_at: :desc).limit(30)]
   end
 
   def fetch_vpi_data(project_id = @project.project_id)
