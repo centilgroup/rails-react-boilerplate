@@ -13,6 +13,7 @@ import {
   Figure,
   Dropdown,
   Alert,
+  Spinner,
 } from 'react-bootstrap';
 import { Redirect } from 'react-router';
 import Footer from '../Shared/Footer';
@@ -27,6 +28,9 @@ export default class IngestIssues extends Component {
       ingestErrorMessage: '',
       redirect: false,
       redirectTo: '',
+      disableAll: false,
+      issuesSync: false,
+      issuesIngest: false,
     };
   }
 
@@ -35,6 +39,7 @@ export default class IngestIssues extends Component {
   };
 
   handleSubmit = (e) => {
+    this.setState({ issuesIngest: true, disableAll: true });
     e.preventDefault();
     const { ingest } = this.state;
     const data = new FormData();
@@ -55,8 +60,43 @@ export default class IngestIssues extends Component {
         this.setState({ showIngestAlert: true, ingestErrorMessage: message });
       })
       .finally(() => {
+        this.setState({ issuesIngest: false, disableAll: false });
         setTimeout(() => {
           this.setState({ showIngestAlert: false, disableIngest: false });
+        }, 3000);
+      });
+  };
+
+  syncIssues = () => {
+    this.setState({ issuesSync: true, disableAll: true });
+
+    const data = new FormData();
+    data.append('user[initial_config]', 'true');
+
+    axios
+      .put('/users/sync_issues.json', data)
+      .then((response) => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        user.initial_config = true;
+        localStorage.setItem('user', JSON.stringify(user));
+        this.setState({
+          issuesSync: false,
+          redirect: true,
+        });
+      })
+      .catch((error) => {
+        const { message } = error.response.data;
+        this.setState({
+          showIngestAlert: true,
+          ingestErrorMessage: `${message}! Please check and update the Jira Link.`,
+        });
+        setTimeout(() => {
+          this.setState({
+            issuesSync: false,
+            redirect: true,
+            redirectTo: 'initial-config-step-2',
+            disableAll: false,
+          });
         }, 3000);
       });
   };
@@ -77,6 +117,9 @@ export default class IngestIssues extends Component {
       disableIngest,
       redirect,
       redirectTo,
+      issuesSync,
+      disableAll,
+      issuesIngest,
     } = this.state;
     let ingestAlert;
     let determineEnabled = [null, undefined].includes(ingest);
@@ -127,39 +170,75 @@ export default class IngestIssues extends Component {
         </nav>
 
         <Container className="pt-5">
-          <Form className="pt-4">
-            <h4>Ingest Issues .csv</h4>
-            <Row>
-              <Col xs={6}>
-                {ingestAlert}
-                <Form.Group>
-                  <Form.File
-                    name="ingest"
-                    onChange={this.handleChange}
-                    accept=".csv"
-                    className="mt-3"
-                    required
+          <div className="pt-4">
+            {ingestAlert}
+            <Form className="pt-4">
+              <h4>Ingest Issues .csv</h4>
+              <Row>
+                <Col xs={6}>
+                  <Form.Group>
+                    <Form.File
+                      name="ingest"
+                      onChange={this.handleChange}
+                      accept=".csv"
+                      className="mt-3"
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Button
+                variant="outline-primary"
+                type="submit"
+                onClick={this.handleSubmit}
+                disabled={disableAll || determineEnabled}
+              >
+                Ingest & Continue{' '}
+                {issuesIngest ? (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
                   />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Button
-              variant="outline-primary"
-              type="submit"
-              onClick={this.handleSubmit}
-              disabled={determineEnabled}
-            >
-              Ingest & Continue
-            </Button>
-            <Row>
-              <Col xs={6}>
-                <Alert variant="info" className="mt-3">
-                  We expect headers - issue_id, project_id, status, issue_type,
-                  issue_key, change_log, summary, due_date & created.
-                </Alert>
-              </Col>
-            </Row>
-          </Form>
+                ) : (
+                  ''
+                )}
+              </Button>
+              <Row>
+                <Col xs={6}>
+                  <Alert variant="info" className="mt-3">
+                    We expect headers - issue_id, project_id, status,
+                    issue_type, issue_key, change_log, summary, due_date &
+                    created.
+                  </Alert>
+                </Col>
+              </Row>
+            </Form>
+            <div className="separator">Or</div>
+            <div className="pt-4">
+              <h4>Sync Issues</h4>
+              <Button
+                variant="outline-primary"
+                onClick={this.syncIssues}
+                disabled={disableAll || issuesSync}
+              >
+                Sync & Continue{' '}
+                {issuesSync ? (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  ''
+                )}
+              </Button>
+            </div>
+          </div>
         </Container>
 
         <Footer />

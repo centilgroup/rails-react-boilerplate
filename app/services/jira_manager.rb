@@ -92,11 +92,6 @@ class JiraManager
 
       start_at += max_results
     end
-
-    p "Issues synced for user - #{@user.id}"
-  rescue => e
-    p e.message
-    p "Issues not synced for user - #{@user.id}"
   end
 
   private

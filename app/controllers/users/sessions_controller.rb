@@ -86,7 +86,7 @@ class Users::SessionsController < Devise::SessionsController
     jira.sync_issues
   rescue => e
     p e.message
-    render json: {message: e.message}, status: :internal_server_error
+    render json: {message: e.message}, status: :unprocessable_entity
   end
 
   # protected
