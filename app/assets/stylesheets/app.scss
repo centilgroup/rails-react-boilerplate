@@ -36,3 +36,18 @@ nav {
   border-bottom: solid 1px #ced4da;
   background-color: #fff;
 }
+
+.separator {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.separator::before,
+.separator::after {
+  display: block;
+  content: "";
+  border-top: 1px solid black;
+  width: 100%;
+  margin: 0 1rem;
+}
