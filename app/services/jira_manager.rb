@@ -60,11 +60,6 @@ class JiraManager
       }
       Project.upsert(project, unique_by: :user_project_id)
     end
-
-    p "Projects synced for user - #{@user.id}"
-  rescue => e
-    p e.message
-    p "Projects not synced for user - #{@user.id}"
   end
 
   def sync_issues
@@ -97,11 +92,6 @@ class JiraManager
 
       start_at += max_results
     end
-
-    p "Issues synced for user - #{@user.id}"
-  rescue => e
-    p e.message
-    p "Issues not synced for user - #{@user.id}"
   end
 
   private

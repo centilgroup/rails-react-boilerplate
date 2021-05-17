@@ -74,9 +74,10 @@ class Users::SessionsController < Devise::SessionsController
     jira = init_jira(current_user)
     jira.sync_projects
     @projects = current_user.projects
+    current_user.update(user_params)
   rescue => e
     p e.message
-    render json: {message: e.message}, status: :internal_server_error
+    render json: {message: e.message}, status: :unprocessable_entity
   end
 
   # PUT /resource/sync_issues
@@ -85,7 +86,7 @@ class Users::SessionsController < Devise::SessionsController
     jira.sync_issues
   rescue => e
     p e.message
-    render json: {message: e.message}, status: :internal_server_error
+    render json: {message: e.message}, status: :unprocessable_entity
   end
 
   # protected
