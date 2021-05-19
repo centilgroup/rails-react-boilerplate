@@ -12,6 +12,7 @@ import {
   Button,
   Figure,
   Dropdown,
+  Alert,
 } from 'react-bootstrap';
 import { Redirect } from 'react-router';
 import Footer from '../Shared/Footer';
@@ -26,6 +27,8 @@ export default class ProfileSection extends Component {
       companyName: '',
       redirect: false,
       redirectTo: '',
+      showAlert: false,
+      errorMessage: '',
     };
   }
 
@@ -83,7 +86,16 @@ export default class ProfileSection extends Component {
         localStorage.setItem('user', JSON.stringify(response.data));
         this.setState({ redirect: true, redirectTo: 'initial-config-step-2' });
       })
-      .catch(() => {});
+      .catch((error) => {
+        const { message } = error.response.data;
+        this.setState({ showAlert: true, errorMessage: message });
+      })
+      .finally(() => {
+        setTimeout(
+          () => this.setState({ showAlert: false, errorMessage: '' }),
+          3000,
+        );
+      });
   };
 
   logoutUser = () => {
@@ -102,10 +114,22 @@ export default class ProfileSection extends Component {
       companyName,
       redirect,
       redirectTo,
+      showAlert,
+      errorMessage,
     } = this.state;
+
+    let alert;
 
     if (redirect) {
       return <Redirect to={`/${redirectTo}`} />;
+    }
+
+    if (showAlert) {
+      alert = (
+        <Alert variant="danger">
+          <span>{errorMessage}</span>
+        </Alert>
+      );
     }
 
     return (
@@ -142,6 +166,7 @@ export default class ProfileSection extends Component {
             <h4>Profile Section</h4>
             <Row>
               <Col xs={6}>
+                {alert}
                 <Form.Group>
                   <Form.Label>First Name</Form.Label>
                   <Form.Control

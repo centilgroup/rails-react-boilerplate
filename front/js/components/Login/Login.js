@@ -16,7 +16,7 @@ export default class Login extends Component {
       email: '',
       password: '',
       showAlert: false,
-      errorMessage: 'Wrong Email / Password. Please try again.',
+      errorMessage: 'Wrong Email/Username/Password. Please try again.',
       redirect: '',
     };
   }
@@ -99,8 +99,8 @@ export default class Login extends Component {
                   onChange={this.handleChange}
                   value={email}
                   name="email"
-                  type="email"
-                  placeholder="Enter Email"
+                  type="text"
+                  placeholder="Enter Email Or Username"
                   required
                   style={inputStyle}
                 />
