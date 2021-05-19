@@ -15,7 +15,9 @@ class Users::SessionsController < Devise::SessionsController
 
   # POST /resource/pre_otp
   def pre_otp
-    @user = User.find_for_authentication(email: params[:email])
+    return invalid_login_attempt unless params[:email].present?
+
+    set_user
     return invalid_login_attempt unless @user.valid_password?(params[:password])
 
     return sign_in_user unless @user.two_factor_auth.present?
@@ -28,7 +30,9 @@ class Users::SessionsController < Devise::SessionsController
 
   # POST /resource/sign_in
   def create
-    @user = User.where(email: params[:email]).first
+    return invalid_login_attempt unless params[:email].present?
+
+    set_user
     return invalid_login_attempt if @user&.authenticate_otp(params[:otp], drift: TFA_OTP_VALIDITY).nil?
 
     sign_in_user
@@ -36,8 +40,10 @@ class Users::SessionsController < Devise::SessionsController
 
   # PUT /resource/update
   def update
-    current_user.update(user_params)
+    current_user.update!(user_params)
     current_user.avatar.attach(params[:user][:avatar]) if params[:user][:avatar].present?
+  rescue => error
+    render json: {message: error.message}, status: :unprocessable_entity
   end
 
   # DELETE /resource/sign_out
@@ -97,6 +103,10 @@ class Users::SessionsController < Devise::SessionsController
   # end
 
   private
+
+  def set_user
+    @user = User.where(["lower(username) = :value OR lower(email) = :value", {value: params[:email].downcase}]).first
+  end
 
   def ingest_data
     if params[:user][:issues_ingest].present?

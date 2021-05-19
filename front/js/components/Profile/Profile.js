@@ -84,13 +84,19 @@ export default class Profile extends Component {
     data.append('user[jira_username]', jira_username);
     data.append('user[jira_password]', jira_password);
 
-    axios.put('/users/profile.json', data).then((response) => {
-      const profile_data = response.data;
-      localStorage.setItem('user', JSON.stringify(profile_data));
-      if (profile_data.avatar) {
-        this.setState({ avatar_link: profile_data.avatar });
-      }
-    });
+    axios
+      .put('/users/update.json', data)
+      .then((response) => {
+        const profile_data = response.data;
+        localStorage.setItem('user', JSON.stringify(profile_data));
+        if (profile_data.avatar) {
+          this.setState({ avatar_link: profile_data.avatar });
+        }
+      })
+      .catch(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        this.setState({ ...user });
+      });
   };
 
   logoutUser = () => {
