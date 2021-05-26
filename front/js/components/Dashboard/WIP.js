@@ -11,6 +11,7 @@ import {
   Collapse,
   OverlayTrigger,
   Row,
+  Table,
   Tooltip,
 } from 'react-bootstrap';
 import { SortableHandle } from 'react-sortable-hoc';
@@ -79,6 +80,9 @@ export default class WIP extends Component {
 
   render() {
     const { wipData, show, wipColumns } = this.state;
+    let medianArrivalRate;
+    let medianThroughPutRate;
+    const medianDailyWIP = [];
     const sectionStyle = { position: 'relative' };
     const helperStyle = {
       position: 'absolute',
@@ -86,6 +90,10 @@ export default class WIP extends Component {
       right: 0,
       fontSize: '24px',
       opacity: 0.5,
+    };
+    const medianStyle = {
+      border: 'solid 1px #ccc',
+      padding: '20px 80px',
     };
     const DragHandle = SortableHandle(() => (
       <i className="fa fa-bars" style={{ cursor: 'move' }} />
@@ -128,6 +136,20 @@ export default class WIP extends Component {
           }
         });
       });
+      const median = () => {
+        const dataSet = count.filter(Number).sort();
+        if (dataSet.length === 0) return 0;
+        if (dataSet.length === 1) return dataSet[0];
+
+        const half = Math.floor(dataSet.length / 2);
+        if (dataSet.length % 2) return dataSet[half];
+
+        return (dataSet[half - 1] + dataSet[half]) / 2.0;
+      };
+      const calcMedian = median();
+      if (idx === 0) medianArrivalRate = calcMedian;
+      if (idx === wipColumns.length - 1) medianThroughPutRate = calcMedian;
+      medianDailyWIP.push(calcMedian);
       const feedData = {
         labels,
         datasets: [
@@ -174,7 +196,39 @@ export default class WIP extends Component {
             </Card.Header>
             <Collapse in={show} className="wip">
               <div style={sectionStyle}>
-                <Card.Body>{WIPChart}</Card.Body>
+                <Card.Body>
+                  {WIPChart}
+                  <div className="d-flex align-items-center justify-content-around mt-4">
+                    <div className="text-center">
+                      Median Arrival Rate
+                      <div style={medianStyle}>{medianArrivalRate}</div>
+                    </div>
+                    <div className="text-center">
+                      Median Throughput Rate
+                      <div style={medianStyle}>{medianThroughPutRate}</div>
+                    </div>
+                    <div className="text-center">
+                      <Table bordered size="sm">
+                        <thead>
+                          <tr>
+                            <th>Status</th>
+                            <th>Median Daily WIP</th>
+                            <th>Optimal WIP Limit</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {medianDailyWIP.map((item, idx) => (
+                            <tr key={wipColumns[idx]}>
+                              <td className="text-left">{wipColumns[idx]}</td>
+                              <td>{item}</td>
+                              <td />
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    </div>
+                  </div>
+                </Card.Body>
                 <OverlayTrigger
                   key="wipHelper"
                   placement="top"
