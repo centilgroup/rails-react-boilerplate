@@ -46,14 +46,20 @@ class DashboardManager
     }
   end
 
-  def fetch_wip_data
+  def fetch_wip_data(min = 1, max = 30)
     board = Board.where(project_id: @project.project_id, user_id: @user.id).first
+    issues = Issue.where(project_id: @project.project_id, user_id: @user.id)
+    issue_types = issues.distinct.select("issue_type->>'name' as name").map(&:name)
     columns = []
-    board.column_config&.each do |config|
+    max_limit = {}
+    column_config = board.column_config.present? ? board.column_config : []
+    column_config.each do |config|
       columns << config["name"]
+      max_limit[config["name"]] = config["max"]
     end
+    configurations = board.column_configurations.order(created_at: :desc).limit(max).offset(min - 1)
 
-    [columns.uniq, board.column_configurations.order(created_at: :desc).limit(30)]
+    [columns.uniq, max_limit, configurations, issue_types]
   end
 
   def fetch_vpi_data(project_id = @project.project_id)
