@@ -6,7 +6,12 @@ class DashboardController < ApplicationController
   end
 
   def work_in_progress
-    @columns, @wip = @manager.fetch_wip_data
+    @columns, @limit, @wip, @issue_types =
+      if params[:min].present? && params[:max].present?
+        @manager.fetch_wip_data(params[:min].to_i, params[:max].to_i)
+      else
+        @manager.fetch_wip_data
+      end
   end
 
   def status_gauge
