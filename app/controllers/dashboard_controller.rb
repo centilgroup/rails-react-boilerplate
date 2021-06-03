@@ -1,4 +1,6 @@
 class DashboardController < ApplicationController
+  skip_before_action :verify_authenticity_token, only: :update
+
   before_action :init_manager, except: %i[projects show]
 
   def project_flow_health
@@ -37,11 +39,17 @@ class DashboardController < ApplicationController
   end
 
   def projects
-    @projects = Project.where(user_id: current_user.id).order(id: :asc)
+    @projects = current_user.projects.order(id: :asc)
   end
 
   def show
-    @issue = Issue.where(issue_id: params[:id]).first
+    @issue = current_user.issues.where(issue_id: params[:id]).first
+  end
+
+  def update
+    @project = current_user.projects.where(project_id: params[:id]).first
+    @project.update(end_date: params[:end_date])
+    @projects = current_user.projects.order(id: :asc)
   end
 
   private

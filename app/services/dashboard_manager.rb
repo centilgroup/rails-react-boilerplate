@@ -72,7 +72,9 @@ class DashboardManager
       issues.where.not(due_date: nil).order(due_date: :desc).limit(1)
         .pluck(:due_date).first
     remaining_days =
-      if max_due_date.present?
+      if @project_end_date.present?
+        (@project_end_date - current_date).to_i
+      elsif max_due_date.present?
         (max_due_date - current_date).to_i
       end
     average_time_to_close =
@@ -92,6 +94,7 @@ class DashboardManager
     projects = Project.where(user_id: @user.id).order(id: :asc)
     vpi_by_project = []
     projects.each do |project|
+      @project_end_date = project.end_date
       vpi_by_project << fetch_vpi_data(project.project_id)
     end
     vpi_by_project
