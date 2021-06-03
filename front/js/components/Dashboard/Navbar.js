@@ -43,9 +43,7 @@ export default class Navbar extends Component {
     };
   }
 
-  componentDidMount() {
-    this.fetchInitData();
-  }
+  componentDidMount() {}
 
   fetchInitData = (projectId = '') => {
     axios
@@ -105,7 +103,10 @@ export default class Navbar extends Component {
 
   handleProjectVPIsClose = () => this.setState({ showProjectVPIs: false });
 
-  handleProjectVPIsShow = () => this.setState({ showProjectVPIs: true });
+  handleProjectVPIsShow = () => {
+    this.setState({ showProjectVPIs: true });
+    this.fetchInitData();
+  };
 
   handleIngestClose = () =>
     this.setState({ showIngest: false, ingestType: 'projects', ingest: null });

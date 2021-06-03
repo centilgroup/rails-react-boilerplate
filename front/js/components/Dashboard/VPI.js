@@ -15,6 +15,7 @@ import {
 } from 'react-bootstrap';
 import GaugeChart from 'react-gauge-chart';
 import { SortableHandle } from 'react-sortable-hoc';
+import moment from 'moment';
 
 export default class VPI extends Component {
   constructor(props) {
@@ -29,18 +30,28 @@ export default class VPI extends Component {
   }
 
   componentDidMount() {
-    const { projectId } = this.props;
-    this.fetchInitData(projectId);
+    const { projectId, projectEndDate } = this.props;
+    this.fetchInitData(projectId, projectEndDate);
   }
 
-  fetchInitData = (projectId) => {
+  fetchInitData = (projectId, projectEndDate) => {
     axios
       .get(`/dashboard/project_flow_health.json?project_id=${projectId}`)
       .then((response) => {
         const { data } = response;
+        let remainingDays;
+
+        if (![null, undefined, '', NaN].includes(projectEndDate)) {
+          const currentDate = moment().startOf('day');
+          const endDate = moment(projectEndDate, 'DD/MM/YYYY');
+
+          remainingDays = endDate.diff(currentDate, 'days');
+        } else {
+          remainingDays = data.remaining_days;
+        }
 
         this.setState({
-          remainingDays: data.remaining_days,
+          remainingDays,
           remainingIssues: data.remaining_issues,
           averageTimeToClose: data.average_time_to_close,
           show: [null, true].includes(data.collapsable),
@@ -220,4 +231,5 @@ export default class VPI extends Component {
 
 VPI.propTypes = {
   projectId: PropTypes.string,
+  projectEndDate: PropTypes.string || PropTypes.object,
 };

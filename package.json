@@ -37,6 +37,7 @@
     "moment": "^2.29.1",
     "postcss-scss": "^3.0.4",
     "prop-types": "^15.7.2",
+    "rc-datepicker": "^5.0.16",
     "rc-slider": "^9.7.2",
     "react": "^16.13.1",
     "react-bootstrap": "^1.4.3",

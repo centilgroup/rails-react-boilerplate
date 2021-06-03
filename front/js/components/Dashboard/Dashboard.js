@@ -4,6 +4,9 @@ import { Container, Row, Col, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
+import moment from 'moment';
+import 'moment/min/locales';
+import { DatePickerInput } from 'rc-datepicker';
 import Footer from '../Shared/Footer';
 import Activities from './Activities';
 import VSM from './VSM';
@@ -31,6 +34,7 @@ export default class Dashboard extends Component {
       initialConfig: initialConfig === true,
       initialConfigStep: validStep ? initialConfigStep : 1,
       loading: true,
+      projectEndDate: null,
     };
   }
 
@@ -44,9 +48,18 @@ export default class Dashboard extends Component {
       .then((response) => {
         const { data } = response;
         const { sortableItems } = this.state;
+        const { projects } = data;
+        let projectId = '';
+        let projectEndDate = null;
+        if (projects.length > 0) {
+          projectId = projects[0].project_id;
+          projectEndDate = projects[0].end_date;
+        }
 
         this.setState({
-          projects: data.projects,
+          projects,
+          projectId,
+          projectEndDate,
           sortableItems:
             data.sortable_items === null ? sortableItems : data.sortable_items,
         });
@@ -59,7 +72,43 @@ export default class Dashboard extends Component {
 
   handleProjectChange = (event) => {
     const { value } = event.target;
-    this.setState({ projectId: value });
+    const { projects } = this.state;
+    const projectEndDate = projects.filter(
+      (project) => project.project_id === value,
+    )[0].end_date;
+
+    this.setState({ projectId: value, projectEndDate });
+  };
+
+  handleDateChange = (jsDate, dateString) => {
+    const projectEndDate = moment(dateString).format('DD/MM/YYYY');
+    this.updateProjectEndDate(projectEndDate);
+  };
+
+  handleDateClear = () => {
+    this.updateProjectEndDate(null);
+  };
+
+  updateProjectEndDate = (projectEndDate) => {
+    const { projectId } = this.state;
+    const reqData = { end_date: projectEndDate };
+
+    axios
+      .patch(`/dashboard/${projectId}.json`, reqData)
+      .then((response) => {
+        const { data } = response;
+
+        this.setState({
+          projects: data.projects,
+          projectEndDate,
+        });
+      })
+      .catch(() => {})
+      .finally(() => {});
+  };
+
+  handleDateKeyDown = (event) => {
+    event.preventDefault();
   };
 
   onSortEnd = ({ oldIndex, newIndex }) => {
@@ -87,6 +136,7 @@ export default class Dashboard extends Component {
       loading,
     } = this.state;
 
+    let { projectEndDate } = this.state;
     let alert;
 
     if (showAlert) {
@@ -110,7 +160,7 @@ export default class Dashboard extends Component {
         wip: <WIP projectId={projectId} />,
         gauge: <Gauge projectId={projectId} />,
         focus: <Focus projectId={projectId} />,
-        vpi: <VPI projectId={projectId} />,
+        vpi: <VPI projectId={projectId} projectEndDate={projectEndDate} />,
         activities: <Activities projectId={projectId} />,
         vsm: <VSM projectId={projectId} />,
       };
@@ -127,6 +177,12 @@ export default class Dashboard extends Component {
         </div>
       );
     });
+
+    if ([null, undefined, '', NaN].includes(projectEndDate)) {
+      projectEndDate = '';
+    } else {
+      projectEndDate = moment(projectEndDate, 'DD/MM/YYYY');
+    }
 
     if (!initialConfig) {
       return <Redirect to={`/initial-config-step-${initialConfigStep}`} />;
@@ -155,13 +211,13 @@ export default class Dashboard extends Component {
         {alert}
         <Navbar projects={projects} />
         <Container className="pt-5 mb-5">
-          <Row className="pt-4">
-            <Col xs={12}>
-              <Form>
+          <Form>
+            <Row className="pt-4">
+              <Col xs={8}>
                 <div className="mb-1">Projects Filter</div>
                 <Form.Control
                   as="select"
-                  size="lg"
+                  size="md"
                   onChange={this.handleProjectChange}
                 >
                   {projects.map((project) => (
@@ -170,9 +226,22 @@ export default class Dashboard extends Component {
                     </option>
                   ))}
                 </Form.Control>
-              </Form>
-            </Col>
-          </Row>
+              </Col>
+              <Col xs={4}>
+                <div className="mb-1">Project End Date</div>
+                <DatePickerInput
+                  defaultValue={projectEndDate}
+                  value={projectEndDate}
+                  onChange={this.handleDateChange}
+                  className="datepicker-component"
+                  locale="en"
+                  onClear={this.handleDateClear}
+                  onKeyDown={this.handleDateKeyDown}
+                  showOnInputClick
+                />
+              </Col>
+            </Row>
+          </Form>
           <SortableList
             items={sortableItems}
             onSortEnd={this.onSortEnd}
