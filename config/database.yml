@@ -20,7 +20,7 @@ default: &default
   # For details on connection pooling, see rails configuration guide
   # http://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  host: localhost #ls-a53c5459cd214782602263a79eded1a4f3c7a95a.cue6isllb1ou.us-east-1.rds.amazonaws.com
+  host: ls-a53c5459cd214782602263a79eded1a4f3c7a95a.cue6isllb1ou.us-east-1.rds.amazonaws.com
 
 development:
   <<: *default
