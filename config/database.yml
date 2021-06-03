@@ -20,11 +20,11 @@ default: &default
   # For details on connection pooling, see rails configuration guide
   # http://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  host: localhost #ls-a53c5459cd214782602263a79eded1a4f3c7a95a.cue6isllb1ou.us-east-1.rds.amazonaws.com
+  host: ls-a53c5459cd214782602263a79eded1a4f3c7a95a.cue6isllb1ou.us-east-1.rds.amazonaws.com
 
 development:
   <<: *default
-  database: idb
+  # database: idb
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -40,9 +40,11 @@ development:
   # domain sockets, so uncomment these lines.
   # host: localhost
   # database: rails-react-bp-prod
-  username: postgres
+  # username: postgres
   # password: DeltaAir90!
-
+  database: rails-react-bp-prod
+  username: dbmasteruser
+  password: DeltaAir90!
   # The TCP port the server listens on. Defaults to 5432.
   # If your server runs on a different port number, change accordingly.
   port: 5432
