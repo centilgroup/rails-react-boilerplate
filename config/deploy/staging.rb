@@ -13,6 +13,55 @@ set :ssh_options, {
     auth_methods: %w(publickey)
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # namespace :assets do
 #   desc 'Prepares static assets'
 #   task :deploy do
