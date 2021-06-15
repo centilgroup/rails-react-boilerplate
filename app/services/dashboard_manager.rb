@@ -62,6 +62,18 @@ class DashboardManager
     [columns.uniq, max_limit, configurations, issue_types]
   end
 
+  def fetch_dora_metrics(min = 1, max = 30)
+    board = Board.where(project_id: @project.project_id, user_id: @user.id).first
+    columns = []
+    column_config = board.column_config.present? ? board.column_config : []
+    column_config.each do |config|
+      columns << config["name"]
+    end
+    dora_metrics = board.dora_metrics.order(created_at: :desc).limit(max).offset(min - 1)
+
+    [columns.uniq, dora_metrics]
+  end
+
   def fetch_vpi_data(project_id = @project.project_id)
     issues = Issue.where(project_id: project_id, user_id: @user.id)
     done = %w[done closed]

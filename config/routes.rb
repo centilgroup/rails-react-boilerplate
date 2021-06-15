@@ -22,6 +22,7 @@ Rails.application.routes.draw do
       get :value_stream_map
       get :projects_vpi
       get :projects
+      get :dora_metrics
     end
   end
 
