@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_03_112336) do
+ActiveRecord::Schema.define(version: 2021_06_15_054848) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -58,6 +58,14 @@ ActiveRecord::Schema.define(version: 2021_06_03_112336) do
     t.json "column_issues_count"
     t.json "column_types_count"
     t.index ["board_id"], name: "index_column_configurations_on_board_id"
+  end
+
+  create_table "dora_metrics", force: :cascade do |t|
+    t.json "base_metric"
+    t.bigint "board_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["board_id"], name: "index_dora_metrics_on_board_id"
   end
 
   create_table "issues", force: :cascade do |t|
@@ -127,6 +135,7 @@ ActiveRecord::Schema.define(version: 2021_06_03_112336) do
     t.boolean "activities"
     t.boolean "vsm"
     t.integer "initial_config_step"
+    t.boolean "dora"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -134,6 +143,7 @@ ActiveRecord::Schema.define(version: 2021_06_03_112336) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "boards", "users"
   add_foreign_key "column_configurations", "boards"
+  add_foreign_key "dora_metrics", "boards"
   add_foreign_key "issues", "users"
   add_foreign_key "projects", "users"
 end

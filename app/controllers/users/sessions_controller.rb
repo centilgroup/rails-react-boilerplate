@@ -181,7 +181,7 @@ class Users::SessionsController < Devise::SessionsController
       :email, :password, :first_name, :last_name, :username,
       :company_name, :jira_url, :api_version, :jira_username,
       :jira_password, :two_factor_auth, :avatar, :initial_config,
-      :wip, :gauge, :focus, :vpi, :activities, :vsm, :initial_config_step,
+      :wip, :gauge, :focus, :vpi, :activities, :vsm, :initial_config_step, :dora,
       sortable_items: []
     )
   end

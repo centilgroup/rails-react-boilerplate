@@ -4,6 +4,7 @@ import { Container, Row, Col, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
+import * as _ from 'lodash';
 import moment from 'moment';
 import 'moment/min/locales';
 import { DatePickerInput } from 'rc-datepicker';
@@ -14,23 +15,38 @@ import VPI from './VPI';
 import Focus from './Focus';
 import Gauge from './Gauge';
 import WIP from './WIP';
+import DORA from './DORA';
 import Navbar from './Navbar';
 
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);
-    const defaultItems = ['vpi', 'wip', 'gauge', 'focus', 'activities', 'vsm'];
+    const defaultItems = [
+      'vpi',
+      'wip',
+      'gauge',
+      'focus',
+      'activities',
+      'vsm',
+      'dora',
+    ];
     const user = JSON.parse(localStorage.getItem('user'));
-    const sortableItems = user.sortable_items;
     const initialConfig = user.initial_config;
     const initialConfigStep = user.initial_config_step;
     const validStep = [1, 2, 3, 4, 5].includes(initialConfigStep);
+    let sortableItems = user.sortable_items;
+    if (sortableItems === null) {
+      sortableItems = defaultItems;
+    } else if (sortableItems.length < defaultItems.length) {
+      const symmetricDiff = _.xor(defaultItems, sortableItems);
+      sortableItems = _.uniq(sortableItems.concat(symmetricDiff));
+    }
     this.state = {
       projects: [],
       projectId: '',
       showAlert: false,
       alertMessage: '',
-      sortableItems: sortableItems === null ? defaultItems : sortableItems,
+      sortableItems,
       initialConfig: initialConfig === true,
       initialConfigStep: validStep ? initialConfigStep : 1,
       loading: true,
@@ -47,21 +63,27 @@ export default class Dashboard extends Component {
       .get(`/dashboard/projects.json`)
       .then((response) => {
         const { data } = response;
-        const { sortableItems } = this.state;
         const { projects } = data;
+        let { sortableItems } = this.state;
         let projectId = '';
         let projectEndDate = null;
         if (projects.length > 0) {
           projectId = projects[0].project_id;
           projectEndDate = projects[0].end_date;
         }
+        if (
+          data.sortable_items !== null &&
+          data.sortable_items.length < sortableItems.length
+        ) {
+          const symmetricDiff = _.xor(sortableItems, data.sortable_items);
+          sortableItems = _.uniq(sortableItems.concat(symmetricDiff));
+        }
 
         this.setState({
           projects,
           projectId,
           projectEndDate,
-          sortableItems:
-            data.sortable_items === null ? sortableItems : data.sortable_items,
+          sortableItems,
         });
       })
       .catch(() => {})
@@ -121,7 +143,11 @@ export default class Dashboard extends Component {
     this.setState({ sortableItems });
 
     const data = { user: { sortable_items: sortableItems } };
-    axios.put('/users/update.json', data);
+    axios
+      .put('/users/update.json', data)
+      .then(() => {})
+      .catch(() => {})
+      .finally(() => {});
   };
 
   render() {
@@ -163,6 +189,7 @@ export default class Dashboard extends Component {
         vpi: <VPI projectId={projectId} projectEndDate={projectEndDate} />,
         activities: <Activities projectId={projectId} />,
         vsm: <VSM projectId={projectId} />,
+        dora: <DORA projectId={projectId} />,
       };
 
       return sections[value];

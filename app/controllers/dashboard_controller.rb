@@ -34,6 +34,15 @@ class DashboardController < ApplicationController
     @lead_time, @process_time, @percent_c_a, @total = @manager.fetch_vsm
   end
 
+  def dora_metrics
+    @columns, @dora_metrics =
+      if params[:min].present? && params[:max].present?
+        @manager.fetch_dora_metrics(params[:min].to_i, params[:max].to_i)
+      else
+        @manager.fetch_dora_metrics
+      end
+  end
+
   def projects_vpi
     @vpi_by_project = @manager.fetch_vpi_by_project
   end
