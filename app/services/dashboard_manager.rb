@@ -90,7 +90,7 @@ class DashboardManager
         (max_due_date - current_date).to_i
       end
     
-    binding.pry
+    # binding.pry
     average_time_to_close =  
       if done_issues.length.positive?
         done_issues.pluck(:time_to_close_in_days).map(&:to_i).sum / done_issues.length
