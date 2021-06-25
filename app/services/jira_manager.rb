@@ -73,7 +73,7 @@ class JiraManager
     max_results = 150
     jira_projects = []
     
-    jira_projects << @client.Project.find('IRIS')
+    jira_projects << @client.Project.find('SPAC')
 
     
     jira_projects.each do |jira_project|
@@ -138,13 +138,13 @@ class JiraManager
     histories = change_log["histories"]
     issue_created_at = Date.parse issue.try(:created)
     current_status = issue.status.name.downcase
-    return unless %w[done closed crushed].include? current_status
+    return unless %w[done closed crushed approved].include? current_status
 
     histories.reverse_each do |history|
       item = history["items"].first
       if %w[status resolution].include?(item["field"]) && item["fieldtype"] == "jira"
         status = history["items"].last["toString"].downcase
-        if %w[done closed crushed].include? status
+        if %w[done closed crushed approved].include? status
           history_created_at = Date.parse history["created"]
           return (history_created_at - issue_created_at).to_i
         end

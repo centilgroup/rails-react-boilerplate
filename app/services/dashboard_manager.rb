@@ -76,7 +76,7 @@ class DashboardManager
 
   def fetch_vpi_data(project_id = @project.project_id)
     issues = Issue.where(project_id: project_id, user_id: @user.id)
-    done = %w[done closed crushed]
+    done = %w[done closed crushed approved]
     remaining_issues = issues.where.not("lower(status->>'name') IN (?)", done)
     done_issues = issues.where("lower(status->>'name') IN (?)", done)
     current_date = Date.today
