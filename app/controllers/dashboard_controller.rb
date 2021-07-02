@@ -35,9 +35,9 @@ class DashboardController < ApplicationController
   end
 
   def dora_metrics
-    @columns, @dora_metrics =
-      if params[:min].present? && params[:max].present?
-        @manager.fetch_dora_metrics(params[:min].to_i, params[:max].to_i)
+    @columns, @dora_metrics, @sprints =
+      if params[:min].present? && params[:max].present? && params[:snap_to].present? && params[:sprint].present?
+        @manager.fetch_dora_metrics(params[:min].to_i, params[:max].to_i, params[:snap_to], params[:sprint])
       else
         @manager.fetch_dora_metrics
       end

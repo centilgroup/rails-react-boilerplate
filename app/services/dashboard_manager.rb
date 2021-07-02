@@ -62,16 +62,27 @@ class DashboardManager
     [columns.uniq, max_limit, configurations, issue_types]
   end
 
-  def fetch_dora_metrics(min = 1, max = 30)
+  def fetch_dora_metrics(min = 1, max = 30, snap_to = nil, sprint_id = "")
     board = Board.where(project_id: @project.project_id, user_id: @user.id).first
     columns = []
     column_config = board.column_config.present? ? board.column_config : []
     column_config.each do |config|
       columns << config["name"]
     end
-    dora_metrics = board.dora_metrics.order(created_at: :desc).limit(max).offset(min - 1)
+    sprints = board.sprints
+    dora_metrics =
+      if snap_to == "true" && sprints["values"]&.length&.positive?
+        sprint = sprints["values"].find { |sprint| sprint["id"] == sprint_id.to_i }
+        start_date = Date.parse sprint["startDate"]
+        end_date = Date.parse sprint["endDate"]
+        board
+          .dora_metrics.where("created_at >= ? AND created_at <= ?", start_date, end_date)
+          .order(created_at: :desc).limit(max).offset(min - 1)
+      else
+        board.dora_metrics.order(created_at: :desc).limit(max).offset(min - 1)
+      end
 
-    [columns.uniq, dora_metrics]
+    [columns.uniq, dora_metrics, sprints]
   end
 
   def fetch_vpi_data(project_id = @project.project_id)

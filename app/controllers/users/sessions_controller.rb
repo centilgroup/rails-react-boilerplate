@@ -80,7 +80,7 @@ class Users::SessionsController < Devise::SessionsController
     jira = init_jira(current_user)
     jira.sync_projects
     @projects = current_user.projects
-    current_user.update(user_params)
+    current_user.update(user_params) if params[:user].present?
   rescue => e
     p e.message
     render json: {message: e.message}, status: :unprocessable_entity
@@ -207,8 +207,7 @@ class Users::SessionsController < Devise::SessionsController
       password: user.jira_password,
       site: user.jira_url,
       user_id: user.id,
-      start_at: 0,
-      project_id: ""
+      start_at: 0
     )
   end
 

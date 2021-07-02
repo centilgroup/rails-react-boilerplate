@@ -2,7 +2,7 @@
 
 class JiraManager
   def initialize(**params)
-    required_keys = %i[username password site user_id project_id]
+    required_keys = %i[username password site user_id]
     unless required_keys.all? { |required_key| params.key? required_key }
       missing_keys = required_keys - params.keys
       message = "missing #{missing_keys.map(&:to_s).join(", ")}"
@@ -64,6 +64,13 @@ class JiraManager
         user_id: @user.id, key: jira_project.key
       }
       Project.upsert(project, unique_by: :user_project_id)
+    end
+
+    jira_boards.each do |jira_board|
+      sprints = @client.Agile.get_sprints(jira_board.id)
+      Board.find(jira_board.id).update_column(:sprints, sprints)
+    rescue => e
+      p e
     end
   end
 

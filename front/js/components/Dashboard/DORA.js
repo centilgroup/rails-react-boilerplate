@@ -35,6 +35,9 @@ export default class DORA extends Component {
       defaultWorkflowStartState: '',
       workFlowStartStates: [],
       defaultDeployFrequency: 'week',
+      sprints: [],
+      snapTo: false,
+      defaultSprint: '',
     };
   }
 
@@ -49,12 +52,21 @@ export default class DORA extends Component {
       .then((response) => {
         const { data } = response;
         const workFlowStartStates = data.workflow_statuses.slice(0, -1);
+        let sprints = [];
+        let defaultSprint = '';
+
+        if (data.sprints && data.sprints.values.length > 0) {
+          sprints = data.sprints.values;
+          defaultSprint = sprints[0].id;
+        }
 
         this.setState({
           doraMetrics: data.dora_metrics,
           show: [null, true].includes(data.collapsable),
           defaultWorkflowStartState: workFlowStartStates[0],
           workFlowStartStates,
+          sprints,
+          defaultSprint,
         });
       })
       .catch(() => {})
@@ -84,10 +96,11 @@ export default class DORA extends Component {
   handleRangeSliderChange = (value) => {
     const { projectId } = this.props;
     const [min, max] = value;
+    const { snapTo, defaultSprint } = this.state;
 
     axios
       .get(
-        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}`,
+        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}&snap_to=${snapTo}&sprint=${defaultSprint}`,
       )
       .then((response) => {
         const { data } = response;
@@ -112,6 +125,48 @@ export default class DORA extends Component {
     this.setState({ defaultDeployFrequency: value });
   };
 
+  handleSnapToChange = (event) => {
+    const { checked } = event.target;
+    const { projectId } = this.props;
+    const { min, max, defaultSprint } = this.state;
+    this.setState({ snapTo: checked });
+
+    axios
+      .get(
+        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}&snap_to=${checked}&sprint=${defaultSprint}`,
+      )
+      .then((response) => {
+        const { data } = response;
+
+        this.setState({
+          doraMetrics: data.dora_metrics,
+        });
+      })
+      .catch(() => {})
+      .finally(() => {});
+  };
+
+  handleSprintToChange = (event) => {
+    const { value } = event.target;
+    const { projectId } = this.props;
+    const { min, max, snapTo } = this.state;
+
+    axios
+      .get(
+        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}&snap_to=${snapTo}&sprint=${value}`,
+      )
+      .then((response) => {
+        const { data } = response;
+
+        this.setState({
+          doraMetrics: data.dora_metrics,
+          defaultSprint: value,
+        });
+      })
+      .catch(() => {})
+      .finally(() => {});
+  };
+
   renderMinMaxIcon = (param) => {
     if (param) return <i className="fa fa-minus" />;
 
@@ -126,6 +181,9 @@ export default class DORA extends Component {
       defaultDeployFrequency,
       min,
       max,
+      sprints,
+      snapTo,
+      defaultSprint,
     } = this.state;
     let { workFlowStartStates } = this.state;
     const sectionStyle = { position: 'relative' };
@@ -175,6 +233,7 @@ export default class DORA extends Component {
     const averageLeadTimes = [];
     const deployFrequencies = [];
     const changeFails = [];
+    let displaySnapTo;
 
     labels.forEach((label, countIndex) => {
       doraMetrics.forEach((doraMetric) => {
@@ -256,6 +315,35 @@ export default class DORA extends Component {
         />
       );
     });
+
+    const displaySprints = sprints.map((sprint, idx) => {
+      let defaultChecked = false;
+      if (idx === 0) {
+        defaultChecked = true;
+      }
+
+      return (
+        <Form.Check
+          type="radio"
+          className="mb-2"
+          label={sprint.name}
+          value={sprint.id}
+          key={sprint.id}
+          name="sprints"
+          defaultChecked={defaultChecked}
+          onChange={this.handleSprintToChange}
+        />
+      );
+    });
+
+    if (snapTo) {
+      displaySnapTo = (
+        <div>
+          <p className="mb-1">Sprints</p>
+          {displaySprints}
+        </div>
+      );
+    }
 
     return (
       <Row className="pt-4">
@@ -352,6 +440,17 @@ export default class DORA extends Component {
                         <div>
                           <p className="mb-1">Display Deploy Frequency</p>
                           {displayDeployFreq}
+                        </div>
+                        <div>
+                          <Form.Check
+                            type="switch"
+                            id="snap_to"
+                            className="mb-2"
+                            label="Snap To"
+                            onChange={this.handleSnapToChange}
+                            style={{ zIndex: 0 }}
+                          />
+                          {displaySnapTo}
                         </div>
                       </Form>
                     </Col>
