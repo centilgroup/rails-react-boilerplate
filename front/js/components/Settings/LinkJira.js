@@ -51,8 +51,8 @@ export default class LinkJira extends Component {
   determineEnabled = () => {
     const { jira_url, jira_username, jira_password } = this.state;
     return (
-      jira_url.trim() === '' ||
-      jira_username.trim() === '' ||
+      // jira_url.trim() === '' ||
+      // jira_username.trim() === '' ||
       jira_password === ''
     );
   };
