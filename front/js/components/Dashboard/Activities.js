@@ -139,16 +139,19 @@ export default class Activities extends Component {
 
     const { histories } = selectedIssue[0].change_log;
     const IssueCreatedAt = selectedIssue[0].created;
-    const currentStatus = selectedIssue[0].status.name.toLowerCase();
+    const currentStatus = selectedIssue[0].status.name == null ? '' : selectedIssue[0].status.name.toLowerCase();
     const totalTime = moment().diff(
       moment(selectedIssue[0].created),
       'minutes',
     );
+
+    try {
     const statusChanges = histories.filter(
       (history) =>
         ['status', 'resolution'].includes(history.items[0].field) &&
         history.items[0].fieldtype === 'jira',
     );
+    
 
     if (statusChanges.length === 0) {
       if (leadStatus.includes(currentStatus)) {
@@ -230,7 +233,7 @@ export default class Activities extends Component {
         deploymentTime += totalTime;
       }
     }
-
+  } catch(e){}
     const percentage = (time) => Math.floor((time / totalTime) * 100);
 
     return (
