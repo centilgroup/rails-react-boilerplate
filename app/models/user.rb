@@ -11,5 +11,5 @@ class User < ApplicationRecord
   has_many :projects
   has_many :issues
 
-  validates :username, uniqueness: {case_sensitive: false}
+  validates :username, uniqueness: {case_sensitive: false}, allow_nil: true
 end
