@@ -181,24 +181,29 @@ class DashboardManager
       wip_pt_days = 0
       qa_pt_days = 0
       done_pt_days = 0
-      issue.status_transitions.each do |transition|
-        from = transition["from_string"].downcase
-        to = transition["to_string"].downcase
-        to_do_lt_days += transition["lead_time"] if to_do.include? from
-        wip_lt_days += transition["lead_time"] if wip.include? from
-        qa_lt_days += transition["lead_time"] if qa.include? from
-        done_lt_days += transition["lead_time"] if done.include? from
-        to_do_pt_days += transition["process_time"] if to_do.include? from
-        wip_pt_days += transition["process_time"] if wip.include? from
-        qa_pt_days += transition["process_time"] if qa.include? from
-        done_pt_days += transition["process_time"] if done.include? from
-        to_do_c += 1 if to_do.include?(from) && wip.include?(to)
-        to_do_a += 1 if (done + qa + wip).include?(from) && to_do.include?(to)
-        wip_c += 1 if wip.include?(from) && qa.include?(to)
-        wip_a += 1 if (done + qa).include?(from) && wip.include?(to)
-        qa_c += 1 if qa.include?(from) && done.include?(to)
-        qa_a += 1 if done.include?(from) && qa.include?(to)
+      begin
+        issue.status_transitions.each do |transition|
+          from = transition["from_string"].downcase
+          to = transition["to_string"].downcase
+          to_do_lt_days += transition["lead_time"] if to_do.include? from
+          wip_lt_days += transition["lead_time"] if wip.include? from
+          qa_lt_days += transition["lead_time"] if qa.include? from
+          done_lt_days += transition["lead_time"] if done.include? from
+          to_do_pt_days += transition["process_time"] if to_do.include? from
+          wip_pt_days += transition["process_time"] if wip.include? from
+          qa_pt_days += transition["process_time"] if qa.include? from
+          done_pt_days += transition["process_time"] if done.include? from
+          to_do_c += 1 if to_do.include?(from) && wip.include?(to)
+          to_do_a += 1 if (done + qa + wip).include?(from) && to_do.include?(to)
+          wip_c += 1 if wip.include?(from) && qa.include?(to)
+          wip_a += 1 if (done + qa).include?(from) && wip.include?(to)
+          qa_c += 1 if qa.include?(from) && done.include?(to)
+          qa_a += 1 if done.include?(from) && qa.include?(to)
+        end
+      
+      rescue
       end
+      
       to_do_lt << to_do_lt_days if to_do_lt_days.positive?
       wip_lt << wip_lt_days if wip_lt_days.positive?
       qa_lt << qa_lt_days if qa_lt_days.positive?

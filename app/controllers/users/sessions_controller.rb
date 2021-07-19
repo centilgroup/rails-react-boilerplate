@@ -125,18 +125,27 @@ class Users::SessionsController < Devise::SessionsController
       message = "Missing #{missing_keys.join(", ")}"
       raise ArgumentError, message
     end
-
+    
     issue = {
-      user_issue_id: "#{current_user.id}_#{row["issue_id"]}",
-      project_id: row["project_id"], status: JSON.parse(row["status"]),
-      user_id: current_user.id, issue_type: JSON.parse(row["issue_type"]),
-      key: row["issue_key"], change_log: JSON.parse(row["change_log"])
+    
+      user_issue_id:  "#{current_user.id}_#{row["issue_id"]}",
+      project_id:     row["project_id"], 
+      status:         JSON.parse(row["status"].to_json),
+      user_id:        current_user.id, 
+      issue_type:     JSON.parse(row["issue_type"].to_json),
+      key:            row["issue_key"], 
+      change_log:     row["change_log"].nil? ? '' : JSON.parse(row["change_log"].to_json)
+    
     }.merge(row.to_hash.slice("issue_id", "summary", "due_date", "created"))
+    # binding.pry
+    begin
+      issue = issue.merge(
+        time_to_close_in_days: time_to_close_in_days(issue),
+        status_transitions: status_transitions(issue)
+      )
+    rescue
 
-    issue = issue.merge(
-      time_to_close_in_days: time_to_close_in_days(issue),
-      status_transitions: status_transitions(issue)
-    )
+    end
 
     Issue.upsert(issue, unique_by: :user_issue_id)
   end
