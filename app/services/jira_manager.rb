@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "net/http"
+require "uri"
+
 class JiraManager
   def initialize(**params)
     required_keys = %i[username password site user_id]
@@ -18,7 +21,7 @@ class JiraManager
     }
 
     @user = User.where(id: params[:user_id]).first
-    
+
     @project =
       Project.where(project_id: params[:project_id], user_id: @user.id)
         .order(id: :asc).first
@@ -33,6 +36,9 @@ class JiraManager
     }
 
     @start_at = params[:start_at]
+    @username = params[:username]
+    @password = params[:password]
+    @site = params[:site]
   end
 
   def sync_projects
@@ -41,13 +47,13 @@ class JiraManager
 
 
 
-    
+
     jira_boards.each do |jira_board|
       config = jira_board.configuration
       next if config.try(:location).nil?
       p config
-      
-    
+
+
       board = {
         user_board_id: "#{@user.id}_#{config.id}",
         board_id: config.id, name: config.name,
@@ -58,12 +64,30 @@ class JiraManager
     end
 
     jira_projects.each do |jira_project|
+      uri = URI.parse("#{@site}rest/api/3/project/#{jira_project.id}/versions")
+      request = Net::HTTP::Get.new(uri)
+      request.basic_auth(@username, @password)
+      request["Accept"] = "application/json"
+
+      req_options = {
+        use_ssl: uri.scheme == "https"
+      }
+
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) { |http|
+        http.request(request)
+      }
+
+      versions = JSON.parse(response.body)
+
       project = {
         user_project_id: "#{@user.id}_#{jira_project.id}",
         project_id: jira_project.id, name: jira_project.name,
-        user_id: @user.id, key: jira_project.key
+        user_id: @user.id, key: jira_project.key, versions: versions
       }
+
       Project.upsert(project, unique_by: :user_project_id)
+    rescue => e
+      p e
     end
 
     jira_boards.each do |jira_board|
@@ -75,14 +99,14 @@ class JiraManager
   end
 
   def sync_issues
-    
+
     start_at = 0
     max_results = 150
     jira_projects = []
-    
+
     jira_projects << @client.Project.find('SPAC')
 
-    
+
     jira_projects.each do |jira_project|
 
       p "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
@@ -97,23 +121,23 @@ class JiraManager
           max_results: max_results,
           expand: "changelog"
         }
-        
-        
+
+
 
         jira_issues = @client.Issue.jql('PROJECT = "' + jira_project.name + '" ', query_options)
         puts "LOAD  #{jira_project.name}************************************"
-        
-        
-        break if jira_issues.length.zero?
-        
 
-      
+
+        break if jira_issues.length.zero?
+
+
+
 
         jira_issues.each do |jira_issue|
 
           puts "UPSERT!!! ************************************"
-          
-  
+
+
           status = {name: jira_issue.status.name, id: jira_issue.status.id}
           project = {
             user_issue_id: "#{@user.id}_#{jira_issue.id}",
@@ -127,15 +151,15 @@ class JiraManager
           }
           Issue.upsert(project, unique_by: :user_issue_id)
         end
-        
-      
-  
+
+
+
         start_at += max_results
       end
 
     end
 
-    
+
   end
 
   private

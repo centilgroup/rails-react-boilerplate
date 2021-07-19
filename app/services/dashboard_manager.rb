@@ -62,7 +62,7 @@ class DashboardManager
     [columns.uniq, max_limit, configurations, issue_types]
   end
 
-  def fetch_dora_metrics(min = 1, max = 30, snap_to = nil, sprint_id = "")
+  def fetch_dora_metrics(min = 1, max = 30, snap_to = nil, sprint_id = "", version_id = "")
     board = Board.where(project_id: @project.project_id, user_id: @user.id).first
     columns = []
     column_config = board.column_config.present? ? board.column_config : []
@@ -70,11 +70,19 @@ class DashboardManager
       columns << config["name"]
     end
     sprints = board.sprints
+    versions = @project.versions
     dora_metrics =
-      if snap_to == "true" && sprints["values"]&.length&.positive?
+      if snap_to == "true" && sprints.present? && sprints["values"]&.length&.positive?
         sprint = sprints["values"].find { |sprint| sprint["id"] == sprint_id.to_i }
         start_date = Date.parse sprint["startDate"]
         end_date = Date.parse sprint["endDate"]
+        board
+          .dora_metrics.where("created_at >= ? AND created_at <= ?", start_date, end_date)
+          .order(created_at: :desc).limit(max).offset(min - 1)
+      elsif snap_to == "true" && versions.present? && versions.length.positive?
+        version = versions.find { |version| version["id"] == version_id }
+        start_date = Date.parse version["startDate"]
+        end_date = Date.parse version["releaseDate"]
         board
           .dora_metrics.where("created_at >= ? AND created_at <= ?", start_date, end_date)
           .order(created_at: :desc).limit(max).offset(min - 1)
@@ -100,9 +108,9 @@ class DashboardManager
       elsif max_due_date.present?
         (max_due_date - current_date).to_i
       end
-    
+
     # binding.pry
-    average_time_to_close =  
+    average_time_to_close =
       if done_issues.length.positive?
         done_issues.pluck(:time_to_close_in_days).map(&:to_i).sum / done_issues.length
       end

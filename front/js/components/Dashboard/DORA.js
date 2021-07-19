@@ -36,8 +36,10 @@ export default class DORA extends Component {
       workFlowStartStates: [],
       defaultDeployFrequency: 'week',
       sprints: [],
+      versions: [],
       snapTo: false,
       defaultSprint: '',
+      defaultVersion: '',
     };
   }
 
@@ -53,11 +55,18 @@ export default class DORA extends Component {
         const { data } = response;
         const workFlowStartStates = data.workflow_statuses.slice(0, -1);
         let sprints = [];
+        let versions = [];
         let defaultSprint = '';
+        let defaultVersion = '';
 
         if (data.sprints && data.sprints.values.length > 0) {
           sprints = data.sprints.values;
           defaultSprint = sprints[0].id;
+        }
+
+        if (data.versions && data.versions.length > 0) {
+          versions = data.versions;
+          defaultVersion = versions[0].id;
         }
 
         this.setState({
@@ -66,7 +75,9 @@ export default class DORA extends Component {
           defaultWorkflowStartState: workFlowStartStates[0],
           workFlowStartStates,
           sprints,
+          versions,
           defaultSprint,
+          defaultVersion,
         });
       })
       .catch(() => {})
@@ -96,11 +107,11 @@ export default class DORA extends Component {
   handleRangeSliderChange = (value) => {
     const { projectId } = this.props;
     const [min, max] = value;
-    const { snapTo, defaultSprint } = this.state;
+    const { snapTo, defaultSprint, defaultVersion } = this.state;
 
     axios
       .get(
-        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}&snap_to=${snapTo}&sprint=${defaultSprint}`,
+        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}&snap_to=${snapTo}&sprint=${defaultSprint}&version=${defaultVersion}`,
       )
       .then((response) => {
         const { data } = response;
@@ -128,12 +139,12 @@ export default class DORA extends Component {
   handleSnapToChange = (event) => {
     const { checked } = event.target;
     const { projectId } = this.props;
-    const { min, max, defaultSprint } = this.state;
+    const { min, max, defaultSprint, defaultVersion } = this.state;
     this.setState({ snapTo: checked });
 
     axios
       .get(
-        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}&snap_to=${checked}&sprint=${defaultSprint}`,
+        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}&snap_to=${checked}&sprint=${defaultSprint}&version=${defaultVersion}`,
       )
       .then((response) => {
         const { data } = response;
@@ -149,11 +160,11 @@ export default class DORA extends Component {
   handleSprintToChange = (event) => {
     const { value } = event.target;
     const { projectId } = this.props;
-    const { min, max, snapTo } = this.state;
+    const { min, max, snapTo, defaultVersion } = this.state;
 
     axios
       .get(
-        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}&snap_to=${snapTo}&sprint=${value}`,
+        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}&snap_to=${snapTo}&sprint=${value}&version=${defaultVersion}`,
       )
       .then((response) => {
         const { data } = response;
@@ -161,6 +172,27 @@ export default class DORA extends Component {
         this.setState({
           doraMetrics: data.dora_metrics,
           defaultSprint: value,
+        });
+      })
+      .catch(() => {})
+      .finally(() => {});
+  };
+
+  handleVersionToChange = (event) => {
+    const { value } = event.target;
+    const { projectId } = this.props;
+    const { min, max, snapTo, defaultSprint } = this.state;
+
+    axios
+      .get(
+        `/dashboard/dora_metrics.json?project_id=${projectId}&min=${min}&max=${max}&snap_to=${snapTo}&sprint=${defaultSprint}&version=${value}`,
+      )
+      .then((response) => {
+        const { data } = response;
+
+        this.setState({
+          doraMetrics: data.dora_metrics,
+          defaultVersion: value,
         });
       })
       .catch(() => {})
@@ -182,8 +214,8 @@ export default class DORA extends Component {
       min,
       max,
       sprints,
+      versions,
       snapTo,
-      defaultSprint,
     } = this.state;
     let { workFlowStartStates } = this.state;
     const sectionStyle = { position: 'relative' };
@@ -336,11 +368,33 @@ export default class DORA extends Component {
       );
     });
 
+    const displayVersions = versions.map((version, idx) => {
+      let defaultChecked = false;
+      if (idx === 0) {
+        defaultChecked = true;
+      }
+
+      return (
+        <Form.Check
+          type="radio"
+          className="mb-2"
+          label={version.name}
+          value={version.id}
+          key={version.id}
+          name="versions"
+          defaultChecked={defaultChecked}
+          onChange={this.handleVersionToChange}
+        />
+      );
+    });
+
     if (snapTo) {
       displaySnapTo = (
         <div>
           <p className="mb-1">Sprints</p>
           {displaySprints}
+          <p className="mb-1">Versions</p>
+          {displayVersions}
         </div>
       );
     }

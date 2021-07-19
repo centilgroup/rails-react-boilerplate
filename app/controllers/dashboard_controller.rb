@@ -36,11 +36,12 @@ class DashboardController < ApplicationController
 
   def dora_metrics
     @columns, @dora_metrics, @sprints =
-      if params[:min].present? && params[:max].present? && params[:snap_to].present? && params[:sprint].present?
-        @manager.fetch_dora_metrics(params[:min].to_i, params[:max].to_i, params[:snap_to], params[:sprint])
+      if filters_applied?
+        @manager.fetch_dora_metrics(params[:min].to_i, params[:max].to_i, params[:snap_to], params[:sprint], params[:version])
       else
         @manager.fetch_dora_metrics
       end
+    @versions = current_user.projects.where(project_id: params[:project_id]).first.versions
   end
 
   def projects_vpi
@@ -62,6 +63,10 @@ class DashboardController < ApplicationController
   end
 
   private
+
+  def filters_applied?
+    params[:min].present? && params[:max].present? && params[:snap_to].present? && (params[:sprint].present? || params[:version].present?)
+  end
 
   def init_manager
     @projects = Project.where(user_id: current_user.id).order(id: :asc)
